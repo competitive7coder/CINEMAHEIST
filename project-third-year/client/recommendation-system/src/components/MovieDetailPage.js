@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+// import axios from "axios"; // --- 1. REMOVED
+import api from "../api"; // --- 1. ADDED
 import { toast } from "react-toastify";
 import LoadingSpinner from "./LoadingSpinner";
 import VideoModal from "./VideoModal";
@@ -245,7 +246,7 @@ const MovieDetailPage = () => {
   const [visibleRelatedCount, setVisibleRelatedCount] =
     useState(MOVIES_PER_PAGE);
 
-  const API_BASE_URL = "http://localhost:5000/api";
+  // const API_BASE_URL = "http://localhost:5000/api"; // --- 2. REMOVED
 
   // Fetch Movie Data Effect
   useEffect(() => {
@@ -255,8 +256,10 @@ const MovieDetailPage = () => {
       try {
         // Fetch details (including videos/credits/providers) and recommendations
         const [detailsRes, recRes] = await Promise.all([
-          axios.get(`${API_BASE_URL}/movies/details/${movieId}`), // Assuming backend adds providers
-          axios.get(`${API_BASE_URL}/movies/recommendations/${movieId}`),
+          // axios.get(`${API_BASE_URL}/movies/details/${movieId}`), // --- 3. OLD
+          // axios.get(`${API_BASE_URL}/movies/recommendations/${movieId}`), // --- 3. OLD
+          api.get(`/movies/details/${movieId}`), // --- 3. FIXED
+          api.get(`/movies/recommendations/${movieId}`), // --- 3. FIXED
         ]);
         setMovie(detailsRes.data);
         setRelatedMovies(recRes.data);
@@ -309,9 +312,10 @@ const MovieDetailPage = () => {
       return;
     }
     try {
-      const res = await axios.get(
-        `${API_BASE_URL}/movies/${relatedMovieId}/videos`
-      );
+      // const res = await axios.get( // --- 4. OLD
+      //   `${API_BASE_URL}/movies/${relatedMovieId}/videos`
+      // );
+      const res = await api.get(`/movies/${relatedMovieId}/videos`); // --- 4. FIXED
       const trailer = res.data?.results?.find(
         (vid) => vid.type === "Trailer" && vid.site === "YouTube"
       );
@@ -348,11 +352,12 @@ const MovieDetailPage = () => {
     }
     try {
       // Use movieToAdd.id
-      const res = await axios.post(
-        `${API_BASE_URL}/users/watchlist/${movieToAdd.id}`,
-        {},
-        { headers: { "x-auth-token": token } }
-      );
+      // const res = await axios.post( // --- 5. OLD
+      //   `${API_BASE_URL}/users/watchlist/${movieToAdd.id}`,
+      //   {},
+      //   { headers: { "x-auth-token": token } }
+      // );
+      const res = await api.post(`/users/watchlist/${movieToAdd.id}`, {}); // --- 5. FIXED (token added by api.js)
       toast.success(res.data.msg);
     } catch (err) {
       console.error("Error adding to watchlist:", err);

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+// import axios from 'axios'; // --- 1. REMOVED
+import api from '../api'; // --- 1. ADDED
 import MovieCard from './MovieCard';
 import VideoModal from './VideoModal';
 import { toast } from 'react-toastify';
@@ -22,7 +23,7 @@ const SearchPage = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [loadingMore, setLoadingMore] = useState(false);
 
-    const API_BASE_URL = 'http://localhost:5000/api';
+    // const API_BASE_URL = 'http://localhost:5000/api'; // --- 2. REMOVED
 
     // Memoized fetch function for search results
     const fetchSearchResults = useCallback(async (page = 1, loadMore = false) => {
@@ -37,7 +38,8 @@ const SearchPage = () => {
         try {
             const params = { query, page };
             if (filterYear) params.year = filterYear; // Add year filter if selected
-            const res = await axios.get(`${API_BASE_URL}/movies/search`, { params });
+            // const res = await axios.get(`${API_BASE_URL}/movies/search`, { params }); // --- 3. OLD
+            const res = await api.get(`/movies/search`, { params }); // --- 3. FIXED
             setSearchResults(prev => loadMore ? [...prev, ...res.data.results] : res.data.results);
             setTotalPages(res.data.totalPages); // Get total pages from the backend response
         } catch (err) {
@@ -80,7 +82,8 @@ const SearchPage = () => {
         const token = localStorage.getItem('token');
         if (!token) return;
         try {
-            await axios.post(`${API_BASE_URL}/activity/log`, { movieId, actionType }, { headers: { 'x-auth-token': token } });
+            // await axios.post(`${API_BASE_URL}/activity/log`, { movieId, actionType }, { headers: { 'x-auth-token': token } }); // --- 4. OLD
+            await api.post(`/activity/log`, { movieId, actionType }); // --- 4. FIXED
         } catch (err) {
             console.error('Failed to log activity:', err);
         }
@@ -89,7 +92,8 @@ const SearchPage = () => {
     const handleWatchTrailerClick = async (movieId) => {
         logActivity(movieId, 'trailer_watch');
         try {
-            const res = await axios.get(`${API_BASE_URL}/movies/${movieId}/videos`);
+            // const res = await axios.get(`${API_BASE_URL}/movies/${movieId}/videos`); // --- 5. OLD
+            const res = await api.get(`/movies/${movieId}/videos`); // --- 5. FIXED
             setVideoKey(res.data?.key || null);
         } catch (err) {
             console.error('Error fetching trailer:', err);
@@ -105,7 +109,8 @@ const SearchPage = () => {
         if (!token) { toast.error('Please log in to add to your watchlist.'); return; }
         try {
             // Use movie.id for the API call
-            const res = await axios.post(`${API_BASE_URL}/users/watchlist/${movie.id}`, {}, { headers: { 'x-auth-token': token } });
+            // const res = await axios.post(`${API_BASE_URL}/users/watchlist/${movie.id}`, {}, { headers: { 'x-auth-token': token } }); // --- 6. OLD
+            const res = await api.post(`/users/watchlist/${movie.id}`, {}); // --- 6. FIXED
             toast.success(res.data.msg);
             
             // Use movie.id for logging

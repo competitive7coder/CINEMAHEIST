@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+// import axios from "axios"; // --- 1. REMOVED
+import api from "../api"; // --- 1. ADDED
 import MovieCard from "./MovieCard";
 import VideoModal from "./VideoModal";
 import { toast } from "react-toastify";
@@ -37,7 +38,7 @@ const GenrePage = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
 
-  const API_BASE_URL = "http://localhost:5000/api";
+  // const API_BASE_URL = "http://localhost:5000/api"; // --- 2. REMOVED
 
   const fetchMoviesByGenre = useCallback(
     async (page = 1, loadMore = false) => {
@@ -50,16 +51,17 @@ const GenrePage = () => {
         let url;
         const params = { page };
 
-        if (genreId === "popular") url = `${API_BASE_URL}/movies/popular`;
+        if (genreId === "popular") url = `/movies/popular`; // --- 3. FIXED
         else if (genreId === "new-releases")
-          url = `${API_BASE_URL}/movies/now-playing`;
+          url = `/movies/now-playing`; // --- 3. FIXED
         else {
-          url = `${API_BASE_URL}/movies/genre/${genreId}`;
+          url = `/movies/genre/${genreId}`; // --- 3. FIXED
           params.sort_by = sortBy;
           if (filterYear) params.year = filterYear;
         }
 
-        const res = await axios.get(url, { params });
+        // const res = await axios.get(url, { params }); // --- 3. OLD
+        const res = await api.get(url, { params }); // --- 3. FIXED
         const newResults = Array.isArray(res.data)
           ? res.data
           : Array.isArray(res.data?.results)
@@ -96,7 +98,8 @@ const GenrePage = () => {
 
   const handleWatchTrailerClick = async (movieId) => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/movies/${movieId}/videos`);
+      // const res = await axios.get(`${API_BASE_URL}/movies/${movieId}/videos`); // --- 4. OLD
+      const res = await api.get(`/movies/${movieId}/videos`); // --- 4. FIXED
       const trailer = res.data?.results?.find(
         (vid) => vid.type === "Trailer" && vid.site === "YouTube"
       );
@@ -120,11 +123,12 @@ const GenrePage = () => {
       return;
     }
     try {
-      const res = await axios.post(
-        `${API_BASE_URL}/users/watchlist/${movie.id}`,
-        {},
-        { headers: { "x-auth-token": token } }
-      );
+      // const res = await axios.post( // --- 5. OLD
+      //   `${API_BASE_URL}/users/watchlist/${movie.id}`,
+      //   {},
+      //   { headers: { "x-auth-token": token } }
+      // );
+      const res = await api.post(`/users/watchlist/${movie.id}`, {}); // --- 5. FIXED
       toast.success(res.data.msg);
     } catch (err) {
       console.error("Error adding to watchlist:", err);

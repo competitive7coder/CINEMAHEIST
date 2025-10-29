@@ -1,4 +1,3 @@
-// src/api.js
 import axios from 'axios';
 
 // 1. Get the API URL from the environment variable
@@ -9,14 +8,17 @@ const api = axios.create({
   baseURL: API_URL
 });
 
-// 3. (Optional but recommended)
-// This will automatically add the user's login token to every request
+// 3. This interceptor now adds the CORRECT 'x-auth-token' header
 api.interceptors.request.use(config => {
   const token = localStorage.getItem('token'); // or wherever you store it
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    // --- THIS IS THE FIX ---
+    // Instead of 'Authorization', we use 'x-auth-token'
+    // which is what your server is expecting.
+    config.headers['x-auth-token'] = token;
   }
   return config;
 });
 
 export default api;
+

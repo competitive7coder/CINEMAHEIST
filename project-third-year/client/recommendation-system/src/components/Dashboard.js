@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+// import axios from "axios"; // --- 1. REMOVED
+import api from "../api"; // --- 1. ADDED
 import MovieCard from "./MovieCard";
 import VideoModal from "./VideoModal";
 import { toast } from "react-toastify";
@@ -37,7 +38,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
   // This state toggles the view in the recommendations tab
   const [showAllRecommendations, setShowAllRecommendations] = useState(false);
 
-  const API_BASE_URL = "http://localhost:5000/api";
+  // const API_BASE_URL = "http://localhost:5000/api"; // --- 2. REMOVED
 
   // --- Activity & History Functions ---
 
@@ -45,11 +46,12 @@ const Dashboard = ({ setIsLoggedIn }) => {
     const token = localStorage.getItem("token");
     if (!token) return;
     try {
-      await axios.post(
-        `${API_BASE_URL}/activity/log`,
-        { movieId, actionType },
-        { headers: { "x-auth-token": token } }
-      );
+      // await axios.post( // --- 3. OLD
+      //   `${API_BASE_URL}/activity/log`,
+      //   { movieId, actionType },
+      //   { headers: { "x-auth-token": token } }
+      // );
+      await api.post(`/activity/log`, { movieId, actionType }); // --- 3. FIXED
     } catch (err) {
       console.error("Failed to log activity:", err);
     }
@@ -63,9 +65,10 @@ const Dashboard = ({ setIsLoggedIn }) => {
     }
     setHistoryLoading(true); // Always set loading when fetching
     try {
-      const res = await axios.get(`${API_BASE_URL}/activity/history`, {
-        headers: { "x-auth-token": token },
-      });
+      // const res = await axios.get(`${API_BASE_URL}/activity/history`, { // --- 4. OLD
+      //   headers: { "x-auth-token": token },
+      // });
+      const res = await api.get(`/activity/history`); // --- 4. FIXED
       setHistory(res.data);
     } catch (err) {
       console.error("Error fetching history:", err);
@@ -82,10 +85,12 @@ const Dashboard = ({ setIsLoggedIn }) => {
       )
     ) {
       const token = localStorage.getItem("token");
+      if (!token) return; // Added check just in case
       try {
-        const res = await axios.delete(`${API_BASE_URL}/activity/history`, {
-          headers: { "x-auth-token": token },
-        });
+        // const res = await axios.delete(`${API_BASE_URL}/activity/history`, { // --- 5. OLD
+        //   headers: { "x-auth-token": token },
+        // });
+        const res = await api.delete(`/activity/history`); // --- 5. FIXED
         toast.info(res.data.msg);
         setHistory([]); // Clear the history from the UI instantly
       } catch (err) {
@@ -106,12 +111,14 @@ const Dashboard = ({ setIsLoggedIn }) => {
       try {
         // Fetch user info and watchlist IDs concurrently
         const [userRes, watchlistIdsRes] = await Promise.all([
-          axios.get(`${API_BASE_URL}/auth/user`, {
-            headers: { "x-auth-token": token },
-          }),
-          axios.get(`${API_BASE_URL}/users/watchlist`, {
-            headers: { "x-auth-token": token },
-          }),
+          // axios.get(`${API_BASE_URL}/auth/user`, { // --- 6. OLD
+          //   headers: { "x-auth-token": token },
+          // }),
+          // axios.get(`${API_BASE_URL}/users/watchlist`, { // --- 6. OLD
+          //   headers: { "x-auth-token": token },
+          // }),
+          api.get(`/auth/user`), // --- 6. FIXED
+          api.get(`/users/watchlist`), // --- 6. FIXED
         ]);
 
         // Update user profile state
@@ -122,7 +129,8 @@ const Dashboard = ({ setIsLoggedIn }) => {
         // If watchlist has movies, fetch their details and recommendations
         if (watchlistIdsRes.data?.length > 0) {
           const movieDetailPromises = watchlistIdsRes.data.map((id) =>
-            axios.get(`${API_BASE_URL}/movies/details/${id}`)
+            // axios.get(`${API_BASE_URL}/movies/details/${id}`) // --- 7. OLD
+            api.get(`/movies/details/${id}`) // --- 7. FIXED
           );
           const movieDetailResponses = await Promise.all(movieDetailPromises);
           const movies = movieDetailResponses.map((res) => res.data);
@@ -133,9 +141,10 @@ const Dashboard = ({ setIsLoggedIn }) => {
             const randomMovie =
               movies[Math.floor(Math.random() * movies.length)];
             setRecSourceMovie(randomMovie);
-            const recRes = await axios.get(
-              `${API_BASE_URL}/movies/recommendations/${randomMovie.id}`
-            );
+            // const recRes = await axios.get( // --- 8. OLD
+            //   `${API_BASE_URL}/movies/recommendations/${randomMovie.id}`
+            // );
+            const recRes = await api.get(`/movies/recommendations/${randomMovie.id}`); // --- 8. FIXED
             setRecommendations(recRes.data);
           }
         } else {
@@ -173,8 +182,9 @@ const Dashboard = ({ setIsLoggedIn }) => {
 
   const handleWatchTrailerClick = async (movieId) => {
     try {
-      await logActivity(movieId, "trailer_watch"); // <-- FIXED: Added await
-      const res = await axios.get(`${API_BASE_URL}/movies/${movieId}/videos`);
+      await logActivity(movieId, "trailer_watch"); // Log first
+      // const res = await axios.get(`${API_BASE_URL}/movies/${movieId}/videos`); // --- 9. OLD
+      const res = await api.get(`/movies/${movieId}/videos`); // --- 9. FIXED
       setCurrentVideoKey(res.data?.key || null);
       setShowVideoModal(true);
       fetchHistory(); // This will now run AFTER the log is saved
@@ -193,16 +203,17 @@ const Dashboard = ({ setIsLoggedIn }) => {
       return;
     }
     try {
-      const res = await axios.post(
-        `${API_BASE_URL}/users/watchlist/${movie.id}`,
-        {},
-        { headers: { "x-auth-token": token } }
-      );
+      // const res = await axios.post( // --- 10. OLD
+      //   `${API_BASE_URL}/users/watchlist/${movie.id}`,
+      //   {},
+      //   { headers: { "x-auth-token": token } }
+      // );
+      const res = await api.post(`/users/watchlist/${movie.id}`, {}); // --- 10. FIXED
       toast.success(res.data.msg);
 
       if (res.data.msg && res.data.msg.includes("added")) {
         setWatchlistMovies((prevMovies) => [movie, ...prevMovies]);
-        await logActivity(movie.id, "watchlist_add"); // <-- FIXED: Added await
+        await logActivity(movie.id, "watchlist_add"); // Log after success
         fetchHistory(); // This will now run AFTER the log is saved
       }
     } catch (err) {
@@ -212,12 +223,14 @@ const Dashboard = ({ setIsLoggedIn }) => {
 
   const handleRemoveFromWatchlist = async (movie) => {
     const token = localStorage.getItem("token");
+    if (!token) return; // Added check
     try {
-      await axios.post(
-        `${API_BASE_URL}/users/watchlist/${movie.id}`,
-        {},
-        { headers: { "x-auth-token": token } }
-      );
+      // await axios.post( // --- 11. OLD
+      //   `${API_BASE_URL}/users/watchlist/${movie.id}`,
+      //   {},
+      //   { headers: { "x-auth-token": token } }
+      // );
+      await api.post(`/users/watchlist/${movie.id}`, {}); // --- 11. FIXED
       setWatchlistMovies((prevMovies) =>
         prevMovies.filter((m) => m.id !== movie.id)
       ); // Update UI instantly
@@ -249,10 +262,11 @@ const Dashboard = ({ setIsLoggedIn }) => {
       {/* Header section with profile picture, name, and bio */}
       <div className="d-flex align-items-center mb-3 border-bottom pb-3">
         <img
-          src={userProfilePicture || "https://via.placeholder.com/80?text=User"} // Placeholder image
+          src={userProfilePicture || "https://placehold.co/80x80/212529/dee2e6?text=User"} // Better Placeholder
           alt="Profile"
           className="rounded-circle me-3"
           style={{ width: "80px", height: "80px", objectFit: "cover" }}
+          onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/80x80/212529/dee2e6?text=Err"}} // Fallback for image error
         />
         <div>
           <h1 className="h2 mb-0">Welcome, {userName || "User"}!</h1>
@@ -341,7 +355,6 @@ const Dashboard = ({ setIsLoggedIn }) => {
                     gridTemplateColumns:
                       "repeat(auto-fill, minmax(220px, 1fr))",
                     gap: "1.5rem",
-                    // justifyItems: "center",
                     alignItems: "start",
                     width: "100%",
                     margin: "0 auto",
@@ -370,8 +383,8 @@ const Dashboard = ({ setIsLoggedIn }) => {
                       <MovieCard
                         movie={movie}
                         onWatchTrailerClick={handleWatchTrailerClick}
-                        onWatchlistClick={handleRemoveFromWatchlist}
-                        isOnWatchlistPage={true}
+                        onWatchlistClick={handleRemoveFromWatchlist} // Pass remove handler here
+                        isOnWatchlistPage={true} // Indicate it's the watchlist page
                       />
                     </div>
                   ))}
@@ -452,7 +465,6 @@ const Dashboard = ({ setIsLoggedIn }) => {
               display: "grid",
               gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
               gap: "1.5rem",
-            //   justifyItems: "center",
               alignItems: "start",
               width: "100%",
               margin: "0 auto",
@@ -492,7 +504,6 @@ const Dashboard = ({ setIsLoggedIn }) => {
     )}
   </div>
 )}
-
           {/* --- END OF UPDATED SECTION --- */}
 
           {/* Viewing History Tab Content (PASSING PROPS) */}

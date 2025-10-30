@@ -437,6 +437,8 @@ const Dashboard = ({ setIsLoggedIn }) => {
 
         {/* Tab Content Area */}
         <div className="col-md-9">
+          
+          {/* =================== UI FIX START =================== */}
           {/* Watchlist Tab Content */}
           {activeTab === "watchlist" && (
             <div style={{ width: "100%", textAlign: "center" }}>
@@ -454,25 +456,28 @@ const Dashboard = ({ setIsLoggedIn }) => {
                 <div
                    style={{
                       display: "grid",
-                      // Adjusted grid columns for better responsiveness
-                      gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", // Smaller min size
-                      gap: "1rem", // Slightly smaller gap
+                      // Give cards more space to prevent overlap
+                      gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", 
+                      gap: "1.5rem", // Add a larger gap
                       alignItems: "start",
                       width: "100%",
                       margin: "0 auto",
-                      // padding: "0 1rem", // Removed padding, handled by container
+                      padding: "0 1rem", // Add some horizontal padding
                    }}
                 >
                   {watchlistMovies.map((movie) => (
-                    // Removed extra div wrapper, MovieCard should handle its own layout within the grid cell
-                     <MovieCard
-                         key={movie.id} // Key directly on MovieCard
+                    // Wrap card in a div to center it in the grid cell
+                    <div 
+                      key={movie.id} 
+                      style={{ display: "flex", justifyContent: "center" }}
+                    >
+                      <MovieCard
                          movie={movie}
                          onWatchTrailerClick={handleWatchTrailerClick}
                          onWatchlistClick={handleRemoveFromWatchlist} // Pass remove handler here
                          isOnWatchlistPage={true} // Indicate it's the watchlist page
-                         // Removed hover styles, should be handled within MovieCard or via CSS class
                       />
+                    </div>
                   ))}
                 </div>
               ) : (
@@ -482,6 +487,8 @@ const Dashboard = ({ setIsLoggedIn }) => {
               )}
             </div>
           )}
+          {/* =================== UI FIX END =================== */}
+
 
           {/* --- UPDATED Recommendations Tab Content --- */}
          {activeTab === 'recommendations' && (

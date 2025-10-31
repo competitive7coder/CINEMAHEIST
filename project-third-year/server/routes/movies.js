@@ -3,6 +3,12 @@ const axios = require('axios');
 const router = express.Router();
 const NodeCache = require('node-cache'); // Using cache
 
+// --- ADDED ---
+// TODO: Make sure these paths are correct for your project!
+const authMiddleware = require('../middleware/auth'); // Or '../middleware/authMiddleware' etc.
+const User = require('../models/User'); // Or '../models/User.js' etc.
+// --- END ADDED ---
+
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 const API_KEY = process.env.TMDB_API_KEY;
 
@@ -43,6 +49,83 @@ const fetchFromTMDb = async (urlPath, params = {}, cacheKey = null) => {
         }
     }
 };
+
+// --- ADDED ---
+// New helper function to get movie details for a list of IDs
+// This uses your existing fetchFromTMDb function so it gets caching for free!
+async function getMovieDetailsFromIds(ids) {
+    // Create an array of promises, one for each movie ID
+    const moviePromises = ids.map(id =>
+        // We fetch full details just like your /details/:movieId route
+        // Note: Using append_to_response to get videos, credits, etc.
+        fetchFromTMDb(`/movie/${id}`, { append_to_response: 'videos,credits,watch/providers' })
+    );
+    
+    // Wait for all promises to resolve
+    // Promise.allSettled is safer as it won't fail if one movie ID is bad
+    const results = await Promise.allSettled(moviePromises);
+    
+    // Filter out any failed requests and return the good data
+    const movies = results
+        .filter(result => result.status === 'fulfilled')
+        .map(result => result.value);
+        
+    return movies; // Returns an array of full movie objects
+}
+// --- END ADDED ---
+
+
+// --- ADDED ---
+// New "Recommended For You" route that calls the Python ML service
+router.get("/recommendations/user", authMiddleware, async (req, res) => {
+    try {
+      // 1. Get the user's ID from your auth middleware
+      const userId = req.user.id; // Make sure 'req.user.id' is correct
+  
+      // 2. Get the user's full watchlist from your database (e.g., MongoDB)
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ msg: "User not found" });
+      }
+      
+      const watchlist_ids = user.watchlist; // Assumes your model stores IDs in 'watchlist'
+  
+      if (!watchlist_ids || watchlist_ids.length === 0) {
+        // If watchlist is empty, just return an empty array
+        return res.json([]); 
+      }
+  
+      // 3. Call your Python ML Service (running on port 5001)
+      console.log("Calling ML service with watchlist:", watchlist_ids);
+      const mlResponse = await axios.post("http://localhost:5001/recommend", {
+        watchlist_ids: watchlist_ids, // Send the list as JSON
+      });
+  
+      // 4. Get the list of IDs back from Python
+      const recommendedMovieIds = mlResponse.data.recommendations;
+      console.log("Received recommendations from ML service:", recommendedMovieIds);
+  
+      if (!recommendedMovieIds || recommendedMovieIds.length === 0) {
+        return res.json([]); // If Python returns no recs, send an empty array
+      }
+  
+      // 5. Get full movie details for those IDs using our new helper
+      const movieDetails = await getMovieDetailsFromIds(recommendedMovieIds); 
+      
+      // 6. Send the full movie objects back to React
+      res.json(movieDetails);
+  
+    } catch (err) {
+      console.error("Error in /recommendations/user route:", err.message);
+      // Pass on errors from the Python service if they exist
+      if (err.response && err.response.data) {
+          return res.status(500).json({ msg: "ML Service Error", detail: err.response.data });
+      }
+      res.status(500).send("Server Error");
+    }
+  });
+// --- END ADDED ---
+
 
 // Route for homepage sections (no pagination needed here)
 router.get('/homepage-sections', async (req, res) => {

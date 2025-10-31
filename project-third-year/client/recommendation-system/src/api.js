@@ -12,9 +12,7 @@ const api = axios.create({
 api.interceptors.request.use(config => {
   const token = localStorage.getItem('token'); // or wherever you store it
   if (token) {
-    // --- THIS IS THE FIX ---
     // Instead of 'Authorization', we use 'x-auth-token'
-    // which is what your server is expecting.
     config.headers['x-auth-token'] = token;
   }
   return config;

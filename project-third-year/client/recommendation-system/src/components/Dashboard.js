@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-// import axios from "axios"; // --- 1. REMOVED
-import api from "../api"; // --- 1. ADDED
+import api from "../api";
 import MovieCard from "./MovieCard";
 import VideoModal from "./VideoModal";
 import { toast } from "react-toastify";
@@ -38,20 +37,13 @@ const Dashboard = ({ setIsLoggedIn }) => {
   // This state toggles the view in the recommendations tab
   const [showAllRecommendations, setShowAllRecommendations] = useState(false);
 
-  // const API_BASE_URL = "http://localhost:5000/api"; // --- 2. REMOVED
-
   // --- Activity & History Functions ---
 
   const logActivity = useCallback(async (movieId, actionType) => {
     const token = localStorage.getItem("token");
     if (!token) return;
     try {
-      // await axios.post( // --- 3. OLD
-      //   `${API_BASE_URL}/activity/log`,
-      //   { movieId, actionType },
-      //   { headers: { "x-auth-token": token } }
-      // );
-      await api.post(`/activity/log`, { movieId, actionType }); // --- 3. FIXED
+      await api.post(`/activity/log`, { movieId, actionType });
     } catch (err) {
       console.error("Failed to log activity:", err);
     }
@@ -65,10 +57,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
     }
     setHistoryLoading(true); // Always set loading when fetching
     try {
-      // const res = await axios.get(`${API_BASE_URL}/activity/history`, { // --- 4. OLD
-      //   headers: { "x-auth-token": token },
-      // });
-      const res = await api.get(`/activity/history`); // --- 4. FIXED
+      const res = await api.get(`/activity/history`);
       setHistory(res.data);
     } catch (err) {
       console.error("Error fetching history:", err);
@@ -91,10 +80,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
     const token = localStorage.getItem("token");
     if (!token) return; // Added check just in case
     try {
-      // const res = await axios.delete(`${API_BASE_URL}/activity/history`, { // --- 5. OLD
-      //   headers: { "x-auth-token": token },
-      // });
-      const res = await api.delete(`/activity/history`); // --- 5. FIXED
+      const res = await api.delete(`/activity/history`);
       toast.info(res.data.msg);
       setHistory([]); // Clear the history from the UI instantly
     } catch (err) {
@@ -125,14 +111,8 @@ const Dashboard = ({ setIsLoggedIn }) => {
       try {
         // Fetch user info and watchlist IDs concurrently
         const [userRes, watchlistIdsRes] = await Promise.all([
-          // axios.get(`${API_BASE_URL}/auth/user`, { // --- 6. OLD
-          //   headers: { "x-auth-token": token },
-          // }),
-          // axios.get(`${API_BASE_URL}/users/watchlist`, { // --- 6. OLD
-          //   headers: { "x-auth-token": token },
-          // }),
-          api.get(`/auth/user`), // --- 6. FIXED
-          api.get(`/users/watchlist`), // --- 6. FIXED
+          api.get(`/auth/user`),
+          api.get(`/users/watchlist`),
         ]);
 
         // Update user profile state
@@ -144,8 +124,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
         const watchlistIds = watchlistIdsRes.data || []; // Ensure it's an array
         if (watchlistIds.length > 0) {
           const movieDetailPromises = watchlistIds.map((id) =>
-            // axios.get(`${API_BASE_URL}/movies/details/${id}`) // --- 7. OLD
-            api.get(`/movies/details/${id}`) // --- 7. FIXED
+            api.get(`/movies/details/${id}`)
           );
           // Use Promise.allSettled to handle potential errors fetching individual movies
           const movieDetailResults = await Promise.allSettled(movieDetailPromises);
@@ -155,20 +134,21 @@ const Dashboard = ({ setIsLoggedIn }) => {
 
           setWatchlistMovies(movies);
 
+          // --- THIS IS THE "BECAUSE YOU LIKE" LOGIC ---
           // Fetch recommendations based on a random movie from the watchlist
           if (movies.length > 0) {
             const randomMovie =
               movies[Math.floor(Math.random() * movies.length)];
             setRecSourceMovie(randomMovie);
-            // const recRes = await axios.get( // --- 8. OLD
-            //   `${API_BASE_URL}/movies/recommendations/${randomMovie.id}`
-            // );
-            const recRes = await api.get(`/movies/recommendations/${randomMovie.id}`); // --- 8. FIXED
+            // This calls the standard TMDB recommendations, not your ML server
+            const recRes = await api.get(`/movies/recommendations/${randomMovie.id}`);
             setRecommendations(recRes.data);
           } else {
              setRecommendations([]); // Clear recommendations if no movies loaded
              setRecSourceMovie(null);
           }
+          // --- END "BECAUSE YOU LIKE" LOGIC ---
+
         } else {
           setWatchlistMovies([]); // Ensure watchlist is empty if no IDs found
           setRecommendations([]); // Clear recommendations if watchlist is empty
@@ -193,7 +173,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
            setWatchlistMovies([]);
            setRecommendations([]);
            setRecSourceMovie(null);
-           setHistory([]); // Clear history if initial load fails badly
+           setHistory([]); // Clear history if initial load fails
         }
         // --- END OF MODIFIED CATCH BLOCK ---
       } finally {
@@ -229,19 +209,18 @@ const Dashboard = ({ setIsLoggedIn }) => {
          return;
       }
       await logActivity(movieId, "trailer_watch"); // Log first
-      // const res = await axios.get(`${API_BASE_URL}/movies/${movieId}/videos`); // --- 9. OLD
-      const res = await api.get(`/movies/${movieId}/videos`); // --- 9. FIXED
-      // Find trailer specifically, fallback to any YouTube video
-      const trailer = res.data?.results?.find(vid => vid.type === 'Trailer' && vid.site === 'YouTube');
-      const fallbackVideo = res.data?.results?.find(vid => vid.site === 'YouTube');
-      const keyToUse = trailer?.key || fallbackVideo?.key || null; // Use specific key finding logic
+      // This calls your backend: router.get('/:movieId/videos', ...)
+      const res = await api.get(`/movies/${movieId}/videos`); 
+      
+      // Your backend already finds the trailer, so res.data is the trailer object
+      const trailer = res.data; 
 
-      setCurrentVideoKey(keyToUse);
-      setShowVideoModal(true);
-      if (keyToUse) { // Only fetch history if a video was actually shown
-          fetchHistory(); // This will now run AFTER the log is saved and modal shown
+      if (trailer && trailer.key) {
+        setCurrentVideoKey(trailer.key); // <-- Set the key
+        setShowVideoModal(true); // <-- Show the modal
+        fetchHistory(); // This will now run AFTER the log is saved and modal shown
       } else {
-          toast.info("No trailer available for this movie."); // Inform if no key found
+        toast.info("No trailer available for this movie."); // Inform if no key found
       }
     } catch (err) {
       console.error("Error fetching trailer:", err);
@@ -254,11 +233,14 @@ const Dashboard = ({ setIsLoggedIn }) => {
           toast.error(err.response?.data?.msg || "Could not load trailer.");
        }
       setCurrentVideoKey(null); // Ensure key is null on error
-      // setShowVideoModal(true); // Optionally show modal with error/no video message handled inside
     }
   };
 
-  const handleCloseVideoModal = () => setShowVideoModal(false);
+  // --- THIS IS THE FIX ---
+  const handleCloseVideoModal = () => {
+    setShowVideoModal(false);
+    setCurrentVideoKey(null); // <-- Resets the video key
+  };
 
   const handleAddToWatchlist = async (movie) => {
     const token = localStorage.getItem("token");
@@ -273,12 +255,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
        return;
     }
     try {
-      // const res = await axios.post( // --- 10. OLD
-      //   `${API_BASE_URL}/users/watchlist/${movie.id}`,
-      //   {},
-      //   { headers: { "x-auth-token": token } }
-      // );
-      const res = await api.post(`/users/watchlist/${movie.id}`, {}); // --- 10. FIXED
+      const res = await api.post(`/users/watchlist/${movie.id}`, {});
       toast.success(res.data.msg);
 
       if (res.data.msg && res.data.msg.includes("added")) {
@@ -319,13 +296,8 @@ const Dashboard = ({ setIsLoggedIn }) => {
        return;
     }
     try {
-      // await axios.post( // --- 11. OLD
-      //   `${API_BASE_URL}/users/watchlist/${movie.id}`,
-      //   {},
-      //   { headers: { "x-auth-token": token } }
-      // );
       // Assuming the same endpoint toggles add/remove
-      const res = await api.post(`/users/watchlist/${movie.id}`, {}); // --- 11. FIXED
+      const res = await api.post(`/users/watchlist/${movie.id}`, {});
       setWatchlistMovies((prevMovies) =>
         prevMovies.filter((m) => m.id !== movie.id)
       ); // Update UI instantly
@@ -437,6 +409,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
 
         {/* Tab Content Area */}
         <div className="col-md-9">
+          
           {/* Watchlist Tab Content */}
           {activeTab === "watchlist" && (
             <div style={{ width: "100%", textAlign: "center" }}>
@@ -454,38 +427,42 @@ const Dashboard = ({ setIsLoggedIn }) => {
                 <div
                    style={{
                       display: "grid",
-                      // Adjusted grid columns for better responsiveness
-                      gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", // Smaller min size
-                      gap: "1rem", // Slightly smaller gap
+                      gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", 
+                      gap: "1.5rem",
                       alignItems: "start",
                       width: "100%",
                       margin: "0 auto",
-                      // padding: "0 1rem", // Removed padding, handled by container
+                      padding: "0 1rem",
                    }}
                 >
                   {watchlistMovies.map((movie) => (
-                    // Removed extra div wrapper, MovieCard should handle its own layout within the grid cell
-                     <MovieCard
-                         key={movie.id} // Key directly on MovieCard
+                    <div 
+                      key={movie.id} 
+                      style={{ display: "flex", justifyContent: "center" }}
+                    >
+                      <MovieCard
                          movie={movie}
                          onWatchTrailerClick={handleWatchTrailerClick}
-                         onWatchlistClick={handleRemoveFromWatchlist} // Pass remove handler here
-                         isOnWatchlistPage={true} // Indicate it's the watchlist page
-                         // Removed hover styles, should be handled within MovieCard or via CSS class
+                         onWatchlistClick={handleRemoveFromWatchlist}
+                         isOnWatchlistPage={true}
                       />
+                    </div>
                   ))}
                 </div>
               ) : (
-                <p className="text-muted mt-3"> {/* Added margin top */}
+                <p className="text-muted mt-3">
                   You haven't added any movies to your watchlist yet. Explore and add some!
                 </p>
               )}
             </div>
           )}
 
-          {/* --- UPDATED Recommendations Tab Content --- */}
+
+          {/* --- "BECAUSE YOU LIKE" Recommendations Tab Content --- */}
          {activeTab === 'recommendations' && (
   <div style={{ width: "100%", textAlign: "center" }}>
+    
+    {/* This logic checks that recommendations exist AND we have a source movie to name */}
     {recommendations.length > 0 && recSourceMovie ? (
       !showAllRecommendations ? (
         // ---- ROW VIEW ----
@@ -494,6 +471,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
             Recommendations
           </h3>
           <MovieRow
+            // This title uses the random movie's name
             title={`Because you like "${recSourceMovie.title}"`}
             movies={recommendations}
             onWatchTrailerClick={handleWatchTrailerClick}
@@ -514,17 +492,18 @@ const Dashboard = ({ setIsLoggedIn }) => {
           >
             <h3
               style={{
-                fontSize: "1.3rem", // Slightly smaller for grid view title
-                fontWeight: "700", // Adjusted weight
+                fontSize: "1.3rem",
+                fontWeight: "700",
                 color: "#fff",
                 margin: 0,
               }}
             >
-              All Recommendations (Based on "{recSourceMovie.title}") {/* Added context */}
+              {/* This title also uses the random movie's name */}
+              All Recommendations (Based on "{recSourceMovie.title}")
             </h3>
             <button
-               className="btn btn-sm btn-outline-light" // Use Bootstrap classes
-               style={{ // Keep minimal inline styles if needed
+               className="btn btn-sm btn-outline-light"
+               style={{
                   transition: "all 0.3s ease",
                }}
                onClick={() => setShowAllRecommendations(false)}
@@ -536,29 +515,26 @@ const Dashboard = ({ setIsLoggedIn }) => {
           <div
             style={{
                display: "grid",
-               // Adjusted grid columns for better responsiveness
-               gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", // Smaller min size
-               gap: "1rem", // Slightly smaller gap
+               gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+               gap: "1rem",
                alignItems: "start",
                width: "100%",
                margin: "0 auto",
             }}
           >
             {recommendations.map((movie) => (
-               // Removed extra div wrapper
                <MovieCard
                   key={movie.id}
                   movie={movie}
                   onWatchTrailerClick={handleWatchTrailerClick}
                   onWatchlistClick={handleAddToWatchlist}
-                  // Removed hover styles, should be in MovieCard or CSS
                />
             ))}
           </div>
         </>
       )
     ) : (
-      <p className="text-muted mt-3">Add movies to your watchlist to get personalized recommendations.</p> // More descriptive
+      <p className="text-muted mt-3">Add movies to your watchlist to get personalized recommendations.</p>
     )}
   </div>
 )}
@@ -580,7 +556,6 @@ const Dashboard = ({ setIsLoggedIn }) => {
               <ProfileSettings
                 userName={userName}
                 userBio={userBio}
-                // Pass the profile picture URL
                 userProfilePicture={userProfilePicture}
                 onNameUpdate={handleNameUpdate}
                 onBioUpdate={handleBioUpdate}
@@ -602,4 +577,3 @@ const Dashboard = ({ setIsLoggedIn }) => {
 };
 
 export default Dashboard;
-

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-// import axios from "axios"; // --- 1. REMOVED
-import api from "../api"; // --- 1. ADDED
+import api from "../api";
 import { toast } from "react-toastify";
 import LoadingSpinner from "./LoadingSpinner";
 import VideoModal from "./VideoModal";
@@ -246,8 +245,6 @@ const MovieDetailPage = () => {
   const [visibleRelatedCount, setVisibleRelatedCount] =
     useState(MOVIES_PER_PAGE);
 
-  // const API_BASE_URL = "http://localhost:5000/api"; // --- 2. REMOVED
-
   // Fetch Movie Data Effect
   useEffect(() => {
     const fetchMovieData = async () => {
@@ -256,23 +253,16 @@ const MovieDetailPage = () => {
       try {
         // Fetch details (including videos/credits/providers) and recommendations
         const [detailsRes, recRes] = await Promise.all([
-          // axios.get(`${API_BASE_URL}/movies/details/${movieId}`), // --- 3. OLD
-          // axios.get(`${API_BASE_URL}/movies/recommendations/${movieId}`), // --- 3. OLD
-          api.get(`/movies/details/${movieId}`), // --- 3. FIXED
-          api.get(`/movies/recommendations/${movieId}`), // --- 3. FIXED
+          api.get(`/movies/details/${movieId}`),
+          api.get(`/movies/recommendations/${movieId}`),
         ]);
         setMovie(detailsRes.data);
         setRelatedMovies(recRes.data);
         setVisibleRelatedCount(MOVIES_PER_PAGE); // Reset visible count on new movie load
 
-        // Find the trailer key after movie data is fetched
-        const trailer = detailsRes.data?.videos?.results?.find(
-          (vid) => vid.type === "Trailer" && vid.site === "YouTube"
-        );
-        const fallbackVideo = detailsRes.data?.videos?.results?.find(
-          (vid) => vid.site === "YouTube"
-        );
-        setVideoKey(trailer?.key || fallbackVideo?.key || null); // Set video key here
+        // --- FIX 1: REMOVED setVideoKey from here ---
+        // We will now fetch the key on-demand when the user clicks.
+
       } catch (err) {
         console.error("Error fetching movie data:", err);
         toast.error("Failed to load movie details.");
@@ -296,12 +286,26 @@ const MovieDetailPage = () => {
 
   // --- Event Handlers ---
 
-  // Handle Trailer Click (Simplified: uses videoKey state)
-  const handleWatchMainTrailerClick = () => {
-    if (videoKey) {
-      setShowVideoModal(true);
-    } else {
-      toast.info("No trailer available for this movie.");
+  // --- FIX 2: REPLACED This function ---
+  // Handle Trailer Click (Fixed: Now fetches its own key)
+  const handleWatchMainTrailerClick = async () => {
+    try {
+      // Fetch videos for the *main movie*
+      // This calls the backend route: router.get('/:movieId/videos', ...)
+      const res = await api.get(`/movies/${movieId}/videos`); 
+      
+      // The backend route already finds the trailer, so res.data is the trailer object
+      const trailer = res.data; 
+
+      if (trailer && trailer.key) {
+        setVideoKey(trailer.key);
+        setShowVideoModal(true);
+      } else {
+        toast.info("No trailer available for this movie.");
+      }
+    } catch (err) {
+      console.error("Error fetching main trailer:", err);
+      toast.error("Could not load trailer.");
     }
   };
 
@@ -312,52 +316,33 @@ const MovieDetailPage = () => {
       return;
     }
     try {
-      // const res = await axios.get( // --- 4. OLD
-      //   `${API_BASE_URL}/movies/${relatedMovieId}/videos`
-      // );
-      const res = await api.get(`/movies/${relatedMovieId}/videos`); // --- 4. FIXED
-      const trailer = res.data?.results?.find(
-        (vid) => vid.type === "Trailer" && vid.site === "YouTube"
-      );
-      const fallbackVideo = res.data?.results?.find(
-        (vid) => vid.site === "YouTube"
-      );
-      const keyToUse = trailer?.key || fallbackVideo?.key || null;
+      // This calls the backend route: router.get('/:movieId/videos', ...)
+      const res = await api.get(`/movies/${relatedMovieId}/videos`);
+      
+      // The backend route already finds the trailer, so res.data is the trailer object
+      const trailer = res.data;
 
-      if (keyToUse) {
-        // We need to temporarily store the key for the modal,
-        // but don't overwrite the main movie's videoKey state permanently
-        setShowVideoModal(true);
-        // Pass the key directly or use a temporary state if needed
-        // For simplicity, let's reuse videoKey state, but fetch it here
-        setVideoKey(keyToUse);
+      if (trailer && trailer.key) {
+        setVideoKey(trailer.key); // Set the key
+        setShowVideoModal(true); // Show the modal
       } else {
         toast.info("No trailer available for this movie.");
       }
     } catch (err) {
-      console.error("Error fetching trailer:", err);
+      console.error("Error fetching related trailer:", err);
       toast.error("Could not load trailer.");
-      setVideoKey(null); // Ensure key is null on error
-      setShowVideoModal(true); // Still show modal, it handles 'no key' message
     }
   };
 
   // Handle Add to Watchlist
   const handleAddToWatchlist = async (movieToAdd) => {
-    // Use distinct parameter name
     const token = localStorage.getItem("token");
     if (!token) {
       toast.error("Please log in first.");
       return;
     }
     try {
-      // Use movieToAdd.id
-      // const res = await axios.post( // --- 5. OLD
-      //   `${API_BASE_URL}/users/watchlist/${movieToAdd.id}`,
-      //   {},
-      //   { headers: { "x-auth-token": token } }
-      // );
-      const res = await api.post(`/users/watchlist/${movieToAdd.id}`, {}); // --- 5. FIXED (token added by api.js)
+      const res = await api.post(`/users/watchlist/${movieToAdd.id}`, {});
       toast.success(res.data.msg);
     } catch (err) {
       console.error("Error adding to watchlist:", err);
@@ -365,12 +350,10 @@ const MovieDetailPage = () => {
     }
   };
 
+  // --- FIX 3: REPLACED This function ---
   const handleCloseVideoModal = () => {
     setShowVideoModal(false);
-    // Optional: Reset videoKey if it was temporary for related movies
-    // This depends if you want the main trailer button to remember the related key
-    // Maybe better to re-fetch main movie trailer key if needed?
-    // For now, let's leave it as is.
+    setVideoKey(null); // <-- This line is crucial
   };
 
   // Handle Load More Related Movies

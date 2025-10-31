@@ -142,7 +142,15 @@ const Dashboard = ({ setIsLoggedIn }) => {
             setRecSourceMovie(randomMovie);
             // This calls the standard TMDB recommendations, not your ML server
             const recRes = await api.get(`/movies/recommendations/${randomMovie.id}`);
-            setRecommendations(recRes.data);
+            
+            // --- FIX FOR DUPLICATE KEY WARNING ---
+            // Filter out duplicate movies from the recommendations array
+            const uniqueMovies = recRes.data.filter((movie, index, self) =>
+              index === self.findIndex((m) => m.id === movie.id)
+            );
+            setRecommendations(uniqueMovies);
+            // --- END FIX ---
+
           } else {
              setRecommendations([]); // Clear recommendations if no movies loaded
              setRecSourceMovie(null);
@@ -236,7 +244,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
     }
   };
 
-  // --- THIS IS THE FIX ---
+  // --- THIS IS THE TRAILER BUG FIX ---
   const handleCloseVideoModal = () => {
     setShowVideoModal(false);
     setCurrentVideoKey(null); // <-- Resets the video key

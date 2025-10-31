@@ -97,9 +97,15 @@ router.get("/recommendations/user", authMiddleware, async (req, res) => {
   
       // 3. Call your Python ML Service (running on port 5001)
       console.log("Calling ML service with watchlist:", watchlist_ids);
-      const mlResponse = await axios.post("http://localhost:5001/recommend", {
+
+      // --- THIS IS THE FIX ---
+      // It will use your Render URL in production, or localhost for development
+      const mlServiceUrl = process.env.ML_SERVICE_URL || "http://localhost:5001/recommend";
+      
+      const mlResponse = await axios.post(mlServiceUrl, {
         watchlist_ids: watchlist_ids, // Send the list as JSON
       });
+      // --- END OF FIX ---
   
       // 4. Get the list of IDs back from Python
       const recommendedMovieIds = mlResponse.data.recommendations;

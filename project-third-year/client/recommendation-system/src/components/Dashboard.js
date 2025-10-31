@@ -21,7 +21,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
   // State for movie lists
   const [watchlistMovies, setWatchlistMovies] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
-  const [recSourceMovie, setRecSourceMovie] = useState(null); // Movie used for recommendations
+  // const [recSourceMovie, setRecSourceMovie] = useState(null); // <-- REMOVED (Fixes no-unused-vars warning)
 
   // State for activity history (MOVED FROM ACTIVITYFEED)
   const [history, setHistory] = useState([]);
@@ -134,33 +134,28 @@ const Dashboard = ({ setIsLoggedIn }) => {
 
           setWatchlistMovies(movies);
 
-          // --- THIS IS THE "BECAUSE YOU LIKE" LOGIC ---
-          // Fetch recommendations based on a random movie from the watchlist
-          if (movies.length > 0) {
-            const randomMovie =
-              movies[Math.floor(Math.random() * movies.length)];
-            setRecSourceMovie(randomMovie);
-            // This calls the standard TMDB recommendations, not your ML server
-            const recRes = await api.get(`/movies/recommendations/${randomMovie.id}`);
-            
-            // --- FIX FOR DUPLICATE KEY WARNING ---
-            // Filter out duplicate movies from the recommendations array
-            const uniqueMovies = recRes.data.filter((movie, index, self) =>
-              index === self.findIndex((m) => m.id === movie.id)
-            );
-            setRecommendations(uniqueMovies);
-            // --- END FIX ---
-
-          } else {
-             setRecommendations([]); // Clear recommendations if no movies loaded
-             setRecSourceMovie(null);
-          }
-          // --- END "BECAUSE YOU LIKE" LOGIC ---
+          // --- THIS IS THE NEW ML LOGIC ---
+          // Fetch recommendations based on the user's *entire* watchlist
+          console.log("Fetching ML recommendations for user...");
+          // This calls your Node.js server, which calls your app.py
+          const recRes = await api.get('/movies/recommendations/user'); 
+          
+          // --- FIX FOR DUPLICATE KEY WARNING ---
+          // Filter out duplicate movies from the recommendations array
+          const uniqueMovies = recRes.data.filter((movie, index, self) =>
+            index === self.findIndex((m) => m.id === movie.id)
+          );
+          setRecommendations(uniqueMovies);
+          // --- END FIX ---
+          
+          // We are no longer basing this on *one* movie
+          // setRecSourceMovie(null); // <-- REMOVED (Fixes no-unused-vars warning)
+          // --- END NEW ML LOGIC ---
 
         } else {
           setWatchlistMovies([]); // Ensure watchlist is empty if no IDs found
           setRecommendations([]); // Clear recommendations if watchlist is empty
-          setRecSourceMovie(null);
+          // setRecSourceMovie(null); // <-- REMOVED (Fixes no-unused-vars warning)
         }
         // Fetch history only after successful initial data load
         fetchHistory();
@@ -180,7 +175,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
            // Optional: You might want to clear some state here if data loading failed partially
            setWatchlistMovies([]);
            setRecommendations([]);
-           setRecSourceMovie(null);
+           // setRecSourceMovie(null); // <-- REMOVED (Fixes no-unused-vars warning)
            setHistory([]); // Clear history if initial load fails
         }
         // --- END OF MODIFIED CATCH BLOCK ---
@@ -466,12 +461,12 @@ const Dashboard = ({ setIsLoggedIn }) => {
           )}
 
 
-          {/* --- "BECAUSE YOU LIKE" Recommendations Tab Content --- */}
+          {/* --- "Recommended For You" (ML Version) --- */}
          {activeTab === 'recommendations' && (
   <div style={{ width: "100%", textAlign: "center" }}>
     
-    {/* This logic checks that recommendations exist AND we have a source movie to name */}
-    {recommendations.length > 0 && recSourceMovie ? (
+    {/* This condition no longer needs recSourceMovie */}
+    {recommendations.length > 0 ? (
       !showAllRecommendations ? (
         // ---- ROW VIEW ----
         <>
@@ -479,8 +474,8 @@ const Dashboard = ({ setIsLoggedIn }) => {
             Recommendations
           </h3>
           <MovieRow
-            // This title uses the random movie's name
-            title={`Because you like "${recSourceMovie.title}"`}
+            // The title is now fixed
+            title="Recommended For You"
             movies={recommendations}
             onWatchTrailerClick={handleWatchTrailerClick}
             onWatchlistClick={handleAddToWatchlist}
@@ -506,8 +501,8 @@ const Dashboard = ({ setIsLoggedIn }) => {
                 margin: 0,
               }}
             >
-              {/* This title also uses the random movie's name */}
-              All Recommendations (Based on "{recSourceMovie.title}")
+              {/* This title is also fixed */}
+              All Recommendations
             </h3>
             <button
                className="btn btn-sm btn-outline-light"

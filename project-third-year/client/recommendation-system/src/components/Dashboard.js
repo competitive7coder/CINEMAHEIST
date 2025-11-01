@@ -29,7 +29,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
 
   // Utility state
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // <-- Keep useNavigate
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [currentVideoKey, setCurrentVideoKey] = useState(null);
 
@@ -437,7 +437,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
                       alignItems: "start",
                       width: "100%",
                       margin: "0 auto",
-                      padding: "0 1rem", // Add some horizontal padding
+                      // padding: "0 1rem", // <-- THIS LINE WAS REMOVED TO FIX THE 2-COLUMN BUG
                    }}
                 >
                   {watchlistMovies.map((movie) => (
@@ -449,8 +449,8 @@ const Dashboard = ({ setIsLoggedIn }) => {
                       <MovieCard
                          movie={movie}
                          onWatchTrailerClick={handleWatchTrailerClick}
-                         onWatchlistClick={handleRemoveFromWatchlist}
-                         isOnWatchlistPage={true}
+                         onWatchlistClick={handleRemoveFromWatchlist} // Pass remove handler here
+                         isOnWatchlistPage={true} // Indicate it's the watchlist page
                       />
                     </div>
                   ))}

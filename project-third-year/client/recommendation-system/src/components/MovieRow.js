@@ -11,7 +11,7 @@ const MovieRow = ({
   movies = [],
   genreId,
   seeAllLink,
-  onSeeAllClick, // <-- 1. ADD THIS NEW PROP
+  onSeeAllClick, 
   onWatchTrailerClick,
   onWatchlistClick,
 }) => {

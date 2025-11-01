@@ -437,7 +437,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
                       alignItems: "start",
                       width: "100%",
                       margin: "0 auto",
-                      // padding: "0 1rem", // <-- THIS LINE WAS REMOVED TO FIX THE 2-COLUMN BUG
+                      padding: "0 1rem", // Add some horizontal padding
                    }}
                 >
                   {watchlistMovies.map((movie) => (
@@ -449,8 +449,8 @@ const Dashboard = ({ setIsLoggedIn }) => {
                       <MovieCard
                          movie={movie}
                          onWatchTrailerClick={handleWatchTrailerClick}
-                         onWatchlistClick={handleRemoveFromWatchlist} // Pass remove handler here
-                         isOnWatchlistPage={true} // Indicate it's the watchlist page
+                         onWatchlistClick={handleRemoveFromWatchlist}
+                         isOnWatchlistPage={true}
                       />
                     </div>
                   ))}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+// import axios from "axios";
+import api from "../api";
 import { toast } from "react-toastify";
 
 const ContactUs = () => {
@@ -43,9 +44,9 @@ const ContactUs = () => {
     }
     setLoading(true);
     try {
-      // The endpoint should match your backend route for saving feedback
-      const response = await axios.post("http://localhost:5000/api/feedback", formData);
-      toast.success("Thank you for your message! We'll get back to you soon.");
+      // const response = await axios.post("http://localhost:5000/api/feedback", formData);
+      const response = await api.post(`/feedback`, formData);
+      toast.success(response.data.message || "Thank you for your message! We'll get back to you soon.");
       setFormData({ name: "", email: "", message: "" });
     } catch (error) {
       console.error("Feedback submission error:", error);

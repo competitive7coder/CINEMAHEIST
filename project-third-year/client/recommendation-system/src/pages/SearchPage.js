@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-// import axios from 'axios'; // --- 1. REMOVED
-import api from '../api'; // --- 1. ADDED
-import MovieCard from './MovieCard';
-import VideoModal from './VideoModal';
+import api from '../services/api'; 
+// --- FIXED IMPORTS ---
+import VideoModal from '../components/common/VideoModal';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+import MovieCard from '../components/movie/MovieCard'; // Corrected path
+// --- END OF FIXED IMPORTS ---
 import { toast } from 'react-toastify';
-import LoadingSpinner from './LoadingSpinner';
 import { Form, Button, Spinner } from 'react-bootstrap';
 
 const SearchPage = () => {
@@ -23,8 +24,6 @@ const SearchPage = () => {
     const [totalPages, setTotalPages] = useState(1);
     const [loadingMore, setLoadingMore] = useState(false);
 
-    // const API_BASE_URL = 'http://localhost:5000/api'; // --- 2. REMOVED
-
     // Memoized fetch function for search results
     const fetchSearchResults = useCallback(async (page = 1, loadMore = false) => {
         if (!query) return; // Exit if no query
@@ -37,43 +36,42 @@ const SearchPage = () => {
 
         try {
             const params = { query, page };
-            if (filterYear) params.year = filterYear; // Add year filter if selected
-            // const res = await axios.get(`${API_BASE_URL}/movies/search`, { params }); // --- 3. OLD
-            const res = await api.get(`/movies/search`, { params }); // --- 3. FIXED
+            if (filterYear) params.year = filterYear; 
+            const res = await api.get(`/movies/search`, { params }); 
             setSearchResults(prev => loadMore ? [...prev, ...res.data.results] : res.data.results);
-            setTotalPages(res.data.totalPages); // Get total pages from the backend response
+            setTotalPages(res.data.totalPages); 
         } catch (err) {
             console.error('Error fetching search results:', err);
             toast.error('Could not fetch search results.');
-            setSearchResults([]); // Clear results on error
+            setSearchResults([]); 
         } finally {
-            setLoading(false); // Always turn off main loading spinner
-            setLoadingMore(false); // Always turn off "load more" spinner
+            setLoading(false); 
+            setLoadingMore(false); 
         }
-    }, [query, filterYear]); // Dependencies: re-create function if query or year changes
+    }, [query, filterYear]); 
 
     // Effect runs on initial load and when query or filterYear changes
     useEffect(() => {
-        if (!query) { navigate('/'); return; } // Redirect home if no query
-        window.scrollTo(0, 0); // Scroll to top
-        setCurrentPage(1); // Reset to page 1 for new search/filter
-        fetchSearchResults(1, false); // Fetch the first page
-    }, [query, filterYear, navigate, fetchSearchResults]); // Dependencies for the effect
+        if (!query) { navigate('/'); return; } 
+        window.scrollTo(0, 0); 
+        setCurrentPage(1); 
+        fetchSearchResults(1, false); 
+    }, [query, filterYear, navigate, fetchSearchResults]); 
 
     // Handler for the "Load More" button
     const handleLoadMore = () => {
         const nextPage = currentPage + 1;
         setCurrentPage(nextPage);
-        fetchSearchResults(nextPage, true); // Fetch the next page and append results
+        fetchSearchResults(nextPage, true); 
     };
 
     // Handler for changing the year filter dropdown
     const handleYearChange = (event) => {
         const newYear = event.target.value;
-        setFilterYear(newYear); // Update local state
+        setFilterYear(newYear); 
         const newSearchParams = new URLSearchParams(searchParams);
         if (newYear) newSearchParams.set('year', newYear);
-        else newSearchParams.delete('year'); // Remove if "All Years" selected
+        else newSearchParams.delete('year'); 
         navigate({ search: newSearchParams.toString() }, { replace: true });
     };
 
@@ -82,8 +80,7 @@ const SearchPage = () => {
         const token = localStorage.getItem('token');
         if (!token) return;
         try {
-            // await axios.post(`${API_BASE_URL}/activity/log`, { movieId, actionType }, { headers: { 'x-auth-token': token } }); // --- 4. OLD
-            await api.post(`/activity/log`, { movieId, actionType }); // --- 4. FIXED
+            await api.post(`/activity/log`, { movieId, actionType }); 
         } catch (err) {
             console.error('Failed to log activity:', err);
         }
@@ -92,8 +89,7 @@ const SearchPage = () => {
     const handleWatchTrailerClick = async (movieId) => {
         logActivity(movieId, 'trailer_watch');
         try {
-            // const res = await axios.get(`${API_BASE_URL}/movies/${movieId}/videos`); // --- 5. OLD
-            const res = await api.get(`/movies/${movieId}/videos`); // --- 5. FIXED
+            const res = await api.get(`/movies/${movieId}/videos`); 
             setVideoKey(res.data?.key || null);
         } catch (err) {
             console.error('Error fetching trailer:', err);
@@ -104,20 +100,30 @@ const SearchPage = () => {
     };
 
     // ================== THIS IS THE FIX ==================
-    const handleAddToWatchlist = async (movie) => { // <-- Changed from (movieId) to (movie)
+    const handleAddToWatchlist = async (movie) => { 
         const token = localStorage.getItem('token');
         if (!token) { toast.error('Please log in to add to your watchlist.'); return; }
+        
         try {
-            // Use movie.id for the API call
-            // const res = await axios.post(`${API_BASE_URL}/users/watchlist/${movie.id}`, {}, { headers: { 'x-auth-token': token } }); // --- 6. OLD
-            const res = await api.post(`/users/watchlist/${movie.id}`, {}); // --- 6. FIXED
+            const res = await api.post(`/users/watchlist/${movie.id}`, {}); 
             toast.success(res.data.msg);
             
-            // Use movie.id for logging
             if (res.data.msg.includes('added')) logActivity(movie.id, 'watchlist_add');
+
         } catch (err) {
-            console.error('Error updating watchlist:', err);
-            toast.error('Could not update watchlist.');
+            // This is the new error handling block
+            console.error('Error updating watchlist:', err); // This was line 122
+            
+            if (err.response?.status === 401) {
+                // If token is expired, log them out
+                toast.error("Session expired. Please log in again.");
+                localStorage.removeItem("token");
+                // We can't call setIsLoggedIn here, but we can force a redirect
+                navigate("/login"); 
+            } else {
+                // For any other error
+                toast.error(err.response?.data?.msg || 'Could not update watchlist.');
+            }
         }
     };
     // =====================================================
@@ -125,10 +131,8 @@ const SearchPage = () => {
     const handleCloseVideoModal = () => setShowVideoModal(false);
     // --- End of Functions ---
 
-    // Show main loader only on initial load (page 1)
     if (loading && currentPage === 1) return <LoadingSpinner />;
 
-    // Generate year options for the filter dropdown
     const currentYear = new Date().getFullYear();
     const years = Array.from({ length: 50 }, (_, i) => currentYear - i);
 
@@ -156,7 +160,7 @@ const SearchPage = () => {
                             key={`${movie.id}-${currentPage}`}
                             movie={movie}
                             onWatchTrailerClick={handleWatchTrailerClick}
-                            onWatchlistClick={handleAddToWatchlist} // This now correctly passes the 'movie' object to the fixed function
+                            onWatchlistClick={handleAddToWatchlist} 
                         />
                     ))
                 ) : (
@@ -177,3 +181,4 @@ const SearchPage = () => {
 };
 
 export default SearchPage;
+

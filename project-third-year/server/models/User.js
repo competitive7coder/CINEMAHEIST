@@ -18,7 +18,12 @@ const UserSchema = new mongoose.Schema({
     
     watchlist: [{ type: Number }], // An array to store movie IDs
     profilePicture: { type: String, default: '' },
-    bio: { type: String, default: '' }
+    bio: { type: String, default: '' },
+
+    // --- ADD THESE TWO LINES ---
+    resetPasswordToken: { type: String },
+    resetPasswordExpires: { type: Date }
+    // --- END OF ADDED LINES ---
 });
 
 // Hash password before saving the user
@@ -32,3 +37,4 @@ UserSchema.pre('save', async function (next) {
 });
 
 module.exports = mongoose.model('User', UserSchema);
+

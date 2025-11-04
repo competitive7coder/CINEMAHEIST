@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-// import axios from 'axios'; // <-- This was correct to comment out
-import api from '../api'; // <-- You correctly imported this
-import HeroSlider from './HeroSlider';
-import MovieRow from './MovieRow';
-import VideoModal from './VideoModal';
+import api from '../services/api'; 
+// --- FIXED IMPORTS ---
+import HeroSlider from '../components/home/HeroSlider';
+import MovieRow from '../components/movie/MovieRow';
+import VideoModal from '../components/common/VideoModal';
+import Top10MovieCard from '../components/movie/Top10MovieCard';
+import LoadingSpinner from '../components/common/LoadingSpinner'; 
+// --- END OF FIXED IMPORTS ---
 import { toast } from 'react-toastify';
-import Top10MovieCard from './Top10MovieCard';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation } from 'swiper/modules';
-import LoadingSpinner from './LoadingSpinner'; // Assuming you have this
+
 
 const genres = [
     { id: 'popular', name: 'Trending Now' },
@@ -32,19 +34,13 @@ const HomePage = () => {
     const [showVideoModal, setShowVideoModal] = useState(false);
     const [videoKey, setVideoKey] = useState(null);
 
-    // const API_BASE_URL = 'http://localhost:5000/api'; // <-- 1. REMOVED THIS
-
     useEffect(() => {
         const fetchAllData = async () => {
             try {
                 const [sectionsRes, top10Res, newReleasesRes] = await Promise.all([
-                    // axios.get(`${API_BASE_URL}/movies/homepage-sections`), // <-- OLD
-                    // axios.get(`${API_BASE_URL}/movies/top-rated-in`), // <-- OLD
-                    // axios.get(`${API_BASE_URL}/movies/now-playing`) // <-- OLD
-                    
-                    api.get('/movies/homepage-sections'), // <-- 2. FIXED
-                    api.get('/movies/top-rated-in'), // <-- 2. FIXED
-                    api.get('/movies/now-playing') // <-- 2. FIXED
+                    api.get('/movies/homepage-sections'), 
+                    api.get('/movies/top-rated-in'), 
+                    api.get('/movies/now-playing') 
                 ]);
                 setMoviesByGenre(sectionsRes.data);
                 setTop10Movies(top10Res.data.slice(0, 10));
@@ -63,19 +59,13 @@ const HomePage = () => {
         const token = localStorage.getItem('token');
         if (!token) return;
         try {
-            // await axios.post(`${API_BASE_URL}/activity/log`, { movieId, actionType }, { headers: { 'x-auth-token': token } }); // <-- OLD
-            await api.post('/activity/log', { movieId, actionType }); // <-- 3. FIXED (token is added automatically by api.js)
+            await api.post('/activity/log', { movieId, actionType });
         } catch (err) {
             console.error('Failed to log activity:', err);
         }
     };
 
-    // --- THIS IS THE ROBUST FIX ---
-    // This function now correctly handles getting either a full 'movie' object
-    // or just a 'movieId' as the parameter.
     const handleWatchTrailerClick = async (movieOrId) => {
-        
-        // 1. Determine if we have an object or just an ID
         const movieId = (typeof movieOrId === 'object' && movieOrId !== null) 
                             ? movieOrId.id 
                             : movieOrId;
@@ -85,12 +75,11 @@ const HomePage = () => {
             return;
         }
 
-        logActivity(movieId, 'trailer_watch'); // Pass the extracted ID
+        logActivity(movieId, 'trailer_watch'); 
         try {
-            // const res = await axios.get(`${API_BASE_URL}/movies/${movieId}/videos`); // <-- OLD
-            const res = await api.get(`/movies/${movieId}/videos`); // <-- 4. FIXED
+            const res = await api.get(`/movies/${movieId}/videos`); 
             const trailer = res.data?.results?.find(vid => vid.type === 'Trailer' && vid.site === 'YouTube');
-            setVideoKey(trailer?.key || res.data?.key || null); // Find trailer, but use first key as fallback
+            setVideoKey(trailer?.key || res.data?.key || null); 
             setShowVideoModal(true);
         } catch (err) {
             console.error('Error fetching trailer:', err);
@@ -106,8 +95,7 @@ const HomePage = () => {
             return;
         }
         try {
-            // const res = await axios.post(`${API_BASE_URL}/users/watchlist/${movie.id}`, {}, { headers: { 'x-auth-token': token } }); // <-- OLD
-            const res = await api.post(`/users/watchlist/${movie.id}`, {}); // <-- 5. FIXED
+            const res = await api.post(`/users/watchlist/${movie.id}`, {}); 
             toast.success(res.data.msg);
             if (res.data.msg.includes('added')) {
                 logActivity(movie.id, 'watchlist_add');
@@ -136,11 +124,12 @@ const HomePage = () => {
                 />
             )}
 
-            <div className="container-fluid">
+            <div className="container-fluid pt-5">
+            
                 {/* Top 10 Movies Row */}
                 {top10Movies.length > 0 && (
                     <div className="movie-row-container">
-                         <h3 className="h4 text-light mb-3">Top 10 Movies in India Today</h3>
+                         <h3 className="h4 mb-5" style={{ color: 'white' }}>Top 10 Movies in India Today</h3>
                          <Swiper
                             modules={[Navigation]}
                             spaceBetween={40}
@@ -202,3 +191,4 @@ const HomePage = () => {
 };
 
 export default HomePage;
+

@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 // import axios from "axios"; // --- 1. REMOVED
-import api from "../api"; // --- 1. ADDED
-import MovieCard from "./MovieCard";
-import VideoModal from "./VideoModal";
+import api from "../services/api"; 
+// import MovieCard from "./MovieCard";
+// import VideoModal from "./VideoModal";
 import { toast } from "react-toastify";
-import LoadingSpinner from "./LoadingSpinner";
+// import LoadingSpinner from "./LoadingSpinner";
 import { Dropdown, Form, Spinner } from "react-bootstrap";
+import MovieCard from "../components/movie/MovieCard";
+import VideoModal from "../components/common/VideoModal";
+import LoadingSpinner from "../components/common/LoadingSpinner";
 
 const GENRE_MAP = {
   popular: "Trending Now",

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import api from "../api";
+import api from "../services/api";
 import { toast } from "react-toastify";
-import LoadingSpinner from "./LoadingSpinner";
-import VideoModal from "./VideoModal";
-import MovieCard from "./MovieCard";
+import LoadingSpinner from "../components/common/LoadingSpinner";
+import VideoModal from "../components/common/VideoModal";
+import MovieCard from "../components/movie/MovieCard";
 
 // ALL STYLES ARE IN THIS OBJECT
 const styles = {

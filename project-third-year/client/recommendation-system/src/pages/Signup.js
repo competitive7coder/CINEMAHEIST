@@ -1,42 +1,51 @@
 import React, { useState } from 'react';
 // import axios from 'axios'; // <-- OLD
-import api from '../api'; // <-- NEW
+import api from '../services/api'; // <-- NEW
 import { Link, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { toast } from 'react-toastify'; 
 
-const Login = ({ setIsLoggedIn }) => {
-  const [formData, setFormData] = useState({ email: '', password: '' });
-  const navigate = useNavigate();
-  const { email, password } = formData;
+const Signup = () => {
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        password: '',
+        retypePassword: ''
+    });
+    const navigate = useNavigate();
 
-  const onChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, email, password, retypePassword } = formData;
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      // const res = await axios.post('http://localhost:5000/api/auth/login', { // <-- OLD
-      const res = await api.post('/auth/login', { // <-- NEW
-        email,
-        password,
-      });
-      localStorage.setItem('token', res.data.token);
-      setIsLoggedIn(true);
-      toast.success('Logged in successfully!', { position: 'top-center' });
-      navigate('/dashboard');
-    } catch (err) {
-      const errorMsg =
-        err.response?.data?.msg || 'Something went wrong! Please try again.';
-      toast.error(errorMsg);
-    }
-  };
+    const onChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+    const onSubmit = async e => {
+        e.preventDefault();
+
+        if (password !== retypePassword) {
+            toast.error('Passwords do not match');
+            return;
+        }
+
+        try {
+            // const res = await axios.post('http://localhost:5000/api/auth/register', { name, email, password, retypePassword }); // <-- OLD
+            const res = await api.post('/auth/register', { name, email, password, retypePassword }); // <-- NEW
+            
+            toast.success(res.data.msg); 
+            setTimeout(() => {
+                navigate('/login');
+            }, 2000);
+        } catch (err) {
+            const errorMsg = err.response?.data?.msg || 'Something went wrong!';
+            toast.error(errorMsg);
+        }
+    };
+
  const styles = `
     /* From Uiverse.io by glisovic01 - Adapted for React */
     body {
       margin: 0;
       padding: 0;
       font-family: 'Poppins', sans-serif;
-background-image: url('https://i.postimg.cc/dt7BF6gc/download-33.jpg');
+background-image: url('https://i.postimg.cc/KcHNCtKK/download-edit.jpg');
 background-size: cover;
 background-position: center;
 background-repeat: no-repeat;
@@ -51,8 +60,10 @@ background-repeat: no-repeat;
   padding: 40px;
   transform: translate(-50%, -50%);
   
+  /* Semi-transparent background */
   background: transparent;
   
+  /* Backdrop blur effect */
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px); 
   
@@ -72,7 +83,7 @@ background-repeat: no-repeat;
     .login-box p:first-child {
       margin: 0 0 30px;
       padding: 0;
-      color: #ffffffff;
+      color: #181818ff;
       text-align: center;
       font-size: 2rem;
       font-weight: bold;
@@ -88,10 +99,10 @@ background-repeat: no-repeat;
       width: 100%;
       padding: 10px 0;
       font-size: 16px;
-      color: #ffffffff;
+      color: #000000ff;
       margin-bottom: 30px;
       border: none;
-      border-bottom: 1px solid #ffffffff;
+      border-bottom: 1px solid #000000ff;
       outline: none;
       background: transparent;
     }
@@ -102,7 +113,7 @@ background-repeat: no-repeat;
       left: 0;
       padding: 10px 0;
       font-size: 16px;
-      color: #ffffffff;
+      color: #000000ff;
       pointer-events: none;
       transition: .5s;
     }
@@ -111,7 +122,7 @@ background-repeat: no-repeat;
     .login-box .user-box input:valid ~ label {
       top: -20px;
       left: 0;
-      color: #ffffffff;
+      color: #000000ff;
       font-size: 12px;
     }
 
@@ -120,7 +131,7 @@ background-repeat: no-repeat;
       display: inline-block;
       padding: 10px 20px;
       font-weight: bold;
-      color: #ffffffff;
+      color: #000000ff;
       font-size: 16px;
       text-decoration: none;
       text-transform: uppercase;
@@ -177,8 +188,8 @@ background-repeat: no-repeat;
       bottom: 0;
       right: -100%;
       width: 100%;
-      height: 2px;
-      background: linear-gradient(270deg, transparent, #fff);
+      height: 3px;
+      background: linear-gradient(270deg, transparent, #ffffffff);
       animation: btn-anim3 1.5s linear infinite;
       animation-delay: .75s;
     }
@@ -191,9 +202,9 @@ background-repeat: no-repeat;
     .login-box button span:nth-child(4) {
       bottom: -100%;
       left: 0;
-      width: 2px;
+      width: 3px;
       height: 100%;
-      background: linear-gradient(360deg, transparent, #fff);
+      background: linear-gradient(360deg, transparent, #ffffffff);
       animation: btn-anim4 1.5s linear infinite;
       animation-delay: 1.125s;
     }
@@ -204,7 +215,7 @@ background-repeat: no-repeat;
     }
 
     .login-box p:last-child {
-      color: #f7f7f7ff;
+      color: #000000ff;
       font-size: 14px;
       font-weight: 500;
     }
@@ -249,49 +260,38 @@ background-repeat: no-repeat;
     }
   `;
 
-  return (
-    <>
-      <style>{styles}</style>
-      <div className="login-box">
-        <p>Login</p>
-        <form onSubmit={onSubmit}>
-          <div className="user-box">
-            <input
-              type="email"
-              name="email"
-              value={email}
-              onChange={onChange}
-              required
-            />
-            <label>Email</label>
-          </div>
+    return (
+      <>
+        <style>{styles}</style>
 
-          <div className="user-box">
-            <input
-              type="password"
-              name="password"
-              value={password}
-              onChange={onChange}
-              required
-            />
-            <label>Password</label>
-          </div>
-
-          <button type="submit">
-            <span></span><span></span><span></span><span></span>
-            Submit
-          </button>
-        </form>
-
-        <p>
-          Need an account?{' '}
-          <Link to="/signup" className="a2">
-            Sign Up!
-          </Link>
-        </p>
-      </div>
-    </>
-  );
+        <div className="login-box">
+            <p>Sign Up</p>
+            <form onSubmit={onSubmit}>
+                <div className="user-box">
+                    <input type="text" name="name" value={name} onChange={onChange} required />
+                    <label>Name</label>
+                </div>
+                <div className="user-box">
+                    <input type="email" name="email" value={email} onChange={onChange} required />
+                    <label>Email</label>
+                </div>
+                <div className="user-box">
+                    <input type="password" name="password" value={password} onChange={onChange} required />
+                    <label>Password</label>
+                </div>
+                <div className="user-box">
+                    <input type="password" name="retypePassword" value={retypePassword} onChange={onChange} required />
+                    <label>Retype Password</label>
+                </div>
+                <button type="submit">
+                    <span></span><span></span><span></span><span></span>
+                    Submit
+                </button>
+            </form>
+            <p>Already have an account?{' '}<Link to="/login" className="a2">Log In!</Link></p>
+        </div>
+      </>
+    );
 };
 
-export default Login;
+export default Signup;

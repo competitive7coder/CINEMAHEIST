@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 // import axios from "axios";
-import api from "../api";
+import api from "../services/api";
 import { toast } from "react-toastify";
 
 const ContactUs = () => {

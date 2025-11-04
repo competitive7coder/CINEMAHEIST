@@ -82,11 +82,11 @@ const HeroSlider = ({ movies, onWatchTrailerClick, onAddToWatchlist }) => {
     `;
 
     return (
-        <div className="hero-slider">
+        <div className="hero-slider  pt-2">
             <style>{componentStyles}</style>
             <Swiper
                 // 1. Ensure the Swiper component itself takes full height
-                style={{ height: '100%' }}
+                style={{ height: '110%' }}
                 modules={[Navigation, Pagination, Autoplay, EffectFade]}
                 spaceBetween={0}
                 slidesPerView={1}

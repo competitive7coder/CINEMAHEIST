@@ -1,13 +1,14 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../api";
-import MovieCard from "./MovieCard";
-import VideoModal from "./VideoModal";
+import api from "../services/api";
+
 import { toast } from "react-toastify";
-import ProfileSettings from "./ProfileSettings";
-import MovieRow from "./MovieRow";
-import ActivityFeed from "./ActivityFeed";
-import LoadingSpinner from "./LoadingSpinner";
+import MovieCard from "../components/movie/MovieCard";
+import VideoModal from "../components/common/VideoModal";
+import ProfileSettings from "./ProfileSettings";// This path is now correct
+import MovieRow from "../components/movie/MovieRow";
+import ActivityFeed from "../components/dashboard/ActivityFeed";
+import LoadingSpinner from "../components/common/LoadingSpinner";
 
 const Dashboard = ({ setIsLoggedIn }) => {
   // State to manage which tab is currently visible

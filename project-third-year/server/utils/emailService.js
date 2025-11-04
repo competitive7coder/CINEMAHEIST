@@ -1,41 +1,34 @@
-const nodemailer = require('nodemailer');
+const SibApiV3Sdk = require('sib-api-v3-sdk');
+require('dotenv').config(); // Make sure we can read the .env file
 
-/**
- * Sends an email using Nodemailer and Gmail.
- * The auth credentials are pulled from process.env.
- * @param {object} options - Email options.
- * @param {string} options.to - Recipient's email address.
- * @param {string} options.subject - Subject line of the email.
- * @param {string} options.html - HTML content of the email.
- */
+// 1. Get the default API client instance
+const defaultClient = SibApiV3Sdk.ApiClient.instance;
+
+// 2. Authenticate using your Brevo API key
+const apiKey = defaultClient.authentications['api-key'];
+apiKey.apiKey = process.env.BREVO_API_KEY;
+
+// 3. Create the *transactional* email API instance
+const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+
+// This is the function our auth.js file calls
 const sendEmail = async (options) => {
-  // 1. Create a transporter
-  // This is the service that will send the email.
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: process.env.EMAIL_USER, // Your email from .env
-      pass: process.env.EMAIL_PASS, // Your 16-character "App Password" from .env
-    },
-  });
+  // Create the email object
+  const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
 
-  // 2. Define the email options
-  // This is the actual email content.
-  const mailOptions = {
-    from: `StreamHub <${process.env.EMAIL_USER}>`, // Sender address (e.g., "StreamHub <streamhub.tech@gmail.com>")
-    to: options.to,         // The user's email
-    subject: options.subject, // The subject line
-    html: options.html,     // The HTML body
-  };
+  sendSmtpEmail.to = [{ email: options.to }];
+  sendSmtpEmail.sender = { email: process.env.SEND_FROM_EMAIL, name: 'StreamHub Support' };
+  sendSmtpEmail.subject = options.subject;
+  sendSmtpEmail.htmlContent = options.html;
 
-  // 3. Send the email
   try {
-    await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully');
+    // Send the email
+    await apiInstance.sendTransacEmail(sendSmtpEmail);
+    console.log('✅ Email sent successfully via Brevo to:', options.to);
   } catch (error) {
-    console.error('Error sending email:', error);
-    // This error will be caught by the .catch() block in your auth.js route
-    throw new Error('Email could not be sent');
+    // Log the detailed error message from Brevo
+    console.error('❌ Error sending email via Brevo:', error.response?.body || error.message);
+    throw new Error('Email could not be sent.');
   }
 };
 

@@ -2,10 +2,10 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const crypto = require('crypto'); // Built-in Node.js module
+const crypto = require('crypto'); 
 const User = require('../models/User');
-const authMiddleware = require('../middleware/auth'); // Your "security guard" file
-const sendEmail = require('../utils/emailService'); // The email service
+const authMiddleware = require('../middleware/auth'); 
+const sendEmail = require('../utils/emailService'); 
 
 // @route   POST api/auth/register
 // @desc    Register a user

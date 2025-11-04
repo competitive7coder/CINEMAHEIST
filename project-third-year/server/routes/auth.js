@@ -78,9 +78,14 @@ router.get('/user', authMiddleware, async (req, res) => {
 // @desc    Send password reset email
 // @access  Public
 router.post('/forgot-password', async (req, res) => {
+  
+  // *** THIS IS THE BUG FIX ***
+  // We declare 'user' here so it's accessible in both 'try' and 'catch'
+  let user; 
+  
   const { email } = req.body;
   try {
-    const user = await User.findOne({ email });
+    user = await User.findOne({ email }); // Assign value to 'user'
 
     // IMPORTANT: For security, always send a success response
     // This prevents attackers from guessing which emails are registered
@@ -103,10 +108,8 @@ router.post('/forgot-password', async (req, res) => {
     await user.save();
 
     // 4. Create reset URL for the email
-    // This URL must point to your REACT app
-    // const resetURL = `${process.env.CLIENT_URL || 'http://localhost:3000'}/reset-password/${resetToken}`;
-    // This is the correct, production-ready code:
-const resetURL = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+    // This URL must point to your REACT app (set in your .env)
+    const resetURL = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
 
     // 5. Create email message
     const message = `
@@ -122,18 +125,26 @@ const resetURL = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
       subject: 'StreamHub - Password Reset Request',
       html: message
     });
-
-    res.status(200).json({ message: ' Reset link has been sent successfully.' });
+    
+    // Log success only if email is sent
+    console.log('Password reset email sent successfully to:', user.email);
+    res.status(200).json({ message: 'If an account with that email exists, a reset link has been sent.' });
 
   } catch (err) {
-    console.error(err.message);
-    // Clear the token if anything failed
+    // This is the error handling block
+    console.error('FORGOT_PASSWORD_ERROR:', err.message); // Log the actual error
+    
+    // This block will now work because 'user' is defined in the outer scope
     if (user) {
         user.resetPasswordToken = undefined;
         user.resetPasswordExpires = undefined;
         await user.save();
     }
-    res.status(500).send('Server Error');
+    
+    // For security, we STILL send a 200 (OK) response.
+    // We never tell the frontend user that the email failed, only that *if* they exist, they'll get one.
+    // This prevents attackers from knowing if the email send failed OR if the user just doesn't exist.
+    res.status(200).json({ message: 'If an account with that email exists, a reset link has been sent.' });
   }
 });
 
@@ -174,7 +185,7 @@ router.post('/reset-password/:token', async (req, res) => {
     res.status(200).json({ message: 'Password has been reset successfully. Please log in.' });
 
   } catch (err) {
-    console.error(err.message);
+    console.error('RESET_PASSWORD_ERROR:', err.message);
     res.status(500).send('Server Error');
   }
 });

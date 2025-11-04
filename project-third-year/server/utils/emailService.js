@@ -1,10 +1,9 @@
 const SibApiV3Sdk = require('sib-api-v3-sdk');
-require('dotenv').config(); // Make sure we can read the .env file
 
 // 1. Get the default API client instance
 const defaultClient = SibApiV3Sdk.ApiClient.instance;
 
-// 2. Authenticate using your Brevo API key
+// 2. Authenticate using Brevo API key from Render's environment
 const apiKey = defaultClient.authentications['api-key'];
 apiKey.apiKey = process.env.BREVO_API_KEY;
 
@@ -24,10 +23,11 @@ const sendEmail = async (options) => {
   try {
     // Send the email
     await apiInstance.sendTransacEmail(sendSmtpEmail);
-    console.log('✅ Email sent successfully via Brevo to:', options.to);
+    // This log will now appear in your Render server logs
+    console.log(' Email sent successfully to:', options.to);
   } catch (error) {
-    // Log the detailed error message from Brevo
-    console.error('❌ Error sending email via Brevo:', error.response?.body || error.message);
+    // This log will also appear in your Render server logs
+    console.error(' Error sending email:', error.response?.body || error.message);
     throw new Error('Email could not be sent.');
   }
 };

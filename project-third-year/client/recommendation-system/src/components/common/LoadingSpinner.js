@@ -31,7 +31,7 @@ const LoadingSpinner = () => {
       </div>
 
       {/* ALL CSS */}
-      <style jsx>{`
+      <style>{`
         .fullscreen-loader {
           position: fixed;
           top: 0;

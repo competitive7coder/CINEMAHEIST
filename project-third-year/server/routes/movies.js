@@ -9,7 +9,7 @@ const User = require('../models/User');
 const TMDB_BASE_URL = 'https://api.themoviedb.org/3';
 const API_KEY = process.env.TMDB_API_KEY;
 
-const movieCache = new NodeCache({ stdTTL: 3600 }); // Cache for 1 hour
+const movieCache = new NodeCache({ stdTTL: 3600 }); 
 
 const homepageGenres = [
     { id: 'popular', name: 'Trending Now' },
@@ -91,7 +91,7 @@ router.get("/recommendations/user", authMiddleware, async (req, res) => {
         let recommendedMovieIds = mlResponse.data.recommendations;
         console.log("Received recommendations from ML service:", recommendedMovieIds);
 
-        // If ML returned objects, convert to IDs
+        // ML returned objects, converting to IDs
         if (
             Array.isArray(recommendedMovieIds) &&
             recommendedMovieIds.length > 0 &&

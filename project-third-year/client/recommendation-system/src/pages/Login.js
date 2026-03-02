@@ -135,19 +135,32 @@ const InputGroup = styled.div`
 
   input {
     width: 100%;
-    background: #000;
+    background: #000 !important; /* Force black */
     border: 1px solid #1a1a1a;
     padding: 18px 22px;
-    padding-right: ${props => props.hasIcon ? '50px' : '22px'};
+    padding-right: ${props => props.hasIcon ? '60px' : '22px'};
     border-radius: 16px;
-    color: #fff;
+    color: #fff !important; /* Force white text */
     font-size: 1rem;
     transition: all 0.4s;
+
+    /* --- FIX WHITE AUTOFILL BOX --- */
+    &:-webkit-autofill,
+    &:-webkit-autofill:hover, 
+    &:-webkit-autofill:focus {
+      -webkit-text-fill-color: #fff;
+      -webkit-box-shadow: 0 0 0px 1000px #000 inset; /* Covers the white with black */
+      transition: background-color 5000s ease-in-out 0s;
+    }
+
+    &::placeholder {
+      color: #333;
+    }
 
     &:focus {
       outline: none;
       border-color: #ff0000;
-      background: #080808;
+      background: #080808 !important;
       box-shadow: 0 0 0 4px rgba(255, 0, 0, 0.05);
       transform: translateY(-2px);
     }
@@ -157,12 +170,24 @@ const InputGroup = styled.div`
 const EyeButton = styled.div`
   position: absolute;
   right: 20px;
-  color: #444;
+  color: #fff; /* Changed from #444 to #fff for visibility */
   cursor: pointer;
   display: flex;
   align-items: center;
+  z-index: 10; /* Ensure it stays above the autofill layer */
+  opacity: 0.6;
   transition: 0.3s;
-  &:hover { color: #ff0000; }
+
+  &:hover { 
+    color: #ff0000; 
+    opacity: 1;
+    transform: scale(1.1);
+  }
+
+  svg {
+    width: 22px;
+    height: 22px;
+  }
 `;
 
 const ActionButton = styled.button`

@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import api from "../services/api";
-import ForgotPassword from "../components/auth/ForgotPassword";
 import styled, { keyframes } from "styled-components";
 
 // --- ANIMATIONS ---
@@ -49,7 +48,7 @@ const VisualSide = styled.div`
   &::before {
     content: '';
     position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
+    inset: 0;
     background: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.9)), 
                 url('https://i.postimg.cc/dt7BF6gc/download-33.jpg') no-repeat center center/cover;
     animation: ${bgZoom} 25s ease-in-out infinite;
@@ -78,7 +77,6 @@ const BrandText = styled.div`
     color: #fff; 
     margin: 0; 
     letter-spacing: -4px;
-    text-shadow: 0 10px 40px rgba(0,0,0,0.5);
   }
   span { color: #ff0000; text-shadow: 0 0 20px rgba(255, 0, 0, 0.4); }
   p { color: rgba(255,255,255,0.6); font-size: 1.2rem; max-width: 480px; margin-top: 20px; line-height: 1.6; }
@@ -104,7 +102,7 @@ const LoginCard = styled.div`
   border-radius: 32px;
   animation: ${slideUp} 0.8s cubic-bezier(0.16, 1, 0.3, 1), ${cardGlow} 6s infinite ease-in-out;
 
-  h2 { color: #fff; font-size: 2.4rem; font-weight: 800; margin-bottom: 8px; letter-spacing: -1px; }
+  h2 { color: #fff; font-size: 2.4rem; font-weight: 800; margin-bottom: 8px; }
   .subtitle { 
     color: #555; 
     margin-bottom: 45px; 
@@ -116,7 +114,7 @@ const LoginCard = styled.div`
 `;
 
 const InputGroup = styled.div`
-  margin-bottom: 30px;
+  margin-bottom: 25px;
   position: relative;
 
   label {
@@ -127,7 +125,12 @@ const InputGroup = styled.div`
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 1.5px;
-    margin-left: 4px;
+  }
+
+  .input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
   }
 
   input {
@@ -135,21 +138,31 @@ const InputGroup = styled.div`
     background: #000;
     border: 1px solid #1a1a1a;
     padding: 18px 22px;
+    padding-right: ${props => props.hasIcon ? '50px' : '22px'};
     border-radius: 16px;
     color: #fff;
     font-size: 1rem;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-
-    &::placeholder { color: #333; }
+    transition: all 0.4s;
 
     &:focus {
       outline: none;
       border-color: #ff0000;
       background: #080808;
-      box-shadow: 0 0 0 4px rgba(255, 0, 0, 0.05), 0 10px 30px rgba(0,0,0,0.5);
+      box-shadow: 0 0 0 4px rgba(255, 0, 0, 0.05);
       transform: translateY(-2px);
     }
   }
+`;
+
+const EyeButton = styled.div`
+  position: absolute;
+  right: 20px;
+  color: #444;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: 0.3s;
+  &:hover { color: #ff0000; }
 `;
 
 const ActionButton = styled.button`
@@ -163,69 +176,104 @@ const ActionButton = styled.button`
   font-weight: 800;
   cursor: pointer;
   transition: all 0.4s ease;
-  margin-top: 10px;
   text-transform: uppercase;
   letter-spacing: 2px;
-  box-shadow: 0 10px 25px rgba(255, 0, 0, 0.3);
 
   &:hover {
     background: #fff;
     color: #000;
     transform: translateY(-4px);
-    box-shadow: 0 15px 35px rgba(255, 255, 255, 0.1);
   }
-
-  &:active { transform: translateY(-1px); }
+  &:disabled {
+    background: #222;
+    color: #555;
+    cursor: not-allowed;
+  }
 `;
 
 const LinkArea = styled.div`
   margin-top: 40px;
   text-align: center;
   font-size: 0.9rem;
-  color: #444;
 
-  a, .forgot {
-    color: #eee;
-    text-decoration: none;
-    font-weight: 600;
-    cursor: pointer;
-    margin-left: 5px;
-    transition: 0.3s;
-    border-bottom: 1px solid transparent;
-
-    &:hover { 
-      color: #ff0000; 
-      border-bottom: 1px solid #ff0000;
+  .signup-text {
+    color: #777;
+    a {
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      margin-left: 5px;
+      &:hover { color: #ff0000; }
     }
   }
 
   .forgot-block { 
-    margin-top: 25px; 
-    display: block; 
-    font-size: 0.8rem;
-    opacity: 0.6;
-    &:hover { opacity: 1; }
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.03);
+    
+    .forgot-trigger {
+      color: #555;
+      font-size: 0.8rem;
+      cursor: pointer;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+
+      span {
+        width: 6px; height: 6px;
+        background: #ff0000;
+        border-radius: 50%;
+        box-shadow: 0 0 8px #ff0000;
+      }
+      &:hover { color: #fff; }
+    }
   }
 `;
 
 const Login = ({ setIsLoggedIn }) => {
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const [showForgotModal, setShowForgotModal] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [isForgotView, setIsForgotView] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const navigate = useNavigate();
   const { email, password } = formData;
 
   const onChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const onSubmit = async (e) => {
+  // Handle Sign In
+  const onLoginSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const res = await api.post("/auth/login", { email, password });
       localStorage.setItem("token", res.data.token);
       setIsLoggedIn(true);
-      toast.success("Identity Verified. Welcome.");
+      toast.success("Identity Verified. Access Granted.");
       navigate("/dashboard");
     } catch (err) {
-      toast.error(err.response?.data?.msg || "Unauthorized Access");
+      toast.error(err.response?.data?.msg || "Login Failed.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle Forgot Password (API CALL)
+  const onForgotSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await api.post("/auth/forgot-password", { email });
+      toast.success("Security link dispatched to your Gmail.");
+      setIsForgotView(false);
+    } catch (err) {
+      toast.error(err.response?.data?.msg || "Email recovery failed.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -239,52 +287,98 @@ const Login = ({ setIsLoggedIn }) => {
       </VisualSide>
 
       <FormSide>
-        <LoginCard>
-          <h2>Welcome back</h2>
-          <p className="subtitle">Please enter your details to sign in.</p>
-          
-          <form onSubmit={onSubmit}>
-            <InputGroup>
-              <label>Email Address</label>
-              <input 
-                type="email" 
-                name="email" 
-                placeholder="name@company.com"
-                value={email} 
-                onChange={onChange} 
-                required 
-              />
-            </InputGroup>
+        {!isForgotView ? (
+          <LoginCard>
+            <h2>Welcome back</h2>
+            <p className="subtitle">Secure Authentication Portal</p>
+            
+            <form onSubmit={onLoginSubmit}>
+              <InputGroup>
+                <label>Email Address</label>
+                <div className="input-wrapper">
+                  <input 
+                    type="email" 
+                    name="email" 
+                    placeholder="name@company.com"
+                    value={email || ""} 
+                    onChange={onChange} 
+                    required 
+                  />
+                </div>
+              </InputGroup>
 
-            <InputGroup>
-              <label>Password</label>
-              <input 
-                type="password" 
-                name="password" 
-                placeholder="••••••••"
-                value={password} 
-                onChange={onChange} 
-                required 
-              />
-            </InputGroup>
+              <InputGroup hasIcon>
+                <label>Password</label>
+                <div className="input-wrapper">
+                  <input 
+                    type={showPassword ? "text" : "password"} 
+                    name="password" 
+                    placeholder="••••••••"
+                    value={password || ""} 
+                    onChange={onChange} 
+                    required 
+                  />
+                  <EyeButton onClick={() => setShowPassword(!showPassword)}>
+                    {showPassword ? (
+                      <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                    ) : (
+                      <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    )}
+                  </EyeButton>
+                </div>
+              </InputGroup>
 
-            <ActionButton type="submit">Sign In</ActionButton>
-          </form>
+              <ActionButton type="submit" disabled={loading}>
+                {loading ? "Verifying..." : "Sign In"}
+              </ActionButton>
+            </form>
 
-          <LinkArea>
-            Don't have an account? <Link to="/signup">Sign up for free</Link>
-            <div className="forgot-block">
-              <span className="forgot" onClick={() => setShowForgotModal(true)}>
-                Forgot your password?
+            <LinkArea>
+              <span className="signup-text">
+                Need an account? <Link to="/signup">Sign up now</Link>
               </span>
-            </div>
-          </LinkArea>
-        </LoginCard>
-      </FormSide>
+              <div className="forgot-block">
+                <span className="forgot-trigger" onClick={() => setIsForgotView(true)}>
+                  <span /> Forgot Password?
+                </span>
+              </div>
+            </LinkArea>
+          </LoginCard>
+        ) : (
+          <LoginCard>
+            <h2>Recover Access</h2>
+            <p className="subtitle">Enter your email to receive a reset link</p>
+            
+            <form onSubmit={onForgotSubmit}>
+              <InputGroup>
+                <label>Email Address</label>
+                <div className="input-wrapper">
+                  <input 
+                    type="email" 
+                    name="email"
+                    placeholder="name@company.com"
+                    value={email || ""} 
+                    onChange={onChange}
+                    required 
+                  />
+                </div>
+              </InputGroup>
 
-      {showForgotModal && (
-        <ForgotPassword onClose={() => setShowForgotModal(false)} />
-      )}
+              <ActionButton type="submit" disabled={loading}>
+                {loading ? "Sending..." : "Send Reset Link"}
+              </ActionButton>
+            </form>
+
+            <LinkArea>
+              <div className="forgot-block">
+                <span className="forgot-trigger" onClick={() => setIsForgotView(false)}>
+                  <span /> Back to Login
+                </span>
+              </div>
+            </LinkArea>
+          </LoginCard>
+        )}
+      </FormSide>
     </PageContainer>
   );
 };

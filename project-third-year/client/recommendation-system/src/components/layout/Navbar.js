@@ -86,7 +86,7 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
                         <li className="nav-item dropdown position-static">
                             <a
                                 className="nav-link dropdown-toggle"
-                                href="#"
+                                href="#!"
                                 id="moviesDropdown"
                                 role="button"
                                 data-bs-toggle="dropdown"
@@ -157,7 +157,7 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
                             <li className="nav-item dropdown">
                                 <a
                                     className="nav-link dropdown-toggle d-flex align-items-center"
-                                    href="#"
+                                    href="#!"
                                     id="userDropdown"
                                     role="button"
                                     data-bs-toggle="dropdown"

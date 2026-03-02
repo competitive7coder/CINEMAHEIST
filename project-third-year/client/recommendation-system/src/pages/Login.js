@@ -3,16 +3,162 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import api from "../services/api";
 import ForgotPassword from "../components/auth/ForgotPassword";
+import styled, { keyframes } from "styled-components";
+
+// --- ANIMATIONS ---
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateX(-20px); }
+  to { opacity: 1; transform: translateX(0); }
+`;
+
+const slideUp = keyframes`
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
+// --- STYLED COMPONENTS ---
+const PageContainer = styled.div`
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  background: #0a0a0a;
+  font-family: 'Poppins', sans-serif;
+  overflow: hidden;
+`;
+
+const VisualSide = styled.div`
+  flex: 1.2;
+  position: relative;
+  background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.7)), 
+              url('https://i.postimg.cc/dt7BF6gc/download-33.jpg') no-repeat center center/cover;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 60px;
+  
+  @media (max-width: 992px) { display: none; }
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(circle at center, transparent, #0a0a0a);
+  }
+`;
+
+const BrandText = styled.div`
+  position: relative;
+  z-index: 2;
+  animation: ${fadeIn} 1s ease-out;
+  
+  h1 { font-size: 4rem; font-weight: 900; color: #fff; margin: 0; letter-spacing: -2px; }
+  span { color: #ff0000; }
+  p { color: #ccc; font-size: 1.1rem; max-width: 400px; margin-top: 10px; line-height: 1.6; }
+`;
+
+const FormSide = styled.div`
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #0d0d0d;
+  border-left: 1px solid #222;
+  position: relative;
+`;
+
+const LoginCard = styled.div`
+  width: 100%;
+  max-width: 420px;
+  padding: 40px;
+  animation: ${slideUp} 0.8s ease-out;
+
+  h2 { color: #fff; font-size: 2rem; font-weight: 700; margin-bottom: 8px; }
+  .subtitle { color: #666; margin-bottom: 40px; font-size: 0.95rem; }
+`;
+
+const InputGroup = styled.div`
+  margin-bottom: 25px;
+  position: relative;
+
+  label {
+    display: block;
+    color: #888;
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+    font-weight: 500;
+    transition: 0.3s;
+  }
+
+  input {
+    width: 100%;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    padding: 14px 18px;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 1rem;
+    transition: all 0.3s;
+
+    &:focus {
+      outline: none;
+      border-color: #ff0000;
+      background: #222;
+      box-shadow: 0 0 0 4px rgba(255, 0, 0, 0.1);
+    }
+  }
+`;
+
+const ActionButton = styled.button`
+  width: 100%;
+  padding: 16px;
+  background: #ff0000;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+
+  &:hover {
+    background: #cc0000;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(255, 0, 0, 0.2);
+  }
+
+  &:active { transform: translateY(0); }
+`;
+
+const LinkArea = styled.div`
+  margin-top: 30px;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #666;
+
+  a, .forgot {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    cursor: pointer;
+    margin-left: 5px;
+    transition: 0.2s;
+
+    &:hover { color: #ff0000; }
+  }
+
+  .forgot-block { margin-top: 15px; display: block; }
+`;
 
 const Login = ({ setIsLoggedIn }) => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [showForgotModal, setShowForgotModal] = useState(false);
-
   const navigate = useNavigate();
   const { email, password } = formData;
 
-  const onChange = (e) =>
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const onChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const onSubmit = async (e) => {
     e.preventDefault();
@@ -20,271 +166,72 @@ const Login = ({ setIsLoggedIn }) => {
       const res = await api.post("/auth/login", { email, password });
       localStorage.setItem("token", res.data.token);
       setIsLoggedIn(true);
-      toast.success("Logged in successfully!", { position: "top-center" });
+      toast.success("Access Granted.");
       navigate("/dashboard");
     } catch (err) {
-      const errorMsg =
-        err.response?.data?.msg || "Something went wrong! Please try again.";
-      toast.error(errorMsg);
+      toast.error(err.response?.data?.msg || "Invalid Credentials");
     }
   };
 
-  const styles = `
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Poppins', sans-serif;
-      background-image: url('https://i.postimg.cc/dt7BF6gc/download-33.jpg');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      height: 100vh;
-      width: 100vw;
-    }
-
-    .login-box {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 400px;
-      padding: 40px;
-      transform: translate(-50%, -50%);
-      background: transparent;
-      backdrop-filter: blur(20px);
-      box-shadow: 0 15px 25px rgba(0,0,0,.6);
-      border-radius: 10px;
-      transition: all 0.3s ease-out;
-    }
-
-    .login-box:hover {
-      box-shadow: 0 0 5px #131515ff, 0 0 25px #000000ff;
-      transform: translate(-50%, -50%) scale(1.02);
-    }
-
-    .login-box p:first-child {
-      color: #fff;
-      text-align: center;
-      font-size: 2rem;
-      font-weight: bold;
-      letter-spacing: 1px;
-      font-family: cursive;
-    }
-
-    .login-box .user-box {
-      position: relative;
-    }
-
-    .login-box .user-box input {
-      width: 100%;
-      padding: 10px 0;
-      font-size: 16px;
-      color: #fff;
-      margin-bottom: 30px;
-      border: none;
-      border-bottom: 1px solid #fff;
-      background: transparent;
-      outline: none;
-    }
-
-    .login-box .user-box label {
-      position: absolute;
-      top: 0;
-      left: 0;
-      padding: 10px 0;
-      font-size: 16px;
-      color: #fff;
-      pointer-events: none;
-      transition: .5s;
-    }
-
-    .login-box .user-box input:focus ~ label,
-    .login-box .user-box input:valid ~ label {
-      top: -20px;
-      color: #fff;
-      font-size: 12px;
-    }
-
-    /* 🌟 UPDATED BUTTON STYLES 🌟 */
-    .login-box form button {
-      position: relative;
-      display: inline-block;
-      padding: 10px 20px;
-      font-weight: bold;
-      color: #fff; /* ✅ White button text */
-      font-size: 16px;
-      text-decoration: none;
-      text-transform: uppercase;
-      overflow: hidden;
-      transition: .5s;
-      margin-top: 40px;
-      letter-spacing: 3px;
-      background: none;
-      border: none;
-      cursor: pointer;
-    }
-
-    .login-box button:hover {
-      background: #ffffff;
-      color: #000000;
-      border-radius: 5px;
-    }
-
-    .login-box button span {
-      position: absolute;
-      display: block;
-    }
-
-    .login-box button span:nth-child(1) {
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, #ffffff);
-      animation: btn-anim1 1.5s linear infinite;
-    }
-
-    @keyframes btn-anim1 {
-      0% { left: -100%; }
-      50%,100% { left: 100%; }
-    }
-
-    .login-box button span:nth-child(2) {
-      top: -100%;
-      right: 0;
-      width: 2px;
-      height: 100%;
-      background: linear-gradient(180deg, transparent, #ffffff);
-      animation: btn-anim2 1.5s linear infinite;
-      animation-delay: .375s;
-    }
-
-    @keyframes btn-anim2 {
-      0% { top: -100%; }
-      50%,100% { top: 100%; }
-    }
-
-    .login-box button span:nth-child(3) {
-      bottom: 0;
-      right: -100%;
-      width: 100%;
-      height: 3px;
-      background: linear-gradient(270deg, transparent, #ffffff);
-      animation: btn-anim3 1.5s linear infinite;
-      animation-delay: .75s;
-    }
-
-    @keyframes btn-anim3 {
-      0% { right: -100%; }
-      50%,100% { right: 100%; }
-    }
-
-    .login-box button span:nth-child(4) {
-      bottom: -100%;
-      left: 0;
-      width: 3px;
-      height: 100%;
-      background: linear-gradient(360deg, transparent, #ffffff);
-      animation: btn-anim4 1.5s linear infinite;
-      animation-delay: 1.125s;
-    }
-
-    @keyframes btn-anim4 {
-      0% { bottom: -100%; }
-      50%,100% { bottom: 100%; }
-    }
-
-    /* ✅ Brighten these texts */
-    .login-box p {
-      color: rgba(255, 255, 255, 0.9);
-      font-size: 14px;
-      font-weight: 500;
-      margin-top: 10px;
-    }
-
-    .login-box a.a2,
-    .login-box span.a2 {
-      color: #fff;
-      text-decoration: none;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .login-box a.a2:hover,
-    .login-box span.a2:hover {
-      color: #000;
-      text-decoration: underline;
-    }
-
-    .error-message {
-      color: #ff4d4d;
-      text-align: center;
-      margin-bottom: 15px;
-      font-size: 14px;
-    }
-
-    .login-box .user-box input:hover {
-      border-bottom-color: #ffffff;
-      transition: border-bottom-color 0.3s ease;
-    }
-  `;
-
   return (
-    <>
-      <style>{styles}</style>
+    <PageContainer>
+      {/* Left Panel */}
+      <VisualSide>
+        <BrandText>
+          <h1>Stream<span>Hub</span></h1>
+          <p>Unlimited movies, TV shows, and more. Experience the next generation of entertainment.</p>
+        </BrandText>
+      </VisualSide>
 
-      <div className="login-box">
-        <p>Login</p>
-        <form onSubmit={onSubmit}>
-          <div className="user-box">
-            <input
-              type="email"
-              name="email"
-              value={email}
-              onChange={onChange}
-              required
-            />
-            <label>Email</label>
-          </div>
+      {/* Right Panel  */}
+      <FormSide>
+        <LoginCard>
+          <h2>Welcome back</h2>
+          <p className="subtitle">Please enter your details to sign in.</p>
+          
+          <form onSubmit={onSubmit}>
+            <InputGroup>
+              <label>Email Address</label>
+              <input 
+                type="email" 
+                name="email" 
+                placeholder="name@company.com"
+                value={email} 
+                onChange={onChange} 
+                required 
+              />
+            </InputGroup>
 
-          <div className="user-box">
-            <input
-              type="password"
-              name="password"
-              value={password}
-              onChange={onChange}
-              required
-            />
-            <label>Password</label>
-          </div>
+            <InputGroup>
+              <label>Password</label>
+              <input 
+                type="password" 
+                name="password" 
+                placeholder="••••••••"
+                value={password} 
+                onChange={onChange} 
+                required 
+              />
+            </InputGroup>
 
-          {/* ✨ Animated Button */}
-          <button type="submit">
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            Submit
-          </button>
-        </form>
+            <ActionButton type="submit">Sign In</ActionButton>
+          </form>
 
-        <p>
-          Need an account?{" "}
-          <Link to="/signup" className="a2">
-            Sign Up!
-          </Link>
-        </p>
-
-        <p>
-          <span className="a2" onClick={() => setShowForgotModal(true)}>
-            Forgot Password?
-          </span>
-        </p>
-      </div>
+          <LinkArea>
+            Don't have an account? <Link to="/signup">Sign up for free</Link>
+            <div className="forgot-block">
+              <span className="forgot" onClick={() => setShowForgotModal(true)}>
+                Forgot your password?
+              </span>
+            </div>
+          </LinkArea>
+        </LoginCard>
+      </FormSide>
 
       {showForgotModal && (
         <ForgotPassword onClose={() => setShowForgotModal(false)} />
       )}
-    </>
+    </PageContainer>
   );
 };
 

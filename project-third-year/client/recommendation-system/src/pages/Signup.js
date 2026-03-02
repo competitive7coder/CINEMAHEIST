@@ -1,8 +1,225 @@
 import React, { useState } from 'react';
-// import axios from 'axios'; // <-- OLD
-import api from '../services/api'; // <-- NEW
+import api from '../services/api'; 
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify'; 
+import styled, { keyframes } from "styled-components";
+
+// --- ANIMATIONS ---
+const bgZoom = keyframes`
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+  100% { transform: scale(1); }
+`;
+
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateX(30px); filter: blur(10px); }
+  to { opacity: 1; transform: translateX(0); filter: blur(0); }
+`;
+
+const slideUp = keyframes`
+  from { opacity: 0; transform: translateY(40px); filter: blur(5px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+`;
+
+// --- STYLED COMPONENTS ---
+const PageContainer = styled.div`
+  height: 100vh;
+  width: 100vw;
+  display: flex;
+  background: #050505;
+  font-family: 'Poppins', sans-serif;
+  overflow: hidden;
+`;
+
+const VisualSide = styled.div`
+  flex: 1.3;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 80px;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(rgba(0,0,0,0.1), rgba(0,0,0,0.9)), 
+                url('https://i.pinimg.com/1200x/f0/73/8c/f0738c341ce5a66f6aeb8bc871fab013.jpg') no-repeat center center/cover;
+    animation: ${bgZoom} 25s ease-in-out infinite;
+    z-index: 0;
+  }
+  
+  @media (max-width: 992px) { display: none; }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, transparent, #050505);
+    z-index: 1;
+  }
+`;
+
+const BrandText = styled.div`
+  position: relative;
+  z-index: 2;
+  animation: ${fadeIn} 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  
+  h1 { 
+    font-size: 5rem; 
+    font-weight: 900; 
+    color: #fff; 
+    margin: 0; 
+    letter-spacing: -4px;
+  }
+  span { color: #ff0000; text-shadow: 0 0 20px rgba(255, 0, 0, 0.4); }
+  p { color: rgba(255,255,255,0.6); font-size: 1.2rem; max-width: 480px; margin-top: 20px; line-height: 1.6; }
+`;
+
+const FormSide = styled.div`
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at center, #0f0f0f 0%, #050505 100%);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+`;
+
+const SignupCard = styled.div`
+  width: 100%;
+  max-width: 440px;
+  padding: 50px 45px;
+  background: rgba(255, 255, 255, 0.01);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 32px;
+  animation: ${slideUp} 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+
+  h2 { color: #fff; font-size: 2.2rem; font-weight: 800; margin-bottom: 8px; }
+  .subtitle { 
+    color: #555; 
+    margin-bottom: 35px; 
+    font-size: 0.75rem; 
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+`;
+
+const InputGroup = styled.div`
+  margin-bottom: 20px;
+  position: relative;
+
+  label {
+    display: block;
+    color: #888;
+    font-size: 0.65rem;
+    margin-bottom: 8px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-left: 4px;
+  }
+
+  .input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+
+  input {
+    width: 100%;
+    background: #000 !important; /* Force black background */
+    border: 1px solid #1a1a1a;
+    padding: 14px 20px;
+    padding-right: 50px;
+    border-radius: 12px;
+    color: #fff !important; /* Force white text */
+    font-size: 0.95rem;
+    transition: all 0.4s;
+
+    &:-webkit-autofill,
+    &:-webkit-autofill:hover, 
+    &:-webkit-autofill:focus {
+      -webkit-text-fill-color: #fff;
+      -webkit-box-shadow: 0 0 0px 1000px #000 inset;
+      transition: background-color 5000s ease-in-out 0s;
+    }
+
+    &::placeholder {
+      color: #333;
+      opacity: 1; /* Ensure placeholder doesn't affect background */
+    }
+
+    &:focus {
+      outline: none;
+      border-color: #ff0000;
+      background: #080808 !important;
+    }
+  }
+`;
+
+const EyeButton = styled.div`
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #ffffff; /* Clearly visible on dark bg */
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  z-index: 10;
+  opacity: 0.6;
+  transition: 0.3s;
+
+  &:hover {
+    color: #ff0000;
+    opacity: 1;
+  }
+`;
+
+const ActionButton = styled.button`
+  width: 100%;
+  padding: 18px;
+  background: #ff0000;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-top: 10px;
+
+  &:hover {
+    background: #fff;
+    color: #000;
+    transform: translateY(-4px);
+  }
+  &:disabled { background: #222; color: #555; }
+`;
+
+const LoginText = styled.p`
+  margin-top: 35px;
+  text-align: center;
+  color: #555;
+  font-size: 0.9rem;
+  
+  a {
+    color: #eee;
+    text-decoration: none;
+    font-weight: 700;
+    margin-left: 5px;
+    &:hover { color: #ff0000; }
+  }
+`;
 
 const Signup = () => {
     const [formData, setFormData] = useState({
@@ -11,6 +228,9 @@ const Signup = () => {
         password: '',
         retypePassword: ''
     });
+    const [showPassword, setShowPassword] = useState(false);
+    const [showRetype, setShowRetype] = useState(false);
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const { name, email, password, retypePassword } = formData;
@@ -19,278 +239,114 @@ const Signup = () => {
 
     const onSubmit = async e => {
         e.preventDefault();
-
         if (password !== retypePassword) {
             toast.error('Passwords do not match');
             return;
         }
 
+        setLoading(true);
         try {
-            // const res = await axios.post('http://localhost:5000/api/auth/register', { name, email, password, retypePassword }); // <-- OLD
-            const res = await api.post('/auth/register', { name, email, password, retypePassword }); // <-- NEW
-            
-            toast.success(res.data.msg); 
-            setTimeout(() => {
-                navigate('/login');
-            }, 2000);
+            const res = await api.post('/auth/register', { name, email, password, retypePassword });
+            toast.success(res.data.msg || "Identity Created!"); 
+            setTimeout(() => navigate('/login'), 2000);
         } catch (err) {
-            const errorMsg = err.response?.data?.msg || 'Something went wrong!';
-            toast.error(errorMsg);
+            toast.error(err.response?.data?.msg || 'Registration failed');
+        } finally {
+            setLoading(false);
         }
     };
 
- const styles = `
-    /* From Uiverse.io by glisovic01 - Adapted for React */
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: 'Poppins', sans-serif;
-background-image: url('https://i.postimg.cc/KcHNCtKK/download-edit.jpg');
-background-size: cover;
-background-position: center;
-background-repeat: no-repeat;
-  height: 100vh;               
-  width: 100vw;                 
-    }
-.login-box {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 400px;
-  padding: 40px;
-  transform: translate(-50%, -50%);
-  
-  /* Semi-transparent background */
-  background: transparent;
-  
-  /* Backdrop blur effect */
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px); 
-  
-  box-sizing: border-box;
-  box-shadow: 0 15px 25px rgba(0,0,0,.6);
-  border-radius: 10px;
-  transition: all 0.3s ease-out;
-}
-
-
-    .login-box:hover {
-      box-shadow: 0 0 5px #131515ff,
-                  0 0 25px #000000ff;
-      transform: translate(-50%, -50%) scale(1.02);
-    }
-
-    .login-box p:first-child {
-      margin: 0 0 30px;
-      padding: 0;
-      color: #181818ff;
-      text-align: center;
-      font-size: 2rem;
-      font-weight: bold;
-      letter-spacing: 1px;
-      font-family:cursive;
-    }
-
-    .login-box .user-box {
-      position: relative;
-    }
-
-    .login-box .user-box input {
-      width: 100%;
-      padding: 10px 0;
-      font-size: 16px;
-      color: #000000ff;
-      margin-bottom: 30px;
-      border: none;
-      border-bottom: 1px solid #000000ff;
-      outline: none;
-      background: transparent;
-    }
-
-    .login-box .user-box label {
-      position: absolute;
-      top: 0;
-      left: 0;
-      padding: 10px 0;
-      font-size: 16px;
-      color: #000000ff;
-      pointer-events: none;
-      transition: .5s;
-    }
-
-    .login-box .user-box input:focus ~ label,
-    .login-box .user-box input:valid ~ label {
-      top: -20px;
-      left: 0;
-      color: #000000ff;
-      font-size: 12px;
-    }
-
-    .login-box form button {
-      position: relative;
-      display: inline-block;
-      padding: 10px 20px;
-      font-weight: bold;
-      color: #000000ff;
-      font-size: 16px;
-      text-decoration: none;
-      text-transform: uppercase;
-      overflow: hidden;
-      transition: .5s;
-      margin-top: 40px;
-      letter-spacing: 3px;
-      background: none;
-      border: none;
-      cursor: pointer;
-    }
-
-    .login-box button:hover {
-      background: #ffffffff;
-      color: #272727;
-      border-radius: 5px;
-    }
-
-    .login-box button span {
-      position: absolute;
-      display: block;
-    }
-
-    .login-box button span:nth-child(1) {
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, #000000ff);
-      animation: btn-anim1 1.5s linear infinite;
-    }
-
-    @keyframes btn-anim1 {
-      0% { left: -100%; }
-      50%,100% { left: 100%; }
-    }
-
-    .login-box button span:nth-child(2) {
-      top: -100%;
-      right: 0;
-      width: 2px;
-      height: 100%;
-      background: linear-gradient(180deg, transparent, #000000ff);
-      animation: btn-anim2 1.5s linear infinite;
-      animation-delay: .375s;
-    }
-
-    @keyframes btn-anim2 {
-      0% { top: -100%; }
-      50%,100% { top: 100%; }
-    }
-
-    .login-box button span:nth-child(3) {
-      bottom: 0;
-      right: -100%;
-      width: 100%;
-      height: 3px;
-      background: linear-gradient(270deg, transparent, #ffffffff);
-      animation: btn-anim3 1.5s linear infinite;
-      animation-delay: .75s;
-    }
-
-    @keyframes btn-anim3 {
-      0% { right: -100%; }
-      50%,100% { right: 100%; }
-    }
-
-    .login-box button span:nth-child(4) {
-      bottom: -100%;
-      left: 0;
-      width: 3px;
-      height: 100%;
-      background: linear-gradient(360deg, transparent, #ffffffff);
-      animation: btn-anim4 1.5s linear infinite;
-      animation-delay: 1.125s;
-    }
-
-    @keyframes btn-anim4 {
-      0% { bottom: -100%; }
-      50%,100% { bottom: 100%; }
-    }
-
-    .login-box p:last-child {
-      color: #000000ff;
-      font-size: 14px;
-      font-weight: 500;
-    }
-
-    .login-box a.a2 {
-      color: #fff;
-      text-decoration: none;
-            font-weight: 600;
-
-    }
-
-    .login-box a.a2:hover {
-      background: transparent;
-      color: #000000ff;
-      border-radius: 5px;
-    }
-
-    .error-message {
-      color: #ff4d4d;
-      text-align: center;
-      margin-bottom: 15px;
-      font-size: 14px;
-    }
-
-    .login-box .user-box input:hover {
-      border-bottom-color: #000000ff;
-      transition: border-bottom-color 0.3s ease;
-    }
-
-    .success-message {
-      color: #4CAF50;
-      text-align: center;
-      margin-bottom: 15px;
-      font-size: 14px;
-    }
-
-    @media (max-width: 480px) {
-      .login-box {
-        width: 90%;
-        padding: 30px 20px;
-      }
-    }
-  `;
-
     return (
-      <>
-        <style>{styles}</style>
+        <PageContainer>
+            <FormSide>
+                <SignupCard>
+                    <h2>Initialize Identity</h2>
+                    <p className="subtitle">Secure Registration Portal</p>
+                    
+                    <form onSubmit={onSubmit}>
+                        <InputGroup>
+                            <label>Designation (Full Name)</label>
+                            <input 
+                              type="text" 
+                              name="name" 
+                              value={name || ""} 
+                              onChange={onChange} 
+                              placeholder="e.g., Alex Carter" 
+                              required 
+                            />
+                        </InputGroup>
+                        <InputGroup>
+                            <label>Neural Link (Email)</label>
+                            <input 
+                              type="email" 
+                              name="email" 
+                              value={email || ""} 
+                              onChange={onChange} 
+                              placeholder="name@company.com" 
+                              required 
+                            />
+                        </InputGroup>
 
-        <div className="login-box">
-            <p>Sign Up</p>
-            <form onSubmit={onSubmit}>
-                <div className="user-box">
-                    <input type="text" name="name" value={name} onChange={onChange} required />
-                    <label>Name</label>
-                </div>
-                <div className="user-box">
-                    <input type="email" name="email" value={email} onChange={onChange} required />
-                    <label>Email</label>
-                </div>
-                <div className="user-box">
-                    <input type="password" name="password" value={password} onChange={onChange} required />
-                    <label>Password</label>
-                </div>
-                <div className="user-box">
-                    <input type="password" name="retypePassword" value={retypePassword} onChange={onChange} required />
-                    <label>Retype Password</label>
-                </div>
-                <button type="submit">
-                    <span></span><span></span><span></span><span></span>
-                    Submit
-                </button>
-            </form>
-            <p>Already have an account?{' '}<Link to="/login" className="a2">Log In!</Link></p>
-        </div>
-      </>
+                        <InputGroup>
+                            <label>Access Key (Password)</label>
+                            <div className="input-wrapper">
+                              <input 
+                                type={showPassword ? "text" : "password"} 
+                                name="password" 
+                                value={password || ""} 
+                                onChange={onChange} 
+                                placeholder="••••••••" 
+                                required 
+                              />
+                              <EyeButton onClick={() => setShowPassword(!showPassword)}>
+                                {showPassword ? (
+                                  <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                                ) : (
+                                  <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                )}
+                              </EyeButton>
+                            </div>
+                        </InputGroup>
+
+                        <InputGroup>
+                            <label>Verify Access Key</label>
+                            <div className="input-wrapper">
+                              <input 
+                                type={showRetype ? "text" : "password"} 
+                                name="retypePassword" 
+                                value={retypePassword || ""} 
+                                onChange={onChange} 
+                                placeholder="••••••••" 
+                                required 
+                              />
+                              <EyeButton onClick={() => setShowRetype(!showRetype)}>
+                                {showRetype ? (
+                                  <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                                ) : (
+                                  <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                )}
+                              </EyeButton>
+                            </div>
+                        </InputGroup>
+
+                        <ActionButton type="submit" disabled={loading}>
+                            {loading ? "INITIALIZING..." : "REGISTER OPERATIVE"}
+                        </ActionButton>
+                    </form>
+
+                    <LoginText>
+                        Already registered operative? <Link to="/login">Sign In</Link>
+                    </LoginText>
+                </SignupCard>
+            </FormSide>
+
+            <VisualSide>
+                <BrandText>
+                  <h1>Stream<span>Hub</span></h1>
+                  <p>Experience the peak of 4K streaming. Create your account to unlock premium features and cinematic quality.</p>
+                </BrandText>
+            </VisualSide>
+        </PageContainer>
     );
 };
 

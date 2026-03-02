@@ -66,7 +66,7 @@ const CareersPage = () => {
                       </p>
                     </div>
                     <div className="mt-4 mt-sm-0 ms-sm-4 flex-shrink-0">
-                      <a href="#" className="btn btn-primary btn-lg fw-bold py-2 px-4 rounded-pill shadow btn-hover-lift">
+                      <a href="#!" className="btn btn-primary btn-lg fw-bold py-2 px-4 rounded-pill shadow btn-hover-lift">
                         Apply Now
                       </a>
                     </div>
@@ -110,7 +110,7 @@ const CareersPage = () => {
               We're always looking for talented people to join our team. Send us your resume, and we'll keep you in mind for future opportunities.
             </p>
             <div className="mt-4">
-              <a href="#" className="btn btn-outline-light btn-lg fw-bold py-2 px-5 rounded-pill shadow btn-hover-lift">
+              <a href="#!" className="btn btn-outline-light btn-lg fw-bold py-2 px-5 rounded-pill shadow btn-hover-lift">
                 Get In Touch
               </a>
             </div>

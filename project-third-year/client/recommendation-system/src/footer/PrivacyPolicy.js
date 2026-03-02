@@ -1,19 +1,17 @@
 import React, { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 
-// ---------- KEYFRAMES ----------
 const glow = keyframes`
   0% { text-shadow: 0 0 5px #00ffff, 0 0 10px #ff00ff; }
   50% { text-shadow: 0 0 10px #ff00ff, 0 0 20px #ffff00; }
   100% { text-shadow: 0 0 5px #00ffff, 0 0 10px #ff00ff; }
 `;
 
-// ---------- STYLED COMPONENTS ----------
 const PolicyContainermain = styled.main`
   max-width: 100vw;
   background-color: #05080fff;
-  
 `;
+
 const PolicyContainer = styled.div`
   padding: 4rem 2rem;
   max-width: 900px;
@@ -28,68 +26,58 @@ const PolicyTitle = styled.h1`
   font-weight: 900;
   text-align: center;
   margin-bottom: 2rem;
-  /*color: #fff;*/ /*Applied bootstrap class text-danger instead
-  background: linear-gradient(90deg, #00ffff, #ff00ff, #ffff00, #00ffff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: ${glow} 3s ease-in-out infinite;
-  */
+  animation: ${glow} 3s infinite alternate;
 `;
 
 const AccordionSection = styled.div`
-  margin-bottom: 1rem;
-  border-radius: 10px;
-  overflow: hidden;
-  background: #111928b1;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid #1a1a1a;
+  margin-bottom: 0.5rem;
 `;
 
-const AccordionHeader = styled.div`
-
-  padding: 1rem 1.5rem;
-  font-size: clamp(1.2rem, 2.5vw, 1.5rem);
-  font-weight: 600;
-  color: #caceced0;
-  cursor: pointer;
-  user-select: none;
+const AccordionHeader = styled.button`
+  width: 100%;
+  padding: 1.5rem;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-align: left;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  cursor: pointer;
   transition: background 0.3s;
-    &:hover {
+
+  &:hover {
     background: rgba(255, 255, 255, 0.05);
   }
 `;
 
-const AccordionContent = styled.div`
-  padding: .4rem 2rem;
-  font-size: 1rem;
-  color: #ccc;
-  line-height: 1.7;
-  max-height: ${({ open }) => (open ? '1000px' : '0')};
-  overflow: hidden;
-  transition: max-height 0.4s ease, padding 0.3s ease;
-   & {
-    background: #05080fff;
-  }
-`;
-
 const AccordionArrow = styled.span`
-  transition: transform 0.3s ease;
+  font-size: 0.8rem;
+  transition: transform 0.3s;
   transform: ${({ open }) => (open ? 'rotate(90deg)' : 'rotate(0deg)')};
 `;
 
-const LinkStyled = styled.a`
-  color: #0d6efd;
-  text-decoration: none;
-  transition: color 0.3s;
+const AccordionContent = styled.div`
+  max-height: ${({ open }) => (open ? '500px' : '0')};
+  overflow: hidden;
+  transition: max-height 0.4s ease-in-out, padding 0.4s;
+  padding: ${({ open }) => (open ? '0 1.5rem 1.5rem' : '0 1.5rem')};
+  color: #aaa;
+  line-height: 1.6;
+`;
 
+const LinkStyled = styled.a`
+  color: #ff0000;
+  text-decoration: none;
+  font-weight: bold;
   &:hover {
-    color: #00ffff;
+    text-decoration: underline;
   }
 `;
 
-// ---------- COMPONENT ----------
 const PrivacyPolicy = () => {
   const [openIndex, setOpenIndex] = useState(null);
 
@@ -99,26 +87,16 @@ const PrivacyPolicy = () => {
 
   const sections = [
     {
-      title: 'Introduction',
-      content: `StreamHub respects your privacy and is committed to protecting your personal information. This Privacy Policy explains how we collect, use, and safeguard your data when you use our service.`
-    },
-    {
       title: 'Information We Collect',
-      content: `We may collect the following types of information:
-      - Account information such as your name, email, and password.
-      - Usage data, including movies you watch and your preferences.
-      - Payment information for processing subscriptions and rentals.`
+      content: `We collect personal information that you provide to us, such as your name, email address, and payment information when you sign up for our services.`
     },
     {
       title: 'How We Use Your Information',
-      content: `Your information is used to provide and improve our services, including:
-      - Personalizing your movie recommendations.
-      - Processing payments and managing your account.
-      - Sending important updates or offers (you may opt-out anytime).`
+      content: `We use your information to provide and improve our services, process payments, and communicate with you about your account.`
     },
     {
-      title: 'Sharing Your Information',
-      content: `We do not sell your personal information. We may share data with trusted service providers to help operate our service, but they are required to keep your data secure.`
+      title: 'Data Security',
+      content: `We implement industry-standard security measures to protect your data. Our third-party payment processors are required to keep your data secure.`
     },
     {
       title: 'Cookies & Tracking',
@@ -130,31 +108,36 @@ const PrivacyPolicy = () => {
     },
     {
       title: 'Contact Us',
-      content: `If you have questions about this Privacy Policy, please contact us at ${' '}
-      <LinkStyled href="mailto:support@streamhub.com">support@streamhub.com</LinkStyled>.`
+      content: `If you have questions about this Privacy Policy, please contact us at support@streamhub.com.`
     },
   ];
 
   return (
     <PolicyContainermain>
-        <PolicyContainer>
-      <PolicyTitle id='PrivacyPolicy' className='text-danger'>Privacy Policy</PolicyTitle>
-      {sections.map((section, index) => (
-        <AccordionSection key={index}>
-          <AccordionHeader onClick={() => toggleAccordion(index)}>
-            {section.title}
-            <AccordionArrow open={openIndex === index}>▶</AccordionArrow>
-          </AccordionHeader>
-          <AccordionContent open={openIndex === index}>
-            {section.content.split('\n').map((line, i) => (
-              <p key={i}>{line}</p>
-            ))}
-          </AccordionContent>
-        </AccordionSection>
-      ))}
-    </PolicyContainer>
+      <PolicyContainer>
+        <PolicyTitle id='PrivacyPolicy' className='text-danger'>Privacy Policy</PolicyTitle>
+        {sections.map((section, index) => (
+          <AccordionSection key={index}>
+            <AccordionHeader onClick={() => toggleAccordion(index)}>
+              {section.title}
+              <AccordionArrow open={openIndex === index}>▶</AccordionArrow>
+            </AccordionHeader>
+            <AccordionContent open={openIndex === index}>
+              {section.content.split('\n').map((line, i) => (
+                <p key={i}>
+                  {line.includes('support@streamhub.com') ? (
+                    <>
+                      If you have questions about this Privacy Policy, please contact us at{' '}
+                      <LinkStyled href="mailto:support@streamhub.com">support@streamhub.com</LinkStyled>.
+                    </>
+                  ) : line}
+                </p>
+              ))}
+            </AccordionContent>
+          </AccordionSection>
+        ))}
+      </PolicyContainer>
     </PolicyContainermain>
-    
   );
 };
 

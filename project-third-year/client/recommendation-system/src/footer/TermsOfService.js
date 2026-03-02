@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 
-// ---------- KEYFRAMES ----------
 const glow = keyframes`
   0% { text-shadow: 0 0 5px #00ffff, 0 0 10px #ff00ff; }
   50% { text-shadow: 0 0 10px #ff00ff, 0 0 20px #ffff00; }
   100% { text-shadow: 0 0 5px #00ffff, 0 0 10px #ff00ff; }
 `;
 
-// ---------- STYLED COMPONENTS ----------
 const PolicyContainermain = styled.main`
   max-width: 100vw;
   background-color: #05080fff;
@@ -28,65 +26,58 @@ const PolicyTitle = styled.h1`
   font-weight: 900;
   text-align: center;
   margin-bottom: 2rem;
- /* background: linear-gradient(90deg, #00ffff, #ff00ff, #ffff00, #00ffff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: ${glow} 3s ease-in-out infinite;*/
+  animation: ${glow} 3s infinite alternate;
 `;
 
 const AccordionSection = styled.div`
-  margin-bottom: 1rem;
-  border-radius: 10px;
-  overflow: hidden;
-  background: #111928b1;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid #1a1a1a;
+  margin-bottom: 0.5rem;
 `;
 
-const AccordionHeader = styled.div`
-  padding: 1rem 1.5rem;
-  font-size: clamp(1.2rem, 2.5vw, 1.5rem);
-  font-weight: 600;
-  color: #caceced0;
-  cursor: pointer;
-  user-select: none;
+const AccordionHeader = styled.button`
+  width: 100%;
+  padding: 1.5rem;
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-align: left;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  cursor: pointer;
   transition: background 0.3s;
-    &:hover {
+
+  &:hover {
     background: rgba(255, 255, 255, 0.05);
   }
 `;
 
-const AccordionContent = styled.div`
-  padding: 0.4rem 2rem;
-  font-size: 1rem;
-  color: #ccc;
-  line-height: 1.7;
-  max-height: ${({ open }) => (open ? '1000px' : '0')};
-  overflow: hidden;
-  transition: max-height 0.4s ease, padding 0.3s ease;
-  & {
-    background: #05080fff;
-  }
-`;
-
 const AccordionArrow = styled.span`
-  transition: transform 0.3s ease;
+  font-size: 0.8rem;
+  transition: transform 0.3s;
   transform: ${({ open }) => (open ? 'rotate(90deg)' : 'rotate(0deg)')};
 `;
 
-const LinkStyled = styled.a`
-  color: #0d6efd;
-  text-decoration: none;
-  transition: color 0.3s;
+const AccordionContent = styled.div`
+  max-height: ${({ open }) => (open ? '500px' : '0')};
+  overflow: hidden;
+  transition: max-height 0.4s ease-in-out, padding 0.4s;
+  padding: ${({ open }) => (open ? '0 1.5rem 1.5rem' : '0 1.5rem')};
+  color: #aaa;
+  line-height: 1.6;
+`;
 
+const LinkStyled = styled.a`
+  color: #ff0000;
+  text-decoration: none;
+  font-weight: bold;
   &:hover {
-    color: #00ffff;
+    text-decoration: underline;
   }
 `;
 
-// ---------- COMPONENT ----------
 const TermsOfService = () => {
   const [openIndex, setOpenIndex] = useState(null);
 
@@ -97,25 +88,17 @@ const TermsOfService = () => {
   const sections = [
     {
       title: 'Acceptance of Terms',
-      content: `By accessing or using StreamHub, you agree to be bound by these Terms of Service and our Privacy Policy. If you do not agree, you may not use our service.`
+      content: `By accessing or using StreamHub, you agree to be bound by these Terms of Service and all applicable laws and regulations.`
     },
     {
       title: 'User Accounts',
-      content: `You must create an account to access certain features. Keep your login credentials secure. You are responsible for all activity on your account.`
+      content: `You are responsible for maintaining the confidentiality of your account credentials. You must be at least 18 years old to use our service.`
     },
     {
-      title: 'Content Usage',
-      content: `All content available on StreamHub is for personal, non-commercial use. You may not redistribute, reproduce, or modify our content without explicit permission.`
-    },
-    {
-      title: 'Subscriptions & Payments',
-      content: `If you subscribe to premium services, you agree to provide accurate payment information. All fees are non-refundable unless required by law.`
-    },
-    {
-      title: 'Prohibited Activities',
-      content: `You may not:
-- Attempt to hack or disrupt our services.
-- Use bots or automation to access content.
+      title: 'Prohibited Conduct',
+      content: `You agree not to:
+- Use the service for any illegal purpose.
+- Attempt to bypass any technical measure we use to access content.
 - Share your account with unauthorized users.`
     },
     {
@@ -128,8 +111,7 @@ const TermsOfService = () => {
     },
     {
       title: 'Contact Us',
-      content: `For questions regarding these terms, please contact us at ${' '}
-      <LinkStyled href="mailto:support@streamhub.com">support@streamhub.com</LinkStyled>.`
+      content: `For questions regarding these terms, please contact us at support@streamhub.com.`
     },
   ];
 
@@ -145,7 +127,14 @@ const TermsOfService = () => {
             </AccordionHeader>
             <AccordionContent open={openIndex === index}>
               {section.content.split('\n').map((line, i) => (
-                <p key={i}>{line}</p>
+                <p key={i}>
+                  {line.includes('support@streamhub.com') ? (
+                    <>
+                      For questions regarding these terms, please contact us at{' '}
+                      <LinkStyled href="mailto:support@streamhub.com">support@streamhub.com</LinkStyled>.
+                    </>
+                  ) : line}
+                </p>
               ))}
             </AccordionContent>
           </AccordionSection>

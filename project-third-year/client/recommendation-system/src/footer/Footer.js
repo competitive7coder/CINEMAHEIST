@@ -267,7 +267,7 @@ const Footer = () => {
           <div className="col-lg-5 offset-lg-1 mb-3">
             <h5 className="text-light fw-bold mb-3">Get the App</h5>
             <a
-              href="#"
+              href="#!"
               className="btn btn-dark d-inline-flex align-items-center mb-2 me-2"
               style={{ backgroundColor: "#222" }}
             >
@@ -278,7 +278,7 @@ const Footer = () => {
               </div>
             </a>
             <a
-              href="#"
+              href="#!"
               className="btn btn-dark d-inline-flex align-items-center mb-2"
               style={{ backgroundColor: "#222" }}
             >

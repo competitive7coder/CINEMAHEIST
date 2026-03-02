@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import styled, { createGlobalStyle, keyframes } from "styled-components";
 
-// --- ANIMATIONS ---
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -19,8 +18,6 @@ const GlobalStyle = createGlobalStyle`
     overflow-x: hidden;
   }
   ::selection { background: #2e62ff; color: white; }
-  
-  /* Smooth Scroll for better UX */
   html { scroll-behavior: smooth; }
 `;
 
@@ -31,7 +28,6 @@ const PageWrapper = styled.div`
   animation: ${fadeIn} 0.8s ease-out;
 `;
 
-// --- HUD NAVBAR ---
 const NavContainer = styled.header`
   position: fixed;
   top: 25px;
@@ -56,7 +52,6 @@ const HUDNav = styled.nav`
   align-items: center;
   justify-content: space-between;
   box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-
   @media (max-width: 600px) { padding: 10px 20px; }
 `;
 
@@ -101,11 +96,9 @@ const JoinButton = styled(Link)`
   text-transform: uppercase;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   &:hover { background: #fff; color: #000; transform: scale(1.05); }
-  
   @media (max-width: 480px) { padding: 8px 16px; font-size: 0.55rem; }
 `;
 
-// --- SECTION STYLES ---
 const HeroSection = styled.section`
   height: 100vh; 
   display: flex; 
@@ -124,7 +117,6 @@ const MassiveTitle = styled.h1`
   margin: 0; 
   text-align: center;
   width: 100%;
-
   .top {
     display: block;
     background: linear-gradient(180deg, #fff 30%, rgba(255,255,255,0.1) 100%);
@@ -132,7 +124,6 @@ const MassiveTitle = styled.h1`
     -webkit-text-fill-color: transparent;
     margin-bottom: 5px;
   }
-
   .bottom {
     display: block; 
     -webkit-text-stroke: 1px rgba(255,255,255,0.2);
@@ -152,14 +143,12 @@ const ActionButton = styled(Link)`
   margin-top: 60px;
   transition: all 0.3s ease;
   box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-
   &:hover { 
     background: #2e62ff; 
     color: #fff; 
     transform: translateY(-5px);
     box-shadow: 0 15px 40px rgba(46, 98, 255, 0.4);
   }
-
   @media (max-width: 480px) { padding: 18px 35px; margin-top: 40px; }
 `;
 
@@ -187,7 +176,6 @@ const ModernUIFrame = styled.div`
   border-radius: 12px;
   box-shadow: 0 40px 100px rgba(0,0,0,0.5);
   direction: ltr;
-
   .inner-content { background: #000; border-radius: 10px; padding: 30px; }
   .ui-label { 
     font-family: 'SF Mono', monospace; 
@@ -199,7 +187,6 @@ const ModernUIFrame = styled.div`
     justify-content: space-between; 
     span { color: #2e62ff; } 
   }
-  
   @media (max-width: 480px) { .inner-content { padding: 20px; } }
 `;
 
@@ -211,14 +198,12 @@ const TrailerCard = styled.div`
   position: relative;
   border: 1px solid rgba(255,255,255,0.1);
   overflow: hidden;
-
   &::after { 
     content: ''; 
     position: absolute; 
     inset: 0; 
     background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, transparent 60%); 
   }
-
   .play-icon { 
     position: absolute; 
     top: 50%; 
@@ -317,16 +302,13 @@ const PublicHome = () => {
     const handleResize = () => setIsMobile(window.innerWidth < 600);
     handleResize();
     window.addEventListener('resize', handleResize);
-    
     const timer = setInterval(() => setTime(new Date().toLocaleTimeString()), 1000);
-    
     return () => {
       window.removeEventListener('resize', handleResize);
       clearInterval(timer);
     };
   }, []);
 
-  // Prevent expensive clock re-renders for static UI parts
   const memoizedHero = useMemo(() => (
     <HeroSection>
       <MassiveTitle>
@@ -340,7 +322,6 @@ const PublicHome = () => {
   return (
     <PageWrapper>
       <GlobalStyle />
-      
       <NavContainer>
         <HUDNav role="navigation" aria-label="Main Navigation">
           <Brand to="/">STREAMHUB</Brand>
@@ -359,7 +340,6 @@ const PublicHome = () => {
       {memoizedHero}
 
       <MainContent>
-        {/* RECENT RELEASES */}
         <FeatureRow aria-labelledby="section-archive">
           <ModernUIFrame>
             <div className="inner-content">
@@ -387,7 +367,6 @@ const PublicHome = () => {
           </TextBlock>
         </FeatureRow>
 
-        {/* CAST & RATINGS */}
         <FeatureRow reverse aria-labelledby="section-intelligence">
           <ModernUIFrame>
             <div className="inner-content">
@@ -414,14 +393,13 @@ const PublicHome = () => {
           </TextBlock>
         </FeatureRow>
 
-        {/* WATCHLIST */}
         <FeatureRow aria-labelledby="section-library">
           <ModernUIFrame>
             <div className="inner-content">
               <div className="ui-label">USER_VAULT: <span>ACTIVE</span> <span>12_ITEMS</span></div>
               <WatchlistUI>
                 {[...Array(6)].map((_, i) => (
-                  <div key={i} className="movie-thumb">{i === 0 ? 'SAVED' : ''}</div>
+                  <div key={i} className="movie-thumb" aria-label="Watchlist item">{i === 0 ? 'SAVED' : ''}</div>
                 ))}
               </WatchlistUI>
               <button 

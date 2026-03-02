@@ -1,27 +1,38 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
-import styled, { createGlobalStyle } from "styled-components";
+import styled, { createGlobalStyle, keyframes } from "styled-components";
+
+// --- ANIMATIONS ---
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
 
 const GlobalStyle = createGlobalStyle`
   body {
     margin: 0;
     background: #000;
     color: #fff;
-    font-family: 'Inter', -apple-system, sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
   }
   ::selection { background: #2e62ff; color: white; }
+  
+  /* Smooth Scroll for better UX */
+  html { scroll-behavior: smooth; }
 `;
 
 const PageWrapper = styled.div`
   position: relative;
   background: #000;
   width: 100%;
+  animation: ${fadeIn} 0.8s ease-out;
 `;
 
-// --- HUD NAVBAR  ---
-const NavContainer = styled.div`
+// --- HUD NAVBAR ---
+const NavContainer = styled.header`
   position: fixed;
   top: 25px;
   left: 0;
@@ -36,8 +47,8 @@ const NavContainer = styled.div`
 const HUDNav = styled.nav`
   width: 100%;
   max-width: 1100px;
-  background: rgba(10, 10, 10, 0.7);
-  backdrop-filter: blur(15px) saturate(160%);
+  background: rgba(10, 10, 10, 0.75);
+  backdrop-filter: blur(20px) saturate(180%);
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 10px 25px;
   border-radius: 100px;
@@ -46,9 +57,7 @@ const HUDNav = styled.nav`
   justify-content: space-between;
   box-shadow: 0 25px 50px rgba(0,0,0,0.5);
 
-  @media (max-width: 600px) {
-    padding: 10px 20px;
-  }
+  @media (max-width: 600px) { padding: 10px 20px; }
 `;
 
 const Brand = styled(Link)`
@@ -58,16 +67,17 @@ const Brand = styled(Link)`
   font-weight: 950;
   letter-spacing: 5px;
   text-transform: uppercase;
+  transition: opacity 0.3s;
+  &:hover { opacity: 0.8; }
 `;
 
 const NavLinks = styled.div`
   display: flex;
   align-items: center;
-  gap: 30px;
-  @media (max-width: 480px) { gap: 15px; }
+  gap: clamp(15px, 3vw, 30px);
 `;
 
-const NavLink = styled(Link)`
+const NavLinkStyled = styled(Link)`
   color: #888;
   text-decoration: none;
   font-size: 0.6rem;
@@ -76,6 +86,7 @@ const NavLink = styled(Link)`
   text-transform: uppercase;
   transition: color 0.3s ease;
   &:hover { color: #fff; }
+  @media (max-width: 480px) { display: none; }
 `;
 
 const JoinButton = styled(Link)`
@@ -88,13 +99,10 @@ const JoinButton = styled(Link)`
   font-weight: 900;
   letter-spacing: 2px;
   text-transform: uppercase;
-  transition: all 0.3s ease;
-  &:hover { background: #fff; color: #000; }
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  &:hover { background: #fff; color: #000; transform: scale(1.05); }
   
-  @media (max-width: 480px) {
-    padding: 8px 16px;
-    font-size: 0.55rem;
-  }
+  @media (max-width: 480px) { padding: 8px 16px; font-size: 0.55rem; }
 `;
 
 // --- SECTION STYLES ---
@@ -109,10 +117,9 @@ const HeroSection = styled.section`
 `;
 
 const MassiveTitle = styled.h1`
-  /* Using clamp to ensure it fits mobile and looks massive on desktop */
   font-size: clamp(3.5rem, 12vw, 11rem);
   font-weight: 900; 
-  line-height: 0.95; /* Increased to prevent word overlap */
+  line-height: 0.95; 
   letter-spacing: -0.06em;
   margin: 0; 
   text-align: center;
@@ -123,7 +130,7 @@ const MassiveTitle = styled.h1`
     background: linear-gradient(180deg, #fff 30%, rgba(255,255,255,0.1) 100%);
     -webkit-background-clip: text; 
     -webkit-text-fill-color: transparent;
-    margin-bottom: 5px; /* Added gap to prevent overlap with stroke text */
+    margin-bottom: 5px;
   }
 
   .bottom {
@@ -143,20 +150,20 @@ const ActionButton = styled(Link)`
   letter-spacing: 4px; 
   text-transform: uppercase;
   margin-top: 60px;
-  transition: transform 0.2s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+
   &:hover { 
     background: #2e62ff; 
     color: #fff; 
-    transform: translateY(-3px);
+    transform: translateY(-5px);
+    box-shadow: 0 15px 40px rgba(46, 98, 255, 0.4);
   }
 
-  @media (max-width: 480px) {
-    padding: 18px 35px;
-    margin-top: 40px;
-  }
+  @media (max-width: 480px) { padding: 18px 35px; margin-top: 40px; }
 `;
 
-const MainContent = styled.section`
+const MainContent = styled.main`
   padding: 100px 8%;
   display: flex;
   flex-direction: column;
@@ -164,17 +171,13 @@ const MainContent = styled.section`
   @media (max-width: 768px) { gap: 100px; }
 `;
 
-const FeatureRow = styled.div`
+const FeatureRow = styled.section`
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
   gap: 100px;
   align-items: center;
   direction: ${props => props.reverse ? 'rtl' : 'ltr'};
-  @media (max-width: 1024px) { 
-    grid-template-columns: 1fr; 
-    direction: ltr; 
-    gap: 50px;
-  }
+  @media (max-width: 1024px) { grid-template-columns: 1fr; direction: ltr; gap: 50px; }
 `;
 
 const ModernUIFrame = styled.div`
@@ -184,31 +187,91 @@ const ModernUIFrame = styled.div`
   border-radius: 12px;
   box-shadow: 0 40px 100px rgba(0,0,0,0.5);
   direction: ltr;
+
   .inner-content { background: #000; border-radius: 10px; padding: 30px; }
-  .ui-label { font-family: monospace; font-size: 0.55rem; color: #444; letter-spacing: 3px; margin-bottom: 20px; display: flex; justify-content: space-between; span { color: #2e62ff; } }
-  
-  @media (max-width: 480px) {
-    .inner-content { padding: 20px; }
+  .ui-label { 
+    font-family: 'SF Mono', monospace; 
+    font-size: 0.55rem; 
+    color: #444; 
+    letter-spacing: 3px; 
+    margin-bottom: 20px; 
+    display: flex; 
+    justify-content: space-between; 
+    span { color: #2e62ff; } 
   }
+  
+  @media (max-width: 480px) { .inner-content { padding: 20px; } }
 `;
 
 const TrailerCard = styled.div`
-  width: 100%; aspect-ratio: 16/9;
+  width: 100%; 
+  aspect-ratio: 16/9;
   background: url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1000&auto=format&fit=crop') center/cover;
-  border-radius: 6px; position: relative;
+  border-radius: 6px; 
+  position: relative;
   border: 1px solid rgba(255,255,255,0.1);
-  &::after { content: ''; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, transparent 60%); }
-  .play-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 60px; height: 60px; background: rgba(46, 98, 255, 0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 0 30px rgba(46, 98, 255, 0.4); }
+  overflow: hidden;
+
+  &::after { 
+    content: ''; 
+    position: absolute; 
+    inset: 0; 
+    background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, transparent 60%); 
+  }
+
+  .play-icon { 
+    position: absolute; 
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%); 
+    width: 60px; 
+    height: 60px; 
+    background: rgba(46, 98, 255, 0.9); 
+    border-radius: 50%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-size: 1.2rem; 
+    box-shadow: 0 0 30px rgba(46, 98, 255, 0.4);
+    z-index: 2;
+  }
 `;
 
 const IntelGrid = styled.div`
-  display: flex; flex-direction: column; gap: 12px;
-  .row { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(255,255,255,0.03); border-radius: 6px; border-left: 2px solid transparent; &:hover { border-left: 2px solid #2e62ff; background: rgba(255,255,255,0.05); } span { font-size: 0.8rem; color: #888; } b { color: #2e62ff; font-family: monospace; font-size: 1rem; } }
+  display: flex; 
+  flex-direction: column; 
+  gap: 12px;
+  .row { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 15px; 
+    background: rgba(255,255,255,0.03); 
+    border-radius: 6px; 
+    border-left: 2px solid transparent; 
+    transition: 0.3s;
+    &:hover { border-left: 2px solid #2e62ff; background: rgba(255,255,255,0.05); } 
+    span { font-size: 0.8rem; color: #888; } 
+    b { color: #2e62ff; font-family: monospace; font-size: 1rem; } 
+  }
 `;
 
 const WatchlistUI = styled.div`
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
-  .movie-thumb { aspect-ratio: 2/3; background: #111; border-radius: 4px; border: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-size: 0.5rem; color: #333; &:nth-child(1) { background: #1a1a1a; border-color: #2e62ff; } }
+  display: grid; 
+  grid-template-columns: repeat(3, 1fr); 
+  gap: 10px;
+  .movie-thumb { 
+    aspect-ratio: 2/3; 
+    background: #111; 
+    border-radius: 4px; 
+    border: 1px solid rgba(255,255,255,0.05); 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-size: 0.5rem; 
+    color: #333; 
+    &:first-child { background: #1a1a1a; border-color: #2e62ff; color: #2e62ff; } 
+  }
 `;
 
 const TextBlock = styled.div`
@@ -216,61 +279,94 @@ const TextBlock = styled.div`
   .tag { color: #2e62ff; font-family: monospace; font-size: 0.7rem; letter-spacing: 6px; text-transform: uppercase; margin-bottom: 25px; display: block; }
   h2 { font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 900; letter-spacing: -3px; line-height: 1; margin: 0 0 35px 0; }
   p { font-size: 1.1rem; color: #777; line-height: 1.8; margin-bottom: 45px; max-width: 500px; }
-  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; .stat { border-left: 1px solid #222; padding-left: 20px; label { display: block; font-family: monospace; font-size: 0.6rem; color: #444; text-transform: uppercase; } b { display: block; color: #fff; font-size: 1.1rem; margin-top: 8px; } } }
+  .stats { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 30px; 
+    .stat { 
+      border-left: 1px solid #222; 
+      padding-left: 20px; 
+      label { display: block; font-family: monospace; font-size: 0.6rem; color: #444; text-transform: uppercase; } 
+      b { display: block; color: #fff; font-size: 1.1rem; margin-top: 8px; } 
+    } 
+  }
 `;
 
 const FooterBig = styled.footer`
-  padding: 180px 6% 100px; text-align: center;
+  padding: 180px 6% 100px; 
+  text-align: center;
   border-top: 1px solid rgba(255, 255, 255, 0.04);
   background: radial-gradient(circle at 50% 100%, rgba(46, 98, 255, 0.05) 0%, transparent 70%);
-  h2 { font-size: clamp(3rem, 15vw, 12rem); font-weight: 950; margin: 0; line-height: 0.75; letter-spacing: -0.09em; background: linear-gradient(180deg, #fff 10%, rgba(255,255,255,0.1) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  h2 { 
+    font-size: clamp(3rem, 15vw, 12rem); 
+    font-weight: 950; 
+    margin: 0; 
+    line-height: 0.75; 
+    letter-spacing: -0.09em; 
+    background: linear-gradient(180deg, #fff 10%, rgba(255,255,255,0.1) 100%); 
+    -webkit-background-clip: text; 
+    -webkit-text-fill-color: transparent; 
+  }
 `;
 
 const PublicHome = () => {
   const [time, setTime] = useState(new Date().toLocaleTimeString());
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 600);
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    
     const timer = setInterval(() => setTime(new Date().toLocaleTimeString()), 1000);
-    return () => clearInterval(timer);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      clearInterval(timer);
+    };
   }, []);
+
+  // Prevent expensive clock re-renders for static UI parts
+  const memoizedHero = useMemo(() => (
+    <HeroSection>
+      <MassiveTitle>
+        <span className="top">CINEMA</span>
+        <span className="bottom">DISCOVERY</span>
+      </MassiveTitle>
+      <ActionButton to="/signup">Initialize Access</ActionButton>
+    </HeroSection>
+  ), []);
 
   return (
     <PageWrapper>
       <GlobalStyle />
       
       <NavContainer>
-        <HUDNav>
+        <HUDNav role="navigation" aria-label="Main Navigation">
           <Brand to="/">STREAMHUB</Brand>
-          <div style={{ 
-            fontFamily: 'monospace', 
-            fontSize: '0.5rem', 
-            color: '#444',
-            display: window.innerWidth < 600 ? 'none' : 'block' 
-          }}>
-            CLOCK_{time}
-          </div>
+          {!isMobile && (
+            <div style={{ fontFamily: 'monospace', fontSize: '0.5rem', color: '#444' }}>
+              CLOCK_{time}
+            </div>
+          )}
           <NavLinks>
-            <NavLink to="/login">LOGIN</NavLink>
+            <NavLinkStyled to="/login">LOGIN</NavLinkStyled>
             <JoinButton to="/signup">JOIN_HUB</JoinButton>
           </NavLinks>
         </HUDNav>
       </NavContainer>
 
-      <HeroSection>
-        <MassiveTitle>
-          <span className="top">CINEMA</span>
-          <span className="bottom">DISCOVERY</span>
-        </MassiveTitle>
-        <ActionButton to="/signup">Initialize Access</ActionButton>
-      </HeroSection>
+      {memoizedHero}
 
       <MainContent>
         {/* RECENT RELEASES */}
-        <FeatureRow>
+        <FeatureRow aria-labelledby="section-archive">
           <ModernUIFrame>
             <div className="inner-content">
               <div className="ui-label">NETWORK_STATUS: <span>ENCRYPTED</span> ID: 8829-X</div>
-              <TrailerCard><div className="play-icon">▶</div></TrailerCard>
+              <TrailerCard>
+                <div className="play-icon" aria-hidden="true">▶</div>
+              </TrailerCard>
               <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <div style={{ fontSize: '0.6rem', color: '#2e62ff', fontWeight: 'bold' }}>NEW RELEASE</div>
@@ -280,7 +376,7 @@ const PublicHome = () => {
               </div>
             </div>
           </ModernUIFrame>
-          <TextBlock>
+          <TextBlock id="section-archive">
             <span className="tag">01 // Archive</span>
             <h2>Recently<br />Released.</h2>
             <p>The most advanced cinematic feed on the web. Access newly dropped trailers and high-bitrate clips in native 8K resolution.</p>
@@ -292,7 +388,7 @@ const PublicHome = () => {
         </FeatureRow>
 
         {/* CAST & RATINGS */}
-        <FeatureRow reverse={true}>
+        <FeatureRow reverse aria-labelledby="section-intelligence">
           <ModernUIFrame>
             <div className="inner-content">
               <div className="ui-label">DATABASE_ACCESS: <span>VERIFIED</span> <span>ANALYTICS</span></div>
@@ -307,7 +403,7 @@ const PublicHome = () => {
               </div>
             </div>
           </ModernUIFrame>
-          <TextBlock>
+          <TextBlock id="section-intelligence">
             <span className="tag">02 // Intelligence</span>
             <h2>Cast &<br />Ratings.</h2>
             <p>Integrated data intelligence. We cross-reference every title against global databases instantly.</p>
@@ -319,7 +415,7 @@ const PublicHome = () => {
         </FeatureRow>
 
         {/* WATCHLIST */}
-        <FeatureRow>
+        <FeatureRow aria-labelledby="section-library">
           <ModernUIFrame>
             <div className="inner-content">
               <div className="ui-label">USER_VAULT: <span>ACTIVE</span> <span>12_ITEMS</span></div>
@@ -328,10 +424,15 @@ const PublicHome = () => {
                   <div key={i} className="movie-thumb">{i === 0 ? 'SAVED' : ''}</div>
                 ))}
               </WatchlistUI>
-              <button style={{ width: '100%', marginTop: '20px', padding: '12px', background: '#2e62ff', border: 'none', color: '#fff', fontSize: '0.6rem', fontWeight: '800', letterSpacing: '2px', borderRadius: '4px' }}>MANAGE WATCHLIST</button>
+              <button 
+                type="button"
+                style={{ width: '100%', marginTop: '20px', padding: '12px', background: '#2e62ff', border: 'none', color: '#fff', fontSize: '0.6rem', fontWeight: '800', letterSpacing: '2px', borderRadius: '4px', cursor: 'pointer' }}
+              >
+                MANAGE WATCHLIST
+              </button>
             </div>
           </ModernUIFrame>
-          <TextBlock>
+          <TextBlock id="section-library">
             <span className="tag">03 // Library</span>
             <h2>Private<br />Watchlist.</h2>
             <p>Personalize your discovery. Your library is encrypted and synced across all nodes.</p>
@@ -345,7 +446,9 @@ const PublicHome = () => {
 
       <FooterBig>
         <h2>STREAMHUB</h2>
-        <p style={{ opacity: 0.2, fontSize: '0.7rem', letterSpacing: '12px', marginTop: '60px', textTransform: 'uppercase', fontFamily: 'monospace' }}>ALL RIGHTS RESERVED // ESTABLISHED 2026</p>
+        <p style={{ opacity: 0.2, fontSize: '0.7rem', letterSpacing: '12px', marginTop: '60px', textTransform: 'uppercase', fontFamily: 'monospace' }}>
+          ALL RIGHTS RESERVED // ESTABLISHED 2026
+        </p>
       </FooterBig>
     </PageWrapper>
   );

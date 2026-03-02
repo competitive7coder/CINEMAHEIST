@@ -1,433 +1,428 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
-import styled, { createGlobalStyle, keyframes } from "styled-components";
+import { Container, Row, Col } from "react-bootstrap";
+import styled, { keyframes } from "styled-components";
 
-const fadeIn = keyframes`
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-`;
-
-const GlobalStyle = createGlobalStyle`
-  body {
-    margin: 0;
-    background: #000;
-    color: #fff;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    overflow-x: hidden;
+// ---------------- ANIMATIONS ----------------
+const fadeInUp = keyframes`
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
-  ::selection { background: #2e62ff; color: white; }
-  html { scroll-behavior: smooth; }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 `;
 
+const fadeInScale = keyframes`
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+`;
+
+const floatCard = keyframes`
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+`;
+
+// ---------------- STYLED COMPONENTS ----------------
 const PageWrapper = styled.div`
-  position: relative;
-  background: #000;
-  width: 100%;
-  animation: ${fadeIn} 0.8s ease-out;
+  background-color: #000000ff;
+  overflow-x: hidden;
 `;
 
-const NavContainer = styled.header`
-  position: fixed;
-  top: 25px;
-  left: 0;
-  width: 100%;
+const HeroContainer = styled.div`
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  padding: 4rem 2rem;
+`;
+
+const HeroText = styled(Col)`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  animation: ${fadeInUp} 1s ease-out;
+`;
+
+const gradientMove = keyframes`
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+`;
+
+const HeroTitle = styled.h1`
+  font-size: clamp(2.5rem, 5vw, 3.8rem);
+  font-weight: 700;
+  margin-bottom: 1rem;
+ background: linear-gradient(90deg, #00ffff, #ff00ff, #ffff00, #00ffff);
+  background-size: 400%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: ${gradientMove} 6s linear infinite;
+  text-shadow: 0 0 5px rgba(0, 255, 255, 0.6), 0 0 10px rgba(255, 0, 255, 0.6);
+`;
+
+const HeroSubtitle = styled.p`
+padding-top: 0.5rem;
+  font-size: clamp(1.4rem, 2.5vw, 1.6rem); /* increased min, preferred, and max size */
+  max-width: 500px;
+  color: #d3d0d0ff;
+  font-weight: 500;
+`;
+
+
+const PosterCollage = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 15px;
+  transform: rotate(5deg) scale(1.1);
+  height: 350px;
+  animation: ${fadeInScale} 1.2s ease-out;
+`;
+
+const PosterImage = styled.img`
+  width: 80%;   
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &.poster1 { grid-column: 1 / 3; grid-row: 1 / 2; }
+  &.poster2 { grid-column: 2 / 4; grid-row: 1 / 2; }
+
+  &:hover {
+    transform: scale(1.05); // add hover zoom
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.6);
+  }
+`;
+
+
+const FeatureTitle = styled.h2`
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 700;
+  margin-bottom: 1rem;
+  position: relative;
+  z-index: 2;
+  text-align: center;
+`;
+
+const HowItWorksSection = styled.section`
+  padding: 80px 45px;
+  color: white;
+
+  .col {
+    overflow: visible !important;
+  }
+`;
+
+const HowItWorksCard = styled.div`
+  background: rgba(16, 24, 39, 0.7);
+  backdrop-filter: blur(10px);
+  padding: 2.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  height: 100%;
+  text-align: center;
+  position: relative;
+  overflow: visible;
+  animation: ${fadeInUp} 1s ease-out both, ${floatCard} 6s ease-in-out infinite;
+  animation-delay: ${(props) => props.delay || "0s"};
+  transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+  will-change: transform;
+
+  &:hover {
+    cursor: pointer;
+    transform: scale(1.2) translateY(20px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
+    border-color: rgba(255, 255, 255, 0.4);
+    z-index: 3;
+  }
+`;
+
+const StepNumber = styled.div`
+  position: absolute;
+  right: 1.5rem;
+  top: 0.5rem;
+  font-size: 6rem;
+  font-weight: 800;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.05);
+  z-index: 1;
+`;
+
+const HowItWorksIcon = styled.i`
+  font-size: 3.5rem;
+  color: #0d6efd;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 0 15px rgba(13, 110, 253, 0.4);
+  position: relative;
+  z-index: 2;
+`;
+
+const HowItWorksTitle = styled.h3`
+  font-size: clamp(1.3rem, 3vw, 1.5rem);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  position: relative;
+  z-index: 2;
+`;
+
+const HowItWorksText = styled.p`
+  font-size: clamp(1rem, 2.5vw, 1.1rem);
+  color: #aaa;
+  max-width: 300px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+`;
+
+const FinalCtaSection = styled.section`
+  padding: 80px 40px;
+  background-color: transparent;
+  text-align: center;
+  color: white;
+`;
+
+const HeroButtonContainer = styled.div`
   display: flex;
   justify-content: center;
-  z-index: 1000;
-  padding: 0 20px;
-  box-sizing: border-box;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
 `;
 
-const HUDNav = styled.nav`
+const ButtonShadow = styled.span`
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
   width: 100%;
-  max-width: 1100px;
-  background: rgba(10, 10, 10, 0.75);
-  backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 10px 25px;
-  border-radius: 100px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-  @media (max-width: 600px) { padding: 10px 20px; }
+  background: hsl(226, 25%, 69%);
+  border-radius: 8px;
+  filter: blur(2px);
+  will-change: transform;
+  transform: translateY(2px);
+  transition: transform 600ms cubic-bezier(0.3, 0.7, 0.4, 1);
 `;
 
-const Brand = styled(Link)`
-  color: #fff;
-  text-decoration: none;
-  font-size: 0.8rem;
-  font-weight: 950;
-  letter-spacing: 5px;
-  text-transform: uppercase;
-  transition: opacity 0.3s;
-  &:hover { opacity: 0.8; }
-`;
-
-const NavLinks = styled.div`
-  display: flex;
-  align-items: center;
-  gap: clamp(15px, 3vw, 30px);
-`;
-
-const NavLinkStyled = styled(Link)`
-  color: #888;
-  text-decoration: none;
-  font-size: 0.6rem;
-  letter-spacing: 3px;
-  font-weight: 800;
-  text-transform: uppercase;
-  transition: color 0.3s ease;
-  &:hover { color: #fff; }
-  @media (max-width: 480px) { display: none; }
-`;
-
-const JoinButton = styled(Link)`
-  background: #2e62ff;
-  color: #fff;
-  text-decoration: none;
-  font-size: 0.6rem;
-  padding: 10px 24px;
-  border-radius: 50px;
-  font-weight: 900;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  &:hover { background: #fff; color: #000; transform: scale(1.05); }
-  @media (max-width: 480px) { padding: 8px 16px; font-size: 0.55rem; }
-`;
-
-const HeroSection = styled.section`
-  height: 100vh; 
-  display: flex; 
-  flex-direction: column;
-  justify-content: center; 
-  align-items: center; 
-  padding: 0 5%;
-  text-align: center;
-`;
-
-const MassiveTitle = styled.h1`
-  font-size: clamp(3.5rem, 12vw, 11rem);
-  font-weight: 900; 
-  line-height: 0.95; 
-  letter-spacing: -0.06em;
-  margin: 0; 
-  text-align: center;
+const ButtonEdge = styled.span`
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
   width: 100%;
-  .top {
-    display: block;
-    background: linear-gradient(180deg, #fff 30%, rgba(255,255,255,0.1) 100%);
-    -webkit-background-clip: text; 
-    -webkit-text-fill-color: transparent;
-    margin-bottom: 5px;
-  }
-  .bottom {
-    display: block; 
-    -webkit-text-stroke: 1px rgba(255,255,255,0.2);
-    color: transparent;
-  }
+  border-radius: 8px;
 `;
 
-const ActionButton = styled(Link)`
-  padding: 22px 50px; 
-  background: #fff; 
-  color: #000;
-  text-decoration: none; 
-  font-weight: 800; 
-  font-size: 0.75rem;
-  letter-spacing: 4px; 
-  text-transform: uppercase;
-  margin-top: 60px;
-  transition: all 0.3s ease;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  &:hover { 
-    background: #2e62ff; 
-    color: #fff; 
-    transform: translateY(-5px);
-    box-shadow: 0 15px 40px rgba(46, 98, 255, 0.4);
-  }
-  @media (max-width: 480px) { padding: 18px 35px; margin-top: 40px; }
-`;
-
-const MainContent = styled.main`
-  padding: 100px 8%;
-  display: flex;
-  flex-direction: column;
-  gap: 200px;
-  @media (max-width: 768px) { gap: 100px; }
-`;
-
-const FeatureRow = styled.section`
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 100px;
-  align-items: center;
-  direction: ${props => props.reverse ? 'rtl' : 'ltr'};
-  @media (max-width: 1024px) { grid-template-columns: 1fr; direction: ltr; gap: 50px; }
-`;
-
-const ModernUIFrame = styled.div`
-  background: linear-gradient(145deg, #0f0f0f 0%, #050505 100%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 2px;
-  border-radius: 12px;
-  box-shadow: 0 40px 100px rgba(0,0,0,0.5);
-  direction: ltr;
-  .inner-content { background: #000; border-radius: 10px; padding: 30px; }
-  .ui-label { 
-    font-family: 'SF Mono', monospace; 
-    font-size: 0.55rem; 
-    color: #444; 
-    letter-spacing: 3px; 
-    margin-bottom: 20px; 
-    display: flex; 
-    justify-content: space-between; 
-    span { color: #2e62ff; } 
-  }
-  @media (max-width: 480px) { .inner-content { padding: 20px; } }
-`;
-
-const TrailerCard = styled.div`
-  width: 100%; 
-  aspect-ratio: 16/9;
-  background: url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1000&auto=format&fit=crop') center/cover;
-  border-radius: 6px; 
+const ButtonFront = styled.span`
+  display: block;
   position: relative;
-  border: 1px solid rgba(255,255,255,0.1);
-  overflow: hidden;
-  &::after { 
-    content: ''; 
-    position: absolute; 
-    inset: 0; 
-    background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, transparent 60%); 
+  border-radius: 8px;
+  padding: 16px 32px;
+  color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-size: 1rem;
+  transform: translateY(-4px);
+  transition: transform 600ms cubic-bezier(0.3, 0.7, 0.4, 1);
+`;
+
+const PushableButton = styled(Link)`
+  position: relative;
+  background: transparent;
+  padding: 0;
+  border: none;
+  cursor: pointer;
+  outline-offset: 4px;
+  transition: filter 250ms;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  text-decoration: none;
+  display: inline-block;
+
+  &:hover {
+    filter: brightness(110%);
   }
-  .play-icon { 
-    position: absolute; 
-    top: 50%; 
-    left: 50%; 
-    transform: translate(-50%, -50%); 
-    width: 60px; 
-    height: 60px; 
-    background: rgba(46, 98, 255, 0.9); 
-    border-radius: 50%; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    font-size: 1.2rem; 
-    box-shadow: 0 0 30px rgba(46, 98, 255, 0.4);
-    z-index: 2;
+  &:hover ${ButtonFront} {
+    transform: translateY(-6px);
+    transition: transform 250ms cubic-bezier(0.3, 0.7, 0.4, 1.5);
+  }
+  &:active ${ButtonFront} {
+    transform: translateY(-2px);
+    transition: transform 34ms;
+  }
+  &:hover ${ButtonShadow} {
+    transform: translateY(4px);
+    transition: transform 250ms cubic-bezier(0.3, 0.7, 0.4, 1.5);
+  }
+  &:active ${ButtonShadow} {
+    transform: translateY(1px);
+    transition: transform 34ms;
+  }
+
+  &.btn-color-primary ${ButtonFront} {
+    background: hsl(211, 100%, 50%);
+  }
+  &.btn-color-primary ${ButtonEdge} {
+    background: linear-gradient(
+      to right,
+      hsl(211, 100%, 30%) 0%,
+      hsl(211, 100%, 35%) 8%,
+      hsl(211, 100%, 35%) 92%,
+      hsl(211, 100%, 25%) 100%
+    );
+  }
+  &.btn-color-primary ${ButtonShadow} {
+    background: hsl(211, 50%, 60%);
+  }
+
+  &.btn-color-secondary ${ButtonFront} {
+    background: hsl(210, 20%, 96%);
+    color: #333;
+  }
+  &.btn-color-secondary ${ButtonEdge} {
+    background: linear-gradient(
+      to right,
+      hsl(210, 10%, 60%) 0%,
+      hsl(210, 10%, 75%) 8%,
+      hsl(210, 10%, 75%) 92%,
+      hsl(210, 10%, 55%) 100%
+    );
+  }
+  &.btn-color-secondary ${ButtonShadow} {
+    background: hsl(210, 10%, 75%);
   }
 `;
 
-const IntelGrid = styled.div`
-  display: flex; 
-  flex-direction: column; 
-  gap: 12px;
-  .row { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    padding: 15px; 
-    background: rgba(255,255,255,0.03); 
-    border-radius: 6px; 
-    border-left: 2px solid transparent; 
-    transition: 0.3s;
-    &:hover { border-left: 2px solid #2e62ff; background: rgba(255,255,255,0.05); } 
-    span { font-size: 0.8rem; color: #888; } 
-    b { color: #2e62ff; font-family: monospace; font-size: 1rem; } 
-  }
+
+const GlowingText = styled.p`
+  font-weight: bold;
+  font-size: 1.8rem;
+  background: linear-gradient(90deg, #00ffff, #ff00ff, #ffff00, #00ffff);
+  background-size: 400%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: ${gradientMove} 6s linear infinite;
+  /*text-shadow: 0 0 5px rgba(0, 255, 255, 0.6), 0 0 10px rgba(255, 0, 255, 0.6);*/
 `;
 
-const WatchlistUI = styled.div`
-  display: grid; 
-  grid-template-columns: repeat(3, 1fr); 
-  gap: 10px;
-  .movie-thumb { 
-    aspect-ratio: 2/3; 
-    background: #111; 
-    border-radius: 4px; 
-    border: 1px solid rgba(255,255,255,0.05); 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    font-size: 0.5rem; 
-    color: #333; 
-    &:first-child { background: #1a1a1a; border-color: #2e62ff; color: #2e62ff; } 
-  }
-`;
-
-const TextBlock = styled.div`
-  direction: ltr;
-  .tag { color: #2e62ff; font-family: monospace; font-size: 0.7rem; letter-spacing: 6px; text-transform: uppercase; margin-bottom: 25px; display: block; }
-  h2 { font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 900; letter-spacing: -3px; line-height: 1; margin: 0 0 35px 0; }
-  p { font-size: 1.1rem; color: #777; line-height: 1.8; margin-bottom: 45px; max-width: 500px; }
-  .stats { 
-    display: grid; 
-    grid-template-columns: 1fr 1fr; 
-    gap: 30px; 
-    .stat { 
-      border-left: 1px solid #222; 
-      padding-left: 20px; 
-      label { display: block; font-family: monospace; font-size: 0.6rem; color: #444; text-transform: uppercase; } 
-      b { display: block; color: #fff; font-size: 1.1rem; margin-top: 8px; } 
-    } 
-  }
-`;
-
-const FooterBig = styled.footer`
-  padding: 180px 6% 100px; 
-  text-align: center;
-  border-top: 1px solid rgba(255, 255, 255, 0.04);
-  background: radial-gradient(circle at 50% 100%, rgba(46, 98, 255, 0.05) 0%, transparent 70%);
-  h2 { 
-    font-size: clamp(3rem, 15vw, 12rem); 
-    font-weight: 950; 
-    margin: 0; 
-    line-height: 0.75; 
-    letter-spacing: -0.09em; 
-    background: linear-gradient(180deg, #fff 10%, rgba(255,255,255,0.1) 100%); 
-    -webkit-background-clip: text; 
-    -webkit-text-fill-color: transparent; 
-  }
-`;
-
+// ---------------- COMPONENT ----------------
 const PublicHome = () => {
-  const [time, setTime] = useState(new Date().toLocaleTimeString());
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 600);
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    const timer = setInterval(() => setTime(new Date().toLocaleTimeString()), 1000);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      clearInterval(timer);
-    };
-  }, []);
-
-  const memoizedHero = useMemo(() => (
-    <HeroSection>
-      <MassiveTitle>
-        <span className="top">CINEMA</span>
-        <span className="bottom">DISCOVERY</span>
-      </MassiveTitle>
-      <ActionButton to="/signup">Initialize Access</ActionButton>
-    </HeroSection>
-  ), []);
+  const posters = [
+    "https://cityonfire.com/wp-content/uploads/2024/11/RIP-Poster.jpg",
+    "https://www.tallengestore.com/cdn/shop/products/Extraction-ChrisHemsworth-NetflixHollywoodBlockbusterEnglishMoviePoster_918abf51-4d5f-46af-8e8f-834af68e0d20_large.jpg?v=1589272008",
+  ];
 
   return (
     <PageWrapper>
-      <GlobalStyle />
-      <NavContainer>
-        <HUDNav role="navigation" aria-label="Main Navigation">
-          <Brand to="/">STREAMHUB</Brand>
-          {!isMobile && (
-            <div style={{ fontFamily: 'monospace', fontSize: '0.5rem', color: '#444' }}>
-              CLOCK_{time}
-            </div>
-          )}
-          <NavLinks>
-            <NavLinkStyled to="/login">LOGIN</NavLinkStyled>
-            <JoinButton to="/signup">JOIN_HUB</JoinButton>
-          </NavLinks>
-        </HUDNav>
-      </NavContainer>
+      <HeroContainer>
+        <Container>
+          <Row className="align-items-center">
+            <HeroText lg={6} md={12}>
+              <HeroTitle>Movie rentals on StreamHub</HeroTitle>
+              <HeroSubtitle>
+                Early Access to new movies, before digital subscription.
+              </HeroSubtitle>
+            </HeroText>
+            <Col lg={6} md={12} className="d-none d-lg-block">
+              <PosterCollage>
+                <PosterImage
+                  src={posters[0]}
+                  alt="poster 1"
+                  className="poster1"
+                />
+                <PosterImage
+                  src={posters[1]}
+                  alt="poster 2"
+                  className="poster2"
+                />
+              </PosterCollage>
+            </Col>
+          </Row>
+        </Container>
+      </HeroContainer>
 
-      {memoizedHero}
+      <HowItWorksSection>
+        <Container>
+          <FeatureTitle className="mb-5">How StreamHub Works</FeatureTitle>
+          <Row>
+            <Col md={4} className="mb-4" style={{ overflow: "visible" }}>
+              <HowItWorksCard delay="0s">
+                <StepNumber>01</StepNumber>
+                <HowItWorksIcon className="bi bi-person-plus-fill" />
+                <HowItWorksTitle>Create Account</HowItWorksTitle>
+                <HowItWorksText>
+                  Sign up for free with just an email and password.
+                </HowItWorksText>
+              </HowItWorksCard>
+            </Col>
+            <Col md={4} className="mb-4" style={{ overflow: "visible" }}>
+              <HowItWorksCard delay="0.2s">
+                <StepNumber>02</StepNumber>
+                <HowItWorksIcon className="bi bi-eye-fill" />
+                <HowItWorksTitle>Browse Movies</HowItWorksTitle>
+                <HowItWorksText>
+                  Explore thousands of titles across all your favorite genres.
+                </HowItWorksText>
+              </HowItWorksCard>
+            </Col>
+            <Col md={4} className="mb-4" style={{ overflow: "visible" }}>
+              <HowItWorksCard delay="0.4s">
+                <StepNumber>03</StepNumber>
+                <HowItWorksIcon className="bi bi-plus-circle-fill" />
+                <HowItWorksTitle>Build Your Watchlist</HowItWorksTitle>
+                <HowItWorksText>
+                  Add any movie to your personal list to watch later.
+                </HowItWorksText>
+              </HowItWorksCard>
+            </Col>
+          </Row>
+        </Container>
+      </HowItWorksSection>
 
-      <MainContent>
-        <FeatureRow aria-labelledby="section-archive">
-          <ModernUIFrame>
-            <div className="inner-content">
-              <div className="ui-label">NETWORK_STATUS: <span>ENCRYPTED</span> ID: 8829-X</div>
-              <TrailerCard>
-                <div className="play-icon" aria-hidden="true">▶</div>
-              </TrailerCard>
-              <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontSize: '0.6rem', color: '#2e62ff', fontWeight: 'bold' }}>NEW RELEASE</div>
-                  <div style={{ fontSize: '1.2rem', fontWeight: '900' }}>GLADIATOR II</div>
-                </div>
-                <div style={{ fontSize: '0.6rem', color: '#444', textAlign: 'right' }}>8K RAW / 124GBps</div>
-              </div>
-            </div>
-          </ModernUIFrame>
-          <TextBlock id="section-archive">
-            <span className="tag">01 // Archive</span>
-            <h2>Recently<br />Released.</h2>
-            <p>The most advanced cinematic feed on the web. Access newly dropped trailers and high-bitrate clips in native 8K resolution.</p>
-            <div className="stats">
-              <div className="stat"><label>Video Node</label><b>8K UHD</b></div>
-              <div className="stat"><label>Daily Sync</label><b>+24 Assets</b></div>
-            </div>
-          </TextBlock>
-        </FeatureRow>
+      <FinalCtaSection>
+        <div
+          style={{
+            textAlign: "center",
+            color: "#fff",
+            padding: "4px"
+          }}
+        >
+          <GlowingText>
+            Ready to watch? Log in or create an account to get started.
+          </GlowingText>
+        </div>
 
-        <FeatureRow reverse aria-labelledby="section-intelligence">
-          <ModernUIFrame>
-            <div className="inner-content">
-              <div className="ui-label">DATABASE_ACCESS: <span>VERIFIED</span> <span>ANALYTICS</span></div>
-              <IntelGrid>
-                <div className="row"><span>IMDb Rating</span><b>8.9 / 10</b></div>
-                <div className="row"><span>Rotten Tomatoes</span><b>94%</b></div>
-                <div className="row"><span>Metascore</span><b>88</b></div>
-              </IntelGrid>
-              <div style={{ marginTop: '20px', padding: '15px', border: '1px dashed #222', borderRadius: '4px' }}>
-                <div style={{ fontSize: '0.5rem', color: '#2e62ff', marginBottom: '5px' }}>TOP_CAST_BIOMETRICS</div>
-                <div style={{ fontSize: '0.7rem', color: '#666', lineHeight: '1.4' }}>Pedro Pascal, Paul Mescal, Denzel Washington, Connie Nielsen...</div>
-              </div>
-            </div>
-          </ModernUIFrame>
-          <TextBlock id="section-intelligence">
-            <span className="tag">02 // Intelligence</span>
-            <h2>Cast &<br />Ratings.</h2>
-            <p>Integrated data intelligence. We cross-reference every title against global databases instantly.</p>
-            <div className="stats">
-              <div className="stat"><label>Data Integrity</label><b>99.9%</b></div>
-              <div className="stat"><label>Nodes Connected</label><b>IMDb / RT</b></div>
-            </div>
-          </TextBlock>
-        </FeatureRow>
-
-        <FeatureRow aria-labelledby="section-library">
-          <ModernUIFrame>
-            <div className="inner-content">
-              <div className="ui-label">USER_VAULT: <span>ACTIVE</span> <span>12_ITEMS</span></div>
-              <WatchlistUI>
-                {[...Array(6)].map((_, i) => (
-                  <div key={i} className="movie-thumb" aria-label="Watchlist item">{i === 0 ? 'SAVED' : ''}</div>
-                ))}
-              </WatchlistUI>
-              <button 
-                type="button"
-                style={{ width: '100%', marginTop: '20px', padding: '12px', background: '#2e62ff', border: 'none', color: '#fff', fontSize: '0.6rem', fontWeight: '800', letterSpacing: '2px', borderRadius: '4px', cursor: 'pointer' }}
-              >
-                MANAGE WATCHLIST
-              </button>
-            </div>
-          </ModernUIFrame>
-          <TextBlock id="section-library">
-            <span className="tag">03 // Library</span>
-            <h2>Private<br />Watchlist.</h2>
-            <p>Personalize your discovery. Your library is encrypted and synced across all nodes.</p>
-            <div className="stats">
-              <div className="stat"><label>Sync Protocol</label><b>Cloud_Native</b></div>
-              <div className="stat"><label>Storage</label><b>Encrypted</b></div>
-            </div>
-          </TextBlock>
-        </FeatureRow>
-      </MainContent>
-
-      <FooterBig>
-        <h2>STREAMHUB</h2>
-        <p style={{ opacity: 0.2, fontSize: '0.7rem', letterSpacing: '12px', marginTop: '60px', textTransform: 'uppercase', fontFamily: 'monospace' }}>
-          ALL RIGHTS RESERVED // ESTABLISHED 2026
-        </p>
-      </FooterBig>
+        <HeroButtonContainer>
+          <PushableButton to="/login" className="btn-color-primary">
+            <ButtonShadow />
+            <ButtonEdge />
+            <ButtonFront>Log In</ButtonFront>
+          </PushableButton>
+          <PushableButton to="/signup" className="btn-color-secondary">
+            <ButtonShadow />
+            <ButtonEdge />
+            <ButtonFront>Sign Up</ButtonFront>
+          </PushableButton>
+        </HeroButtonContainer>
+      </FinalCtaSection>
     </PageWrapper>
   );
 };

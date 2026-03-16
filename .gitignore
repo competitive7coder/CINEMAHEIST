@@ -1,14 +1,37 @@
 # Dependencies
 node_modules/
+client/recommendation-system/node_modules/
+client/recommendation-system/node_modules/.cache/
 
-# Production build folders
+# Production build
 build/
+client/recommendation-system/build/
 
 # Environment variables
 .env
 .env.local
+*.env
+app/.env
 
 # Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Large ML files
+app/ml/ml_activity_logs.csv
+app/ml/movies_enriched.csv
+app/ml/model_cache/
+app/ml/movielens/
+app/ml/amazon_cache/
+app/ml/ablation_results.txt
+app/ml/ml_stats.txt
+app/ml/amazon_movies_reviews.csv
+app/ml/__pycache__/

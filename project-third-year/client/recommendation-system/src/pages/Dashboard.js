@@ -303,7 +303,7 @@ setShowVideoModal(true);
               <div className="logo-inner"></div>
             </div>
             <h2 className="brand-text">
-              CINE<span>.</span>
+              STREAM<span>HUB</span>
             </h2>
           </div>
 

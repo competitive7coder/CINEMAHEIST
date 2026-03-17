@@ -1,22 +1,19 @@
 from fastapi import APIRouter, Depends, UploadFile, File, Form, HTTPException
 from app.models.user import User
-from app.security import get_current_user
+from app.security import get_current_user, get_password_hash, verify_password
 from app.utils.cloudinary import upload_image
 from app.schemas.user import UserOut
-from passlib.context import CryptContext
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 router = APIRouter()
 
 
 def serialize_user(user: User) -> dict:
-    """Convert Beanie User document to dict — includes all fields the frontend needs."""
     return {
         "id":              str(user.id),
         "email":           user.email,
         "username":        user.username,
-        "bio":             getattr(user, "bio", "") or "",           # FIX: was missing
-        "profile_picture": getattr(user, "profile_picture", "") or "", # FIX: was missing
+        "bio":             getattr(user, "bio", "") or "",
+        "profile_picture": getattr(user, "profile_picture", "") or "",
         "watchlist":       user.watchlist or [],
     }
 
@@ -76,12 +73,11 @@ async def update_password(
     new_password: str = Form(...),
     current_user: User = Depends(get_current_user)
 ):
-    # FIX: use current_user.password (the actual field name in User model)
-    if not pwd_context.verify(current_password, current_user.password):
+    if not verify_password(current_password, current_user.password):
         raise HTTPException(status_code=400, detail="Current password is incorrect")
     if len(new_password) < 8:
         raise HTTPException(status_code=422, detail="New password must be at least 8 characters")
-    current_user.password = pwd_context.hash(new_password)
+    current_user.password = get_password_hash(new_password)
     await current_user.save()
     return {"msg": "Password updated successfully"}
 
@@ -105,7 +101,7 @@ async def delete_account(
     password: str = Form(...),
     current_user: User = Depends(get_current_user)
 ):
-    if not pwd_context.verify(password, current_user.password):
+    if not verify_password(password, current_user.password):
         raise HTTPException(status_code=400, detail="Incorrect password")
 
     from app.models.activity import Activity

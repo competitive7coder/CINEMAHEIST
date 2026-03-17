@@ -1,0 +1,36 @@
+========================================================================
+  ABLATION STUDY RESULTS
+  Dataset : MovieLens 25M (Harper & Konstan, 2015)
+  Signals : rating proxy mapping → OTT implicit signals
+  Users   : 2,000 sampled | Split: 80% train / 20% test
+  Metrics : Precision@10, Recall@10, NDCG@10
+========================================================================
+  Model                                      P@10     R@10   NDCG@10  vs Base
+  --------------------------------------------------------------------
+  Random Baseline                          0.0071   0.0012    0.0068  -31.28%
+  Popularity-Based                         0.0000   0.0000    0.0000  -31.99%
+  TF-IDF Content Only                      0.0592   0.0184    0.0681  -26.06%
+  SVD Collaborative Only                   0.6057   0.2190    0.6631  +28.58%
+  Base Hybrid (TF-IDF + SVD)               0.3199   0.1319    0.3381 baseline
+  + OTT Signal Weighting (C2)              0.3199   0.1319    0.3381    0.00%
+  + Temporal Watchlist Decay (C1)          0.3195   0.1320    0.3378   -0.04%
+  Full System (C1 + C2) [OURS]             0.3195   0.1320    0.3378   -0.04% ◄ OURS
+  --------------------------------------------------------------------
+
+  KEY FINDINGS (copy into paper Section 7):
+  --------------------------------------------------------------------
+  C1 Temporal Watchlist Decay : -0.04% Precision@10
+  C2 OTT Signal Weighting     : +0.00% Precision@10
+  Full System vs Base Hybrid  : -0.04% Precision@10
+
+  Full System:
+    Precision@10 = 0.3195
+    Recall@10    = 0.1320
+    NDCG@10      = 0.3378
+
+  PAPER DISCLOSURE (add to Section 6):
+  --------------------------------------------------------------------
+  OTT signals derived from MovieLens ratings via proxy mapping.
+  Timestamps from real MovieLens rating interaction times.
+  trailer_watch = proxy for medium-interest ratings (3.0-3.9).
+========================================================================

@@ -37,13 +37,13 @@ def create_access_token(subject: Union[str, Any]) -> str:
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Checks if plain text password matches hashed password."""
-    return pwd_context.verify(plain_password, hashed_password)
+    return pwd_context.verify(plain_password[:72], hashed_password)
 
 def get_password_hash(password: str) -> str:
     """Hashes a password for registration."""
-    return pwd_context.hash(password)
+    return pwd_context.hash(password[:72])
 
-# --- TOKEN VERIFICATION (The Missing Guard) ---
+# --- TOKEN VERIFICATION ---
 
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
     """
@@ -56,11 +56,9 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        # Decode the JWT
         payload = jwt.decode(
             token, settings.JWT_SECRET, algorithms=[settings.ALGORITHM]
         )
-        # Your token structure is {"user": {"id": "..."}}
         user_data = payload.get("user")
         if user_data is None:
             raise credentials_exception
@@ -72,7 +70,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
     except JWTError:
         raise credentials_exception
 
-    # Fetch user from MongoDB (using Beanie)
     user = await User.get(user_id)
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")

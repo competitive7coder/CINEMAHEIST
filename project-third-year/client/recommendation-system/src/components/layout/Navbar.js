@@ -32,15 +32,11 @@ const Nav = styled.nav`
   align-items: center;
   padding: 0 40px;
   font-family: 'Poppins', sans-serif;
-
-  /* Slide hide/show */
   transform: translateY(${({ $visible }) => $visible ? '0' : '-100%'});
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
               background 0.4s ease,
-              backdrop-filter 0.4s ease,
               box-shadow 0.4s ease;
 
-  /* Background based on scroll */
   ${({ $scrolled }) => $scrolled ? css`
     background: rgba(5, 5, 5, 0.97);
     backdrop-filter: blur(20px);
@@ -53,7 +49,7 @@ const Nav = styled.nav`
     box-shadow: none;
   `}
 
-  @media (max-width: 768px) { padding: 0 20px; }
+  @media (max-width: 768px) { padding: 0 18px; }
 `;
 
 const Brand = styled(Link)`
@@ -266,7 +262,12 @@ const SignupBtn = styled(Link)`
   @media (max-width: 992px) { display: none; }
 `;
 
-const UserMenuWrapper = styled.div`position: relative;`;
+const UserMenuWrapper = styled.div`
+  position: relative;
+
+  /* Hide entirely on mobile — hamburger handles everything */
+  @media (max-width: 992px) { display: none; }
+`;
 
 const UserBtn = styled.button`
   display: flex;
@@ -290,23 +291,6 @@ const UserBtn = styled.button`
     display: flex; align-items: center; justify-content: center;
     font-size: 12px;
     flex-shrink: 0;
-  }
-
-  .btn-label,
-  .btn-chevron {
-    @media (max-width: 992px) { display: none; }
-  }
-
-  @media (max-width: 992px) {
-    padding: 5px;
-    background: transparent;
-    border-color: transparent;
-    gap: 0;
-
-    &:hover {
-      background: rgba(255,255,255,0.06);
-      border-color: rgba(255,255,255,0.1);
-    }
   }
 
   &:hover {
@@ -372,61 +356,109 @@ const LogoutItem = styled.button`
   &:hover { color: #ff4444; background: rgba(255,0,0,0.06); }
 `;
 
+// ── Mobile only ───────────────────────────────────────────────────────────────
 const HamburgerBtn = styled.button`
   display: none;
-  background: none;
-  border: none;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
   color: #fff;
-  font-size: 1.2rem;
+  font-size: 1rem;
   cursor: pointer;
-  padding: 6px;
-  margin-left: 4px;
-  border-radius: 8px;
-  transition: background 0.2s;
+  padding: 8px 10px;
+  transition: all 0.2s;
 
-  &:hover { background: rgba(255,255,255,0.08); }
+  &:hover {
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.2);
+  }
 
-  @media (max-width: 992px) { display: flex; align-items: center; }
+  @media (max-width: 992px) { display: flex; align-items: center; justify-content: center; }
 `;
 
 const MobileMenu = styled.div`
   position: fixed;
   inset: 0;
-  background: rgba(5, 5, 5, 0.98);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: #080808;
   z-index: 1002;
   display: flex;
   flex-direction: column;
-  padding: 80px 28px 40px;
-  animation: ${fadeIn} 0.2s ease;
   overflow-y: auto;
+  animation: ${fadeIn} 0.25s ease;
 `;
 
-const MobileClose = styled.button`
-  position: absolute;
-  top: 18px; right: 20px;
+const MobileMenuHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+`;
+
+const MobileMenuClose = styled.button`
+  width: 38px; height: 38px;
   background: rgba(255,255,255,0.06);
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 10px;
   color: #fff;
-  width: 40px; height: 40px;
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
   font-size: 1rem;
-  transition: background 0.2s;
+  transition: all 0.2s;
 
-  &:hover { background: rgba(255,0,0,0.15); color: #ff0000; }
+  &:hover { background: rgba(255,0,0,0.15); border-color: rgba(255,0,0,0.2); color: #ff4444; }
+`;
+
+const MobileMenuBody = styled.div`
+  flex: 1;
+  padding: 8px 0 40px;
+  overflow-y: auto;
+`;
+
+/* User profile card inside mobile menu */
+const MobileUserCard = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  margin-bottom: 8px;
+`;
+
+const MobileAvatar = styled.div`
+  width: 44px; height: 44px;
+  background: #ff0000;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(229,9,20,0.35);
+`;
+
+const MobileUserInfo = styled.div`
+  .name {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #fff;
+  }
+  .sub {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.35);
+    margin-top: 2px;
+  }
 `;
 
 const MobileSearchForm = styled.form`
   display: flex;
   align-items: center;
   background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.08);
   border-radius: 12px;
   overflow: hidden;
-  margin-bottom: 28px;
+  margin: 12px 24px 8px;
 
   input {
     flex: 1;
@@ -434,34 +466,53 @@ const MobileSearchForm = styled.form`
     border: none;
     padding: 12px 16px;
     color: #fff;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     font-family: 'Poppins', sans-serif;
     outline: none;
-    &::placeholder { color: rgba(255,255,255,0.3); }
+    &::placeholder { color: rgba(255,255,255,0.25); }
   }
 
   button {
     background: none;
     border: none;
     padding: 12px 16px;
-    color: rgba(255,255,255,0.4);
+    color: rgba(255,255,255,0.35);
     cursor: pointer;
+    transition: color 0.2s;
     &:hover { color: #ff0000; }
   }
+`;
+
+const MobileSectionLabel = styled.p`
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.25);
+  padding: 16px 24px 8px;
 `;
 
 const MobileNavLink = styled(NavLink)`
   display: flex;
   align-items: center;
-  padding: 14px 0;
-  color: rgba(255,255,255,0.7);
+  gap: 12px;
+  padding: 13px 24px;
+  color: rgba(255,255,255,0.65);
   text-decoration: none;
-  font-size: 1.1rem;
+  font-size: 0.9rem;
   font-weight: 600;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-  transition: color 0.2s;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.2s;
+  border-radius: 0;
 
-  &:hover, &.active { color: #fff; }
+  svg { font-size: 14px; opacity: 0.7; }
+
+  &:hover, &.active {
+    color: #fff;
+    background: rgba(255,255,255,0.05);
+    padding-left: 28px;
+  }
 `;
 
 const MobileGenreToggle = styled.button`
@@ -469,26 +520,24 @@ const MobileGenreToggle = styled.button`
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  padding: 14px 0;
-  color: rgba(255,255,255,0.7);
+  padding: 13px 24px;
+  color: rgba(255,255,255,0.65);
   background: none;
   border: none;
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-  font-size: 1.1rem;
+  font-size: 0.9rem;
   font-weight: 600;
   font-family: 'Poppins', sans-serif;
   cursor: pointer;
-  transition: color 0.2s;
+  transition: all 0.2s;
 
-  svg { transition: transform 0.3s; }
-  &:hover { color: #fff; }
+  &:hover { color: #fff; background: rgba(255,255,255,0.05); }
 `;
 
 const MobileGenreGrid = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  padding: 12px 0 16px;
+  gap: 6px;
+  padding: 8px 24px 4px;
 `;
 
 const MobileGenreLink = styled(Link)`
@@ -496,21 +545,49 @@ const MobileGenreLink = styled(Link)`
   align-items: center;
   gap: 8px;
   padding: 10px 12px;
-  background: rgba(255,255,255,0.04);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
   border-radius: 10px;
-  color: rgba(255,255,255,0.6);
+  color: rgba(255,255,255,0.55);
   text-decoration: none;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 500;
+  font-family: 'Poppins', sans-serif;
   transition: all 0.2s;
 
-  &:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  &:hover {
+    background: rgba(255,255,255,0.07);
+    border-color: rgba(255,255,255,0.12);
+    color: #fff;
+  }
+`;
+
+const MobileDivider = styled.div`
+  height: 1px;
+  background: rgba(255,255,255,0.05);
+  margin: 8px 24px;
+`;
+
+const MobileActionLink = styled(Link)`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 24px;
+  color: rgba(255,255,255,0.65);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: 'Poppins', sans-serif;
+  transition: all 0.2s;
+
+  svg { font-size: 14px; opacity: 0.7; }
+  &:hover { color: #fff; background: rgba(255,255,255,0.05); padding-left: 28px; }
 `;
 
 const MobileAuthRow = styled.div`
   display: flex;
   gap: 10px;
-  margin-top: 28px;
+  padding: 16px 24px;
 
   a {
     flex: 1;
@@ -519,6 +596,7 @@ const MobileAuthRow = styled.div`
     border-radius: 12px;
     font-size: 0.88rem;
     font-weight: 700;
+    font-family: 'Poppins', sans-serif;
     text-decoration: none;
     transition: all 0.2s;
   }
@@ -536,24 +614,25 @@ const MobileAuthRow = styled.div`
   }
 `;
 
-const MobileLogout = styled.button`
+const MobileLogoutBtn = styled.button`
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-top: 20px;
+  gap: 12px;
+  width: calc(100% - 48px);
+  margin: 8px 24px 0;
   padding: 13px 16px;
-  width: 100%;
-  background: rgba(255,0,0,0.08);
-  border: 1px solid rgba(255,0,0,0.15);
+  background: rgba(255,0,0,0.07);
+  border: 1px solid rgba(255,0,0,0.12);
   border-radius: 12px;
-  color: #ff4444;
+  color: #f87171;
   font-size: 0.88rem;
   font-weight: 600;
   font-family: 'Poppins', sans-serif;
   cursor: pointer;
   transition: all 0.2s;
 
-  &:hover { background: rgba(255,0,0,0.15); }
+  svg { font-size: 14px; }
+  &:hover { background: rgba(255,0,0,0.14); border-color: rgba(255,0,0,0.25); color: #fca5a5; }
 `;
 
 const genres = [
@@ -582,31 +661,21 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
   const userRef     = useRef(null);
   const megaRef     = useRef(null);
 
-  // ── Scroll: hide on down, show on up, bg on scrolled ──
   useEffect(() => {
     const onScroll = () => {
       const currentY = window.scrollY;
-
-      // Background
       setScrolled(currentY > 20);
-
-      // Visibility
       if (currentY < 10) {
-        // At very top — always show
         setVisible(true);
       } else if (currentY > lastScrollY.current + 6) {
-        // Scrolling DOWN
         setVisible(false);
         setMegaOpen(false);
         setUserOpen(false);
       } else if (currentY < lastScrollY.current - 6) {
-        // Scrolling UP
         setVisible(true);
       }
-
       lastScrollY.current = currentY;
     };
-
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
@@ -625,11 +694,13 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
     return () => { document.body.style.overflow = ''; };
   }, [mobileOpen]);
 
+  const closeMobile = () => setMobileOpen(false);
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     setIsLoggedIn(false);
     setUserOpen(false);
-    setMobileOpen(false);
+    closeMobile();
     navigate('/');
   };
 
@@ -638,7 +709,7 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
     if (searchQuery.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery('');
-      setMobileOpen(false);
+      closeMobile();
     }
   };
 
@@ -692,24 +763,19 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <SearchBtn type="submit">
-              <FaSearch size={13} />
-            </SearchBtn>
+            <SearchBtn type="submit"><FaSearch size={13} /></SearchBtn>
           </SearchWrapper>
 
+          {/* Desktop user menu only */}
           {isLoggedIn ? (
             <UserMenuWrapper ref={userRef}>
               <UserBtn onClick={() => setUserOpen(v => !v)}>
                 <div className="avatar"><FaUser size={11} /></div>
-                <span className="btn-label">My Account</span>
-                <FaChevronDown
-                  size={10}
-                  className="btn-chevron"
-                  style={{
-                    transition: 'transform 0.3s',
-                    transform: userOpen ? 'rotate(180deg)' : 'rotate(0deg)'
-                  }}
-                />
+                My Account
+                <FaChevronDown size={10} style={{
+                  transition: 'transform 0.3s',
+                  transform: userOpen ? 'rotate(180deg)' : 'rotate(0deg)'
+                }} />
               </UserBtn>
               {userOpen && (
                 <UserDropdown>
@@ -733,78 +799,106 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
             </>
           )}
 
+          {/* Hamburger — mobile only */}
           <HamburgerBtn onClick={() => setMobileOpen(true)} aria-label="Open menu">
             <FaBars />
           </HamburgerBtn>
         </RightSide>
       </Nav>
 
+      {/* ── Professional Mobile Menu ── */}
       {mobileOpen && (
         <MobileMenu>
-          <MobileClose onClick={() => setMobileOpen(false)}>
-            <FaTimes />
-          </MobileClose>
 
-          <Brand
-            to={isLoggedIn ? "/home" : "/"}
-            onClick={() => setMobileOpen(false)}
-            style={{ marginBottom: 28 }}
-          >
-            <div className="brand-icon">🎬</div>
-            <span className="brand-name">Stream<span>Hub</span></span>
-          </Brand>
+          {/* Header */}
+          <MobileMenuHeader>
+            <Brand to={isLoggedIn ? "/home" : "/"} onClick={closeMobile}>
+              <div className="brand-icon">🎬</div>
+              <span className="brand-name">Stream<span>Hub</span></span>
+            </Brand>
+            <MobileMenuClose onClick={closeMobile}>
+              <FaTimes />
+            </MobileMenuClose>
+          </MobileMenuHeader>
 
-          <MobileSearchForm onSubmit={handleSearchSubmit}>
-            <input
-              type="search"
-              placeholder="Search titles..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-            <button type="submit"><FaSearch /></button>
-          </MobileSearchForm>
+          <MobileMenuBody>
 
-          <MobileNavLink to="/home" onClick={() => setMobileOpen(false)}>Home</MobileNavLink>
+            {/* User card — if logged in */}
+            {isLoggedIn && (
+              <MobileUserCard>
+                <MobileAvatar><FaUser size={18} /></MobileAvatar>
+                <MobileUserInfo>
+                  <p className="name">My Account</p>
+                  <p className="sub">Logged in</p>
+                </MobileUserInfo>
+              </MobileUserCard>
+            )}
 
-          <MobileGenreToggle onClick={() => setMobileGenres(v => !v)}>
-            Movies
-            <FaChevronDown style={{
-              transform: mobileGenres ? 'rotate(180deg)' : 'rotate(0deg)',
-              transition: 'transform 0.3s'
-            }} />
-          </MobileGenreToggle>
+            {/* Search */}
+            <MobileSearchForm onSubmit={handleSearchSubmit}>
+              <input
+                type="search"
+                placeholder="Search movies..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              <button type="submit"><FaSearch size={13} /></button>
+            </MobileSearchForm>
 
-          {mobileGenres && (
-            <MobileGenreGrid>
-              {genres.map((g) => (
-                <MobileGenreLink key={g.name} to={g.path} onClick={() => setMobileOpen(false)}>
-                  {g.icon} {g.name}
-                </MobileGenreLink>
-              ))}
-            </MobileGenreGrid>
-          )}
+            {/* Nav */}
+            <MobileSectionLabel>Navigate</MobileSectionLabel>
+            <MobileNavLink to="/home" onClick={closeMobile}>
+              Home
+            </MobileNavLink>
 
-          <MobileNavLink to="/about" onClick={() => setMobileOpen(false)}>About</MobileNavLink>
-          <MobileNavLink to="/contact" onClick={() => setMobileOpen(false)}>Contact</MobileNavLink>
+            <MobileGenreToggle onClick={() => setMobileGenres(v => !v)}>
+              <span>Movies</span>
+              <FaChevronDown style={{
+                fontSize: 11,
+                transform: mobileGenres ? 'rotate(180deg)' : 'rotate(0deg)',
+                transition: 'transform 0.3s'
+              }} />
+            </MobileGenreToggle>
 
-          {isLoggedIn ? (
-            <>
-              <MobileNavLink to="/dashboard" onClick={() => setMobileOpen(false)}>
-                <FaTachometerAlt style={{ marginRight: 10 }} /> Dashboard
-              </MobileNavLink>
-              <MobileNavLink to="/profile" onClick={() => setMobileOpen(false)}>
-                <FaUser style={{ marginRight: 10 }} /> Profile
-              </MobileNavLink>
-              <MobileLogout onClick={handleLogout}>
-                <FaSignOutAlt /> Sign Out
-              </MobileLogout>
-            </>
-          ) : (
-            <MobileAuthRow>
-              <Link to="/login" className="login" onClick={() => setMobileOpen(false)}>Login</Link>
-              <Link to="/signup" className="signup" onClick={() => setMobileOpen(false)}>Sign Up</Link>
-            </MobileAuthRow>
-          )}
+            {mobileGenres && (
+              <MobileGenreGrid>
+                {genres.map((g) => (
+                  <MobileGenreLink key={g.name} to={g.path} onClick={closeMobile}>
+                    {g.icon} {g.name}
+                  </MobileGenreLink>
+                ))}
+              </MobileGenreGrid>
+            )}
+
+            <MobileNavLink to="/about" onClick={closeMobile}>About</MobileNavLink>
+            <MobileNavLink to="/contact" onClick={closeMobile}>Contact</MobileNavLink>
+
+            {/* Account section */}
+            {isLoggedIn ? (
+              <>
+                <MobileDivider />
+                <MobileSectionLabel>Account</MobileSectionLabel>
+                <MobileActionLink to="/dashboard" onClick={closeMobile}>
+                  <FaTachometerAlt /> Dashboard
+                </MobileActionLink>
+                <MobileActionLink to="/profile" onClick={closeMobile}>
+                  <FaUser /> Profile
+                </MobileActionLink>
+                <MobileLogoutBtn onClick={handleLogout}>
+                  <FaSignOutAlt /> Sign Out
+                </MobileLogoutBtn>
+              </>
+            ) : (
+              <>
+                <MobileDivider />
+                <MobileAuthRow>
+                  <Link to="/login" className="login" onClick={closeMobile}>Login</Link>
+                  <Link to="/signup" className="signup" onClick={closeMobile}>Sign Up</Link>
+                </MobileAuthRow>
+              </>
+            )}
+
+          </MobileMenuBody>
         </MobileMenu>
       )}
     </>

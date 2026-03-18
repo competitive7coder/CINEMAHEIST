@@ -8,7 +8,6 @@ import {
     FaSignOutAlt, FaTachometerAlt, FaChevronDown,
 } from "react-icons/fa";
 
-// ── Animations ────────────────────────────────────────────────────────────────
 const fadeSlideDown = keyframes`
   from { opacity: 0; transform: translateY(-8px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -24,36 +23,39 @@ const glowPulse = keyframes`
   50%       { box-shadow: 0 0 12px 2px rgba(255, 0, 0, 0.15); }
 `;
 
-// ── Root Nav ──────────────────────────────────────────────────────────────────
 const Nav = styled.nav`
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
+  top: 0; left: 0; right: 0;
   z-index: 1000;
   height: 68px;
   display: flex;
   align-items: center;
   padding: 0 40px;
   font-family: 'Poppins', sans-serif;
-  transition: background 0.4s ease, backdrop-filter 0.4s ease, box-shadow 0.4s ease;
 
+  /* Slide hide/show */
+  transform: translateY(${({ $visible }) => $visible ? '0' : '-100%'});
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
+              background 0.4s ease,
+              backdrop-filter 0.4s ease,
+              box-shadow 0.4s ease;
+
+  /* Background based on scroll */
   ${({ $scrolled }) => $scrolled ? css`
     background: rgba(5, 5, 5, 0.97);
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     box-shadow: 0 1px 0 rgba(255,255,255,0.04), 0 4px 30px rgba(0,0,0,0.6);
   ` : css`
-    background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, transparent 100%);
+    background: linear-gradient(to bottom, rgba(0,0,0,0.75) 0%, transparent 100%);
     backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     box-shadow: none;
   `}
 
-  @media (max-width: 768px) {
-    padding: 0 20px;
-  }
+  @media (max-width: 768px) { padding: 0 20px; }
 `;
 
-// ── Brand ─────────────────────────────────────────────────────────────────────
 const Brand = styled(Link)`
   display: flex;
   align-items: center;
@@ -62,13 +64,10 @@ const Brand = styled(Link)`
   flex-shrink: 0;
 
   .brand-icon {
-    width: 32px;
-    height: 32px;
+    width: 32px; height: 32px;
     background: #ff0000;
     border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     font-size: 16px;
     animation: ${glowPulse} 4s infinite;
   }
@@ -82,7 +81,6 @@ const Brand = styled(Link)`
   }
 `;
 
-// ── Desktop Links ─────────────────────────────────────────────────────────────
 const DesktopLinks = styled.ul`
   display: flex;
   align-items: center;
@@ -94,9 +92,7 @@ const DesktopLinks = styled.ul`
   @media (max-width: 992px) { display: none; }
 `;
 
-const NavItem = styled.li`
-  position: relative;
-`;
+const NavItem = styled.li`position: relative;`;
 
 const navLinkStyle = css`
   display: flex;
@@ -124,14 +120,12 @@ const navLinkStyle = css`
 const StyledNavLink = styled(NavLink)`${navLinkStyle}`;
 const NavButton = styled.button`${navLinkStyle}`;
 
-// ── Mega Dropdown ─────────────────────────────────────────────────────────────
 const MegaDropdown = styled.div`
   position: fixed;
-  top: 68px;
-  left: 0;
-  right: 0;
+  top: 68px; left: 0; right: 0;
   background: rgba(8, 8, 8, 0.98);
   backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid rgba(255,255,255,0.05);
   border-bottom: 1px solid rgba(255,255,255,0.05);
   padding: 28px 60px;
@@ -147,9 +141,7 @@ const GenreGrid = styled.div`
   max-width: 900px;
   margin: 0 auto;
 
-  @media (max-width: 1200px) {
-    grid-template-columns: repeat(4, 1fr);
-  }
+  @media (max-width: 1200px) { grid-template-columns: repeat(4, 1fr); }
 `;
 
 const GenreLabel = styled.p`
@@ -185,7 +177,6 @@ const GenreLink = styled(Link)`
   }
 `;
 
-// ── Right Side ────────────────────────────────────────────────────────────────
 const RightSide = styled.div`
   margin-left: auto;
   display: flex;
@@ -193,7 +184,6 @@ const RightSide = styled.div`
   gap: 10px;
 `;
 
-// ── Search ────────────────────────────────────────────────────────────────────
 const SearchWrapper = styled.form`
   display: flex;
   align-items: center;
@@ -238,7 +228,6 @@ const SearchBtn = styled.button`
   &:hover { color: #ff0000; }
 `;
 
-// ── Auth Buttons ──────────────────────────────────────────────────────────────
 const LoginBtn = styled(Link)`
   padding: 8px 18px;
   border: 1px solid rgba(255,255,255,0.2);
@@ -277,10 +266,7 @@ const SignupBtn = styled(Link)`
   @media (max-width: 992px) { display: none; }
 `;
 
-// ── User Menu ─────────────────────────────────────────────────────────────────
-const UserMenuWrapper = styled.div`
-  position: relative;
-`;
+const UserMenuWrapper = styled.div`position: relative;`;
 
 const UserBtn = styled.button`
   display: flex;
@@ -298,14 +284,29 @@ const UserBtn = styled.button`
   transition: all 0.2s ease;
 
   .avatar {
-    width: 26px;
-    height: 26px;
+    width: 26px; height: 26px;
     background: #ff0000;
     border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  .btn-label,
+  .btn-chevron {
+    @media (max-width: 992px) { display: none; }
+  }
+
+  @media (max-width: 992px) {
+    padding: 5px;
+    background: transparent;
+    border-color: transparent;
+    gap: 0;
+
+    &:hover {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(255,255,255,0.1);
+    }
   }
 
   &:hover {
@@ -321,6 +322,7 @@ const UserDropdown = styled.div`
   width: 180px;
   background: rgba(12, 12, 12, 0.98);
   backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 14px;
   overflow: hidden;
@@ -341,11 +343,7 @@ const DropdownItem = styled(Link)`
   transition: all 0.15s ease;
 
   svg { font-size: 13px; }
-
-  &:hover {
-    color: #fff;
-    background: rgba(255,255,255,0.06);
-  }
+  &:hover { color: #fff; background: rgba(255,255,255,0.06); }
 `;
 
 const DropdownDivider = styled.div`
@@ -371,14 +369,9 @@ const LogoutItem = styled.button`
   transition: all 0.15s ease;
 
   svg { font-size: 13px; }
-
-  &:hover {
-    color: #ff4444;
-    background: rgba(255,0,0,0.06);
-  }
+  &:hover { color: #ff4444; background: rgba(255,0,0,0.06); }
 `;
 
-// ── Mobile ────────────────────────────────────────────────────────────────────
 const HamburgerBtn = styled.button`
   display: none;
   background: none;
@@ -387,7 +380,7 @@ const HamburgerBtn = styled.button`
   font-size: 1.2rem;
   cursor: pointer;
   padding: 6px;
-  margin-left: 10px;
+  margin-left: 4px;
   border-radius: 8px;
   transition: background 0.2s;
 
@@ -401,6 +394,7 @@ const MobileMenu = styled.div`
   inset: 0;
   background: rgba(5, 5, 5, 0.98);
   backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   z-index: 1002;
   display: flex;
   flex-direction: column;
@@ -411,17 +405,13 @@ const MobileMenu = styled.div`
 
 const MobileClose = styled.button`
   position: absolute;
-  top: 18px;
-  right: 20px;
+  top: 18px; right: 20px;
   background: rgba(255,255,255,0.06);
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 10px;
   color: #fff;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
   cursor: pointer;
   font-size: 1rem;
   transition: background 0.2s;
@@ -514,10 +504,7 @@ const MobileGenreLink = styled(Link)`
   font-weight: 500;
   transition: all 0.2s;
 
-  &:hover {
-    background: rgba(255,255,255,0.08);
-    color: #fff;
-  }
+  &:hover { background: rgba(255,255,255,0.08); color: #fff; }
 `;
 
 const MobileAuthRow = styled.div`
@@ -569,265 +556,259 @@ const MobileLogout = styled.button`
   &:hover { background: rgba(255,0,0,0.15); }
 `;
 
-// ── Data ──────────────────────────────────────────────────────────────────────
 const genres = [
-    { name: "Action",        icon: <FaFistRaised   style={{color:'#ef4444'}} />, path: "/genre/28"    },
-    { name: "Adventure",     icon: <FaCompass      style={{color:'#38bdf8'}} />, path: "/genre/12"    },
-    { name: "Animation",     icon: <FaSmile        style={{color:'#facc15'}} />, path: "/genre/16"    },
-    { name: "Comedy",        icon: <FaLaugh        style={{color:'#4ade80'}} />, path: "/genre/35"    },
-    { name: "Crime",         icon: <FaUserSecret   style={{color:'#a78bfa'}} />, path: "/genre/80"    },
-    { name: "Drama",         icon: <FaTheaterMasks style={{color:'#e2e8f0'}} />, path: "/genre/18"    },
-    { name: "Horror",        icon: <FaGhost        style={{color:'#f87171'}} />, path: "/genre/27"    },
-    { name: "Romance",       icon: <FaHeart        style={{color:'#f9a8d4'}} />, path: "/genre/10749" },
-    { name: "Sci-Fi",        icon: <FaRocket       style={{color:'#60a5fa'}} />, path: "/genre/878"   },
-    { name: "Thriller",      icon: <FaEye          style={{color:'#fbbf24'}} />, path: "/genre/53"    },
+  { name: "Action",    icon: <FaFistRaised   style={{color:'#ef4444'}} />, path: "/genre/28"    },
+  { name: "Adventure", icon: <FaCompass      style={{color:'#38bdf8'}} />, path: "/genre/12"    },
+  { name: "Animation", icon: <FaSmile        style={{color:'#facc15'}} />, path: "/genre/16"    },
+  { name: "Comedy",    icon: <FaLaugh        style={{color:'#4ade80'}} />, path: "/genre/35"    },
+  { name: "Crime",     icon: <FaUserSecret   style={{color:'#a78bfa'}} />, path: "/genre/80"    },
+  { name: "Drama",     icon: <FaTheaterMasks style={{color:'#e2e8f0'}} />, path: "/genre/18"    },
+  { name: "Horror",    icon: <FaGhost        style={{color:'#f87171'}} />, path: "/genre/27"    },
+  { name: "Romance",   icon: <FaHeart        style={{color:'#f9a8d4'}} />, path: "/genre/10749" },
+  { name: "Sci-Fi",    icon: <FaRocket       style={{color:'#60a5fa'}} />, path: "/genre/878"   },
+  { name: "Thriller",  icon: <FaEye          style={{color:'#fbbf24'}} />, path: "/genre/53"    },
 ];
 
-// ── Component ─────────────────────────────────────────────────────────────────
 const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
-    const navigate = useNavigate();
-    const [searchQuery, setSearchQuery]   = useState('');
-    const [scrolled, setScrolled]         = useState(false);
-    const [megaOpen, setMegaOpen]         = useState(false);
-    const [userOpen, setUserOpen]         = useState(false);
-    const [mobileOpen, setMobileOpen]     = useState(false);
-    const [mobileGenres, setMobileGenres] = useState(false);
-    const userRef = useRef(null);
-    const megaRef = useRef(null);
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery]   = useState('');
+  const [scrolled, setScrolled]         = useState(false);
+  const [visible, setVisible]           = useState(true);
+  const [megaOpen, setMegaOpen]         = useState(false);
+  const [userOpen, setUserOpen]         = useState(false);
+  const [mobileOpen, setMobileOpen]     = useState(false);
+  const [mobileGenres, setMobileGenres] = useState(false);
+  const lastScrollY = useRef(0);
+  const userRef     = useRef(null);
+  const megaRef     = useRef(null);
 
-    // Scroll listener
-    useEffect(() => {
-        const onScroll = () => setScrolled(window.scrollY > 20);
-        window.addEventListener('scroll', onScroll, { passive: true });
-        return () => window.removeEventListener('scroll', onScroll);
-    }, []);
+  // ── Scroll: hide on down, show on up, bg on scrolled ──
+  useEffect(() => {
+    const onScroll = () => {
+      const currentY = window.scrollY;
 
-    // Close dropdowns on outside click
-    useEffect(() => {
-        const handler = (e) => {
-            if (userRef.current && !userRef.current.contains(e.target)) {
-                setUserOpen(false);
-            }
-            if (megaRef.current && !megaRef.current.contains(e.target)) {
-                setMegaOpen(false);
-            }
-        };
-        document.addEventListener('mousedown', handler);
-        return () => document.removeEventListener('mousedown', handler);
-    }, []);
+      // Background
+      setScrolled(currentY > 20);
 
-    // Lock body scroll when mobile menu open
-    useEffect(() => {
-        document.body.style.overflow = mobileOpen ? 'hidden' : '';
-        return () => { document.body.style.overflow = ''; };
-    }, [mobileOpen]);
-
-    const handleLogout = () => {
-        localStorage.removeItem("token");
-        setIsLoggedIn(false);
+      // Visibility
+      if (currentY < 10) {
+        // At very top — always show
+        setVisible(true);
+      } else if (currentY > lastScrollY.current + 6) {
+        // Scrolling DOWN
+        setVisible(false);
+        setMegaOpen(false);
         setUserOpen(false);
-        setMobileOpen(false);
-        navigate('/');
+      } else if (currentY < lastScrollY.current - 6) {
+        // Scrolling UP
+        setVisible(true);
+      }
+
+      lastScrollY.current = currentY;
     };
 
-    const handleSearchSubmit = (e) => {
-        e.preventDefault();
-        if (searchQuery.trim()) {
-            navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-            setSearchQuery('');
-            setMobileOpen(false);
-        }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (userRef.current && !userRef.current.contains(e.target)) setUserOpen(false);
+      if (megaRef.current && !megaRef.current.contains(e.target)) setMegaOpen(false);
     };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
-    return (
-        <>
-            <Nav $scrolled={scrolled}>
-                {/* Brand */}
-                <Brand to={isLoggedIn ? "/home" : "/"}>
-                    <div className="brand-icon">🎬</div>
-                    <span className="brand-name">Stream<span>Hub</span></span>
-                </Brand>
+  useEffect(() => {
+    document.body.style.overflow = mobileOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [mobileOpen]);
 
-                {/* Desktop Nav Links */}
-                <DesktopLinks>
-                    <NavItem>
-                        <StyledNavLink to="/home">Home</StyledNavLink>
-                    </NavItem>
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsLoggedIn(false);
+    setUserOpen(false);
+    setMobileOpen(false);
+    navigate('/');
+  };
 
-                    {/* Movies with mega dropdown — click to toggle */}
-                    <NavItem ref={megaRef}>
-                        <NavButton onClick={() => setMegaOpen(v => !v)}>
-                            Movies
-                            <FaChevronDown
-                                style={{
-                                    fontSize: 10,
-                                    transition: 'transform 0.3s',
-                                    transform: megaOpen ? 'rotate(180deg)' : 'rotate(0deg)'
-                                }}
-                            />
-                        </NavButton>
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery('');
+      setMobileOpen(false);
+    }
+  };
 
-                        <MegaDropdown $open={megaOpen}>
-                            <GenreLabel>Browse by Genre</GenreLabel>
-                            <GenreGrid>
-                                {genres.map((g) => (
-                                    <GenreLink
-                                        key={g.name}
-                                        to={g.path}
-                                        onClick={() => setMegaOpen(false)}
-                                    >
-                                        <span className="icon">{g.icon}</span>
-                                        {g.name}
-                                    </GenreLink>
-                                ))}
-                            </GenreGrid>
-                        </MegaDropdown>
-                    </NavItem>
+  return (
+    <>
+      <Nav $scrolled={scrolled} $visible={visible}>
 
-                    <NavItem>
-                        <StyledNavLink to="/about">About</StyledNavLink>
-                    </NavItem>
-                    <NavItem>
-                        <StyledNavLink to="/contact">Contact</StyledNavLink>
-                    </NavItem>
-                </DesktopLinks>
+        <Brand to={isLoggedIn ? "/home" : "/"}>
+          <div className="brand-icon">🎬</div>
+          <span className="brand-name">Stream<span>Hub</span></span>
+        </Brand>
 
-                {/* Right Side */}
-                <RightSide>
-                    <SearchWrapper onSubmit={handleSearchSubmit}>
-                        <SearchInput
-                            type="search"
-                            placeholder="Search titles..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                        <SearchBtn type="submit">
-                            <FaSearch size={13} />
-                        </SearchBtn>
-                    </SearchWrapper>
+        <DesktopLinks>
+          <NavItem>
+            <StyledNavLink to="/home">Home</StyledNavLink>
+          </NavItem>
+          <NavItem ref={megaRef}>
+            <NavButton onClick={() => setMegaOpen(v => !v)}>
+              Movies
+              <FaChevronDown style={{
+                fontSize: 10,
+                transition: 'transform 0.3s',
+                transform: megaOpen ? 'rotate(180deg)' : 'rotate(0deg)'
+              }} />
+            </NavButton>
+            <MegaDropdown $open={megaOpen}>
+              <GenreLabel>Browse by Genre</GenreLabel>
+              <GenreGrid>
+                {genres.map((g) => (
+                  <GenreLink key={g.name} to={g.path} onClick={() => setMegaOpen(false)}>
+                    <span className="icon">{g.icon}</span>
+                    {g.name}
+                  </GenreLink>
+                ))}
+              </GenreGrid>
+            </MegaDropdown>
+          </NavItem>
+          <NavItem>
+            <StyledNavLink to="/about">About</StyledNavLink>
+          </NavItem>
+          <NavItem>
+            <StyledNavLink to="/contact">Contact</StyledNavLink>
+          </NavItem>
+        </DesktopLinks>
 
-                    {isLoggedIn ? (
-                        <UserMenuWrapper ref={userRef}>
-                            <UserBtn onClick={() => setUserOpen(v => !v)}>
-                                <div className="avatar"><FaUser size={11} /></div>
-                                My Account
-                                <FaChevronDown
-                                    size={10}
-                                    style={{
-                                        transition: 'transform 0.3s',
-                                        transform: userOpen ? 'rotate(180deg)' : 'rotate(0deg)'
-                                    }}
-                                />
-                            </UserBtn>
-                            {userOpen && (
-                                <UserDropdown>
-                                    <DropdownItem to="/dashboard" onClick={() => setUserOpen(false)}>
-                                        <FaTachometerAlt /> Dashboard
-                                    </DropdownItem>
-                                    <DropdownItem to="/profile" onClick={() => setUserOpen(false)}>
-                                        <FaUser /> Profile
-                                    </DropdownItem>
-                                    <DropdownDivider />
-                                    <LogoutItem onClick={handleLogout}>
-                                        <FaSignOutAlt /> Sign Out
-                                    </LogoutItem>
-                                </UserDropdown>
-                            )}
-                        </UserMenuWrapper>
-                    ) : (
-                        <>
-                            <LoginBtn to="/login">Login</LoginBtn>
-                            <SignupBtn to="/signup">Sign Up</SignupBtn>
-                        </>
-                    )}
+        <RightSide>
+          <SearchWrapper onSubmit={handleSearchSubmit}>
+            <SearchInput
+              type="search"
+              placeholder="Search titles..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <SearchBtn type="submit">
+              <FaSearch size={13} />
+            </SearchBtn>
+          </SearchWrapper>
 
-                    <HamburgerBtn onClick={() => setMobileOpen(true)} aria-label="Open menu">
-                        <FaBars />
-                    </HamburgerBtn>
-                </RightSide>
-            </Nav>
+          {isLoggedIn ? (
+            <UserMenuWrapper ref={userRef}>
+              <UserBtn onClick={() => setUserOpen(v => !v)}>
+                <div className="avatar"><FaUser size={11} /></div>
+                <span className="btn-label">My Account</span>
+                <FaChevronDown
+                  size={10}
+                  className="btn-chevron"
+                  style={{
+                    transition: 'transform 0.3s',
+                    transform: userOpen ? 'rotate(180deg)' : 'rotate(0deg)'
+                  }}
+                />
+              </UserBtn>
+              {userOpen && (
+                <UserDropdown>
+                  <DropdownItem to="/dashboard" onClick={() => setUserOpen(false)}>
+                    <FaTachometerAlt /> Dashboard
+                  </DropdownItem>
+                  <DropdownItem to="/profile" onClick={() => setUserOpen(false)}>
+                    <FaUser /> Profile
+                  </DropdownItem>
+                  <DropdownDivider />
+                  <LogoutItem onClick={handleLogout}>
+                    <FaSignOutAlt /> Sign Out
+                  </LogoutItem>
+                </UserDropdown>
+              )}
+            </UserMenuWrapper>
+          ) : (
+            <>
+              <LoginBtn to="/login">Login</LoginBtn>
+              <SignupBtn to="/signup">Sign Up</SignupBtn>
+            </>
+          )}
 
-            {/* ── Mobile Menu ── */}
-            {mobileOpen && (
-                <MobileMenu>
-                    <MobileClose onClick={() => setMobileOpen(false)}>
-                        <FaTimes />
-                    </MobileClose>
+          <HamburgerBtn onClick={() => setMobileOpen(true)} aria-label="Open menu">
+            <FaBars />
+          </HamburgerBtn>
+        </RightSide>
+      </Nav>
 
-                    <Brand
-                        to={isLoggedIn ? "/home" : "/"}
-                        onClick={() => setMobileOpen(false)}
-                        style={{ marginBottom: 28 }}
-                    >
-                        <div className="brand-icon">🎬</div>
-                        <span className="brand-name">Stream<span>Hub</span></span>
-                    </Brand>
+      {mobileOpen && (
+        <MobileMenu>
+          <MobileClose onClick={() => setMobileOpen(false)}>
+            <FaTimes />
+          </MobileClose>
 
-                    <MobileSearchForm onSubmit={handleSearchSubmit}>
-                        <input
-                            type="search"
-                            placeholder="Search titles..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
-                        <button type="submit"><FaSearch /></button>
-                    </MobileSearchForm>
+          <Brand
+            to={isLoggedIn ? "/home" : "/"}
+            onClick={() => setMobileOpen(false)}
+            style={{ marginBottom: 28 }}
+          >
+            <div className="brand-icon">🎬</div>
+            <span className="brand-name">Stream<span>Hub</span></span>
+          </Brand>
 
-                    <MobileNavLink to="/home" onClick={() => setMobileOpen(false)}>
-                        Home
-                    </MobileNavLink>
+          <MobileSearchForm onSubmit={handleSearchSubmit}>
+            <input
+              type="search"
+              placeholder="Search titles..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <button type="submit"><FaSearch /></button>
+          </MobileSearchForm>
 
-                    <MobileGenreToggle onClick={() => setMobileGenres(v => !v)}>
-                        Movies
-                        <FaChevronDown style={{
-                            transform: mobileGenres ? 'rotate(180deg)' : 'rotate(0deg)',
-                            transition: 'transform 0.3s'
-                        }} />
-                    </MobileGenreToggle>
+          <MobileNavLink to="/home" onClick={() => setMobileOpen(false)}>Home</MobileNavLink>
 
-                    {mobileGenres && (
-                        <MobileGenreGrid>
-                            {genres.map((g) => (
-                                <MobileGenreLink
-                                    key={g.name}
-                                    to={g.path}
-                                    onClick={() => setMobileOpen(false)}
-                                >
-                                    {g.icon} {g.name}
-                                </MobileGenreLink>
-                            ))}
-                        </MobileGenreGrid>
-                    )}
+          <MobileGenreToggle onClick={() => setMobileGenres(v => !v)}>
+            Movies
+            <FaChevronDown style={{
+              transform: mobileGenres ? 'rotate(180deg)' : 'rotate(0deg)',
+              transition: 'transform 0.3s'
+            }} />
+          </MobileGenreToggle>
 
-                    <MobileNavLink to="/about" onClick={() => setMobileOpen(false)}>
-                        About
-                    </MobileNavLink>
-                    <MobileNavLink to="/contact" onClick={() => setMobileOpen(false)}>
-                        Contact
-                    </MobileNavLink>
+          {mobileGenres && (
+            <MobileGenreGrid>
+              {genres.map((g) => (
+                <MobileGenreLink key={g.name} to={g.path} onClick={() => setMobileOpen(false)}>
+                  {g.icon} {g.name}
+                </MobileGenreLink>
+              ))}
+            </MobileGenreGrid>
+          )}
 
-                    {isLoggedIn ? (
-                        <>
-                            <MobileNavLink to="/dashboard" onClick={() => setMobileOpen(false)}>
-                                <FaTachometerAlt style={{ marginRight: 10 }} /> Dashboard
-                            </MobileNavLink>
-                            <MobileNavLink to="/profile" onClick={() => setMobileOpen(false)}>
-                                <FaUser style={{ marginRight: 10 }} /> Profile
-                            </MobileNavLink>
-                            <MobileLogout onClick={handleLogout}>
-                                <FaSignOutAlt /> Sign Out
-                            </MobileLogout>
-                        </>
-                    ) : (
-                        <MobileAuthRow>
-                            <Link to="/login" className="login" onClick={() => setMobileOpen(false)}>Login</Link>
-                            <Link to="/signup" className="signup" onClick={() => setMobileOpen(false)}>Sign Up</Link>
-                        </MobileAuthRow>
-                    )}
-                </MobileMenu>
-            )}
-        </>
-    );
+          <MobileNavLink to="/about" onClick={() => setMobileOpen(false)}>About</MobileNavLink>
+          <MobileNavLink to="/contact" onClick={() => setMobileOpen(false)}>Contact</MobileNavLink>
+
+          {isLoggedIn ? (
+            <>
+              <MobileNavLink to="/dashboard" onClick={() => setMobileOpen(false)}>
+                <FaTachometerAlt style={{ marginRight: 10 }} /> Dashboard
+              </MobileNavLink>
+              <MobileNavLink to="/profile" onClick={() => setMobileOpen(false)}>
+                <FaUser style={{ marginRight: 10 }} /> Profile
+              </MobileNavLink>
+              <MobileLogout onClick={handleLogout}>
+                <FaSignOutAlt /> Sign Out
+              </MobileLogout>
+            </>
+          ) : (
+            <MobileAuthRow>
+              <Link to="/login" className="login" onClick={() => setMobileOpen(false)}>Login</Link>
+              <Link to="/signup" className="signup" onClick={() => setMobileOpen(false)}>Sign Up</Link>
+            </MobileAuthRow>
+          )}
+        </MobileMenu>
+      )}
+    </>
+  );
 };
 
 export default Navbar;

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import WatchMovieModal from "./WatchMovieModal"; // adjust path if needed
+import WatchMovieModal from "./WatchMovieModal";
 
 const MovieCard = ({
   movie,
@@ -16,7 +16,7 @@ const MovieCard = ({
 
   const posterUrl = movie.poster_path
     ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
-    : "https://placehold.co/270x350?text=No+Image";
+    : "https://placehold.co/200x300?text=No+Image";
 
   const year = movie.release_date
     ? new Date(movie.release_date).getFullYear()
@@ -34,7 +34,11 @@ const MovieCard = ({
       ? isInWatchlistProp
       : watchlist.includes(movie.id);
 
-  const handleCardClick = () => navigate(`/movie/${movie.id}`);
+  // Mobile — just navigate directly on tap
+  // Desktop — overlay handles the buttons
+  const handleCardClick = () => {
+    navigate(`/movie/${movie.id}`);
+  };
 
   const handleTrailerClick = (e) => {
     e.stopPropagation();
@@ -51,208 +55,356 @@ const MovieCard = ({
     setShowWatchModal(true);
   };
 
- const styles = `
-.card{
-position:relative;
-width:270px;
-height:380px;
-border-radius:14px;
-overflow:hidden;
-background:#0e0e0e;
-cursor:pointer;
-transition:transform .35s ease, box-shadow .35s ease;
-}
+  const styles = `
+  .mc-card {
+    position: relative;
+    width: 160px;
+    height: 240px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #111;
+    cursor: pointer;
+    transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                box-shadow 0.4s ease;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+    outline: none;
+  }
 
-.card:hover{
-transform:translateY(-12px) scale(1.06);
-box-shadow:
-0 25px 60px rgba(0,0,0,0.7),
-0 0 40px rgba(229,9,20,0.35);
-z-index:50;
-}
+  @media (max-width: 768px) {
+    .mc-card {
+      width: 120px;
+      height: 180px;
+      border-radius: 8px;
+    }
+  }
 
-.card-poster{
-width:100%;
-height:100%;
-object-fit:cover;
-transition:all .4s ease;
-}
+  @media (max-width: 380px) {
+    .mc-card {
+      width: 105px;
+      height: 158px;
+    }
+  }
 
-.card:hover .card-poster{
-filter:brightness(.4) blur(4px);
-transform:scale(1.12);
-}
+  /* Desktop hover lift */
+  @media (min-width: 769px) {
+    .mc-card:hover {
+      transform: translateY(-8px) scale(1.03);
+      box-shadow:
+        0 24px 50px rgba(0,0,0,0.8),
+        0 0 0 1px rgba(255,255,255,0.06);
+      z-index: 50;
+    }
+  }
 
-.card__content{
-position:absolute;
-bottom:0;
-left:0;
-width:100%;
-padding:1rem;
-background:linear-gradient(to top, rgba(0,0,0,.9), transparent);
-color:white;
-transform:translateY(100%);
-transition:transform .35s ease;
-}
+  /* ── Poster ── */
+  .mc-poster {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s ease, filter 0.4s ease;
+  }
 
-.card:hover .card__content{
-transform:translateY(0);
-}
+  @media (min-width: 769px) {
+    .mc-card:hover .mc-poster {
+      transform: scale(1.08);
+      filter: brightness(0.25);
+    }
+  }
 
-.card__title{
-font-size:1.1rem;
-font-weight:700;
-margin-bottom:.3rem;
-}
+  /* ── Rating badge — always visible ── */
+  .mc-rating-badge {
+    position: absolute;
+    top: 7px;
+    right: 7px;
+    background: rgba(0,0,0,0.78);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px;
+    padding: 3px 7px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #ffd700;
+    font-family: 'Poppins', sans-serif;
+    pointer-events: none;
+    z-index: 2;
+    transition: opacity 0.3s ease;
+  }
 
-.card__info{
-font-size:.85rem;
-display:flex;
-gap:.5rem;
-margin-bottom:.5rem;
-align-items:center;
-color:#ddd;
-}
+  @media (min-width: 769px) {
+    .mc-card:hover .mc-rating-badge {
+      opacity: 0;
+    }
+  }
 
-.card__description{
-font-size:.8rem;
-color:#bbb;
-display:-webkit-box;
--webkit-line-clamp:2;
--webkit-box-orient:vertical;
-overflow:hidden;
-}
+  /* ── Bottom gradient — always on mobile for title ── */
+  .mc-bottom-gradient {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 70px;
+    background: linear-gradient(to top, rgba(0,0,0,0.92), transparent);
+    pointer-events: none;
+    z-index: 2;
+  }
 
-.card__buttons{
-display:flex;
-gap:6px;
-margin-top:.8rem;
-flex-wrap:wrap;
-}
+  /* Hide on desktop — overlay handles this */
+  @media (min-width: 769px) {
+    .mc-bottom-gradient { display: none; }
+  }
 
-.btn-watch,
-.btn-trailer,
-.btn-add,
-.btn-remove,
-.btn-now{
-flex:1;
-border:none;
-border-radius:6px;
-padding:7px 4px;
-font-size:.72rem;
-font-weight:600;
-cursor:pointer;
-display:flex;
-align-items:center;
-justify-content:center;
-gap:3px;
-transition:all .2s ease;
-min-width:0;
-}
+  /* ── Mobile title — always visible at bottom ── */
+  .mc-mobile-title {
+    position: absolute;
+    bottom: 7px;
+    left: 8px; right: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #fff;
+    z-index: 3;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    pointer-events: none;
+  }
 
-.btn-now{
-background:#e50914;
-color:white;
-}
+  /* Hide on desktop */
+  @media (min-width: 769px) {
+    .mc-mobile-title { display: none; }
+  }
 
-.btn-now:hover{
-background:#ff0a16;
-box-shadow:0 0 12px rgba(229,9,20,0.5);
-}
+  /* ── Desktop overlay — hover only ── */
+  .mc-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 10px 9px 9px;
+    background: linear-gradient(
+      to top,
+      rgba(0,0,0,0.97) 0%,
+      rgba(0,0,0,0.65) 55%,
+      transparent 100%
+    );
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 3;
+  }
 
-.btn-watch{
-background:rgba(255,255,255,0.15);
-color:white;
-border:1px solid rgba(255,255,255,0.2);
-}
+  /* Only show on desktop hover */
+  @media (min-width: 769px) {
+    .mc-card:hover .mc-overlay {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 
-.btn-watch:hover{
-background:rgba(255,255,255,0.25);
-}
+  /* Always hide overlay on mobile */
+  @media (max-width: 768px) {
+    .mc-overlay { display: none; }
+  }
 
-.btn-trailer{
-background:white;
-color:black;
-}
+  /* ── Overlay title ── */
+  .mc-title {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 3px;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
 
-.btn-trailer:hover{
-background:#f0f0f0;
-}
+  /* ── Meta ── */
+  .mc-meta {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 8px;
+  }
 
-.btn-add{
-background:#1a73e8;
-color:white;
-}
+  .mc-year {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.62rem;
+    color: rgba(255,255,255,0.4);
+    font-weight: 500;
+  }
 
-.btn-add:hover{
-background:#1c7fff;
-}
+  .mc-dot {
+    width: 2px; height: 2px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.25);
+    flex-shrink: 0;
+  }
 
-.btn-remove{
-background:#c62828;
-color:white;
-}
+  .mc-rating-inline {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.62rem;
+    color: #ffd700;
+    font-weight: 600;
+  }
 
-.btn-remove:hover{
-background:#d32f2f;
-}
-`;
+  /* ── Description ── */
+  .mc-desc {
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.65rem;
+    color: rgba(255,255,255,0.45);
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    margin-bottom: 9px;
+  }
+
+  /* ── Buttons ── */
+  .mc-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .mc-btn-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5px;
+  }
+
+  .mc-btn {
+    border: none;
+    border-radius: 6px;
+    padding: 7px 4px;
+    font-size: 0.62rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    transition: all 0.2s ease;
+    font-family: 'Poppins', sans-serif;
+    white-space: nowrap;
+    position: relative;
+    z-index: 10;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+
+  .mc-btn-now {
+    width: 100%;
+    background: #e50914;
+    color: #fff;
+    padding: 8px 4px;
+    font-size: 0.68rem;
+    border-radius: 6px;
+  }
+
+  .mc-btn-now:hover { background: #ff1a1a; box-shadow: 0 3px 14px rgba(229,9,20,0.5); }
+
+  .mc-btn-trailer {
+    background: rgba(255,255,255,0.88);
+    color: #111;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+
+  .mc-btn-trailer:hover { background: #fff; }
+
+  .mc-btn-add {
+    background: rgba(26,115,232,0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(26,115,232,0.25);
+  }
+
+  .mc-btn-add:hover { background: rgba(26,115,232,0.3); border-color: rgba(26,115,232,0.5); color: #93c5fd; }
+
+  .mc-btn-remove {
+    background: rgba(198,40,40,0.12);
+    color: #f87171;
+    border: 1px solid rgba(198,40,40,0.2);
+  }
+
+  .mc-btn-remove:hover { background: rgba(198,40,40,0.25); border-color: rgba(198,40,40,0.4); color: #fca5a5; }
+
+  /* ── Border glow desktop only ── */
+  @media (min-width: 769px) {
+    .mc-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0);
+      transition: border-color 0.35s ease;
+      pointer-events: none;
+      z-index: 4;
+    }
+
+    .mc-card:hover::after {
+      border-color: rgba(255,255,255,0.08);
+    }
+  }
+  `;
 
   return (
     <>
       <style>{styles}</style>
 
-      <div className="card" onClick={handleCardClick}>
-        <img src={posterUrl} alt={movie.title} className="card-poster" />
+      <div className="mc-card" onClick={handleCardClick}>
 
-        <div className="card__content">
-          <h5 className="card__title">{movie.title}</h5>
+        {/* Poster */}
+        <img src={posterUrl} alt={movie.title} className="mc-poster" />
 
-          <div className="card__info">
-            <span>⭐ {rating}</span>
-            <span>|</span>
-            <span>{year}</span>
+        {/* Rating badge — always visible */}
+        <div className="mc-rating-badge">⭐ {rating}</div>
+
+        {/* Mobile only — bottom gradient + title, no buttons */}
+        <div className="mc-bottom-gradient" />
+        <p className="mc-mobile-title">{movie.title}</p>
+
+        {/* Desktop only — full overlay with buttons on hover */}
+        <div className="mc-overlay">
+          <h5 className="mc-title">{movie.title}</h5>
+
+          <div className="mc-meta">
+            <span className="mc-year">{year}</span>
+            <div className="mc-dot" />
+            <span className="mc-rating-inline">⭐ {rating}</span>
           </div>
 
-          <p className="card__description">{description}</p>
+          <p className="mc-desc">{description}</p>
 
-          <div className="card__buttons">
-
-            {/* Watch Now — opens movie player */}
-            <button className="btn-now" onClick={handleWatchNow}>
-              <i className="bi bi-play-fill"></i> Now
+          <div className="mc-buttons">
+            <button className="mc-btn mc-btn-now" onClick={handleWatchNow}>
+              <i className="bi bi-play-fill"></i> Watch Now
             </button>
-
-            {/* Detail page */}
-            <button
-              className="btn-watch"
-              onClick={(e) => { e.stopPropagation(); handleCardClick(); }}
-            >
-              <i className="bi bi-eye-fill"></i> Info
-            </button>
-
-            {/* Trailer */}
-            <button className="btn-trailer" onClick={handleTrailerClick}>
-              <i className="bi bi-film"></i> Trailer
-            </button>
-
-            {/* Watchlist */}
-            <button
-              className={isOnWatchlistPage || isInWatchlist ? "btn-remove" : "btn-add"}
-              onClick={handleWatchlistClick}
-            >
-              {isOnWatchlistPage || isInWatchlist ? (
-                <><i className="bi bi-check-lg"></i> In List</>
-              ) : (
-                <><i className="bi bi-plus-lg"></i> Add</>
-              )}
-            </button>
-
+            <div className="mc-btn-row">
+              <button className="mc-btn mc-btn-trailer" onClick={handleTrailerClick}>
+                <i className="bi bi-film"></i> Trailer
+              </button>
+              <button
+                className={`mc-btn ${isOnWatchlistPage || isInWatchlist ? "mc-btn-remove" : "mc-btn-add"}`}
+                onClick={handleWatchlistClick}
+              >
+                {isOnWatchlistPage || isInWatchlist ? (
+                  <><i className="bi bi-check-lg"></i> Saved</>
+                ) : (
+                  <><i className="bi bi-plus-lg"></i> Save</>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Watch Movie Modal */}
       <WatchMovieModal
         show={showWatchModal}
         handleClose={() => setShowWatchModal(false)}

@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import api from "../services/api";
-// --- FIXED IMPORTS ---
 import VideoModal from "../components/common/VideoModal";
 import LoadingSpinner from "../components/common/LoadingSpinner";
-import MovieCard from "../components/movie/MovieCard"; // Corrected path
-// --- END OF FIXED IMPORTS ---
+import MovieCard from "../components/movie/MovieCard";
 import { toast } from "react-toastify";
 import { Form, Button, Spinner } from "react-bootstrap";
 
@@ -23,15 +21,14 @@ const SearchPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [watchlistIds, setWatchlistIds] = useState([]); // tracks which movies are in watchlist
+  const [watchlistIds, setWatchlistIds] = useState([]);
 
-  // Memoized fetch function for search results
   const fetchSearchResults = useCallback(
     async (page = 1, loadMore = false) => {
-      if (!query) return; // Exit if no query
+      if (!query) return;
       if (!loadMore) {
         setLoading(true);
-        if (page === 1) setSearchResults([]); // Clear results on new search/filter/page 1
+        if (page === 1) setSearchResults([]);
       } else {
         setLoadingMore(true);
       }
@@ -45,9 +42,7 @@ const SearchPage = () => {
         );
         setTotalPages(res.data.total_pages || 1);
       } catch (err) {
-        console.error("Error fetching search results:", err);
         toast.error("Could not fetch search results.");
-        setSearchResults([]);
       } finally {
         setLoading(false);
         setLoadingMore(false);
@@ -56,16 +51,14 @@ const SearchPage = () => {
     [query, filterYear]
   );
 
-  // Fetch user's watchlist IDs once on mount so cards show correct state
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
     api.get("/users/watchlist")
       .then(res => setWatchlistIds(Array.isArray(res.data) ? res.data : []))
-      .catch(() => {}); // silent — not logged in or network error
+      .catch(() => {});
   }, []);
 
-  // Effect runs on initial load and when query or filterYear changes
   useEffect(() => {
     if (!query) {
       navigate("/");
@@ -76,14 +69,12 @@ const SearchPage = () => {
     fetchSearchResults(1, false);
   }, [query, filterYear, navigate, fetchSearchResults]);
 
-  // Handler for the "Load More" button
   const handleLoadMore = () => {
     const nextPage = currentPage + 1;
     setCurrentPage(nextPage);
     fetchSearchResults(nextPage, true);
   };
 
-  // Handler for changing the year filter dropdown
   const handleYearChange = (event) => {
     const newYear = event.target.value;
     setFilterYear(newYear);
@@ -93,35 +84,11 @@ const SearchPage = () => {
     navigate({ search: newSearchParams.toString() }, { replace: true });
   };
 
-  // --- Functions for card actions ---
-  const logActivity = async (movie, actionType) => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-    try {
-      await api.post(`/activity/log`, {
-        movie_id: movie.id,
-        action_type: actionType,
-        movie_title: movie.title || "Unknown",
-        movie_poster_path: movie.poster_path || "",
-      });
-    } catch (err) {
-      console.error("Failed to log activity:", err);
-    }
-  };
-
-  // Log search_click when user clicks on a movie from search results
-  // This is Contribution 2 — search intent as OTT implicit signal
-  const handleSearchClick = (movie) => {
-    logActivity(movie, "search_click");
-  };
-
   const handleWatchTrailerClick = async (movie) => {
-    logActivity(movie, "trailer_watch");
     try {
       const res = await api.get(`/movies/${movie.id}/videos`);
       setVideoKey(res.data?.key || null);
     } catch (err) {
-      console.error("Error fetching trailer:", err);
       setVideoKey(null);
     } finally {
       setShowVideoModal(true);
@@ -131,40 +98,22 @@ const SearchPage = () => {
   const handleWatchlistClick = async (movie) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("Please log in to add to your watchlist.");
+      toast.error("Please log in.");
       return;
     }
-
     const alreadyAdded = watchlistIds.includes(movie.id);
-
     try {
       if (alreadyAdded) {
         await api.delete(`/users/watchlist/${movie.id}`);
-        // Optimistic update — remove from local state immediately
         setWatchlistIds(prev => prev.filter(id => id !== movie.id));
-        logActivity(movie, "removed_from_watchlist");
-        toast.info("Removed from watchlist");
       } else {
-        const res = await api.post(`/users/watchlist/${movie.id}`, {});
-        // Optimistic update — add to local state immediately
+        await api.post(`/users/watchlist/${movie.id}`, {});
         setWatchlistIds(prev => [...prev, movie.id]);
-        logActivity(movie, "added_to_watchlist");
-        toast.success(res.data.msg || "Added to watchlist");
       }
     } catch (err) {
-      console.error("Error updating watchlist:", err);
-      if (err.response?.status === 401) {
-        toast.error("Session expired. Please log in again.");
-        localStorage.removeItem("token");
-        navigate("/login");
-      } else {
-        toast.error(err.response?.data?.detail || "Could not update watchlist.");
-      }
+      toast.error("Update failed.");
     }
   };
-
-  const handleCloseVideoModal = () => setShowVideoModal(false);
-  // --- End of Functions ---
 
   if (loading && currentPage === 1) return <LoadingSpinner />;
 
@@ -172,65 +121,85 @@ const SearchPage = () => {
   const years = Array.from({ length: 50 }, (_, i) => currentYear - i);
 
   return (
-    <div
-      className="container-fluid"
-      style={{ color: "white", marginTop: "20px" }}
-    >
-      <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
-        <h2 className="mb-0 me-3">Search Results for "{query}"</h2>
+    <div className="container-fluid py-6" style={{ color: "white", paddingTop: "100px" }}>
+      <style>{`
+        @media (min-width: 992px) {
+          .sh-grid {
+            display: grid !important;
+            grid-template-columns: repeat(7, 1fr) !important;
+            gap: 10px !important;
+          }
+          .sh-grid > .col {
+            width: 100% !important;
+            max-width: none !important;
+            flex: 0 0 auto !important;
+          }
+        }
+        
+        .sh-load-more-btn {
+          background: rgba(255, 255, 255, 0.05);
+          backdrop-filter: blur(8px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 30px;
+          padding: 12px 40px;
+          font-weight: 600;
+          color: #fff;
+          transition: 0.3s;
+        }
+        .sh-load-more-btn:hover {
+          background: #fff !important;
+          color: #000 !important;
+          transform: translateY(-3px);
+        }
+      `}</style>
+
+      {/* Header Container */}
+      <div className="d-flex justify-content-between align-items-center mb-4 mx-auto px-2" style={{ maxWidth: "1500px" }}>
+        <h4 className="fw-bold mb-0">Results for "{query}"</h4>
         <Form.Select
-          aria-label="Filter by year"
           value={filterYear}
           onChange={handleYearChange}
-          style={{ width: "150px" }}
-          className="bg-dark text-light border-secondary form-select-sm ms-auto"
+          className="bg-dark text-light border-secondary"
+          style={{ width: "100px" }}
           size="sm"
         >
-          <option value="">All Years</option>
-          {years.map((year) => (
-            <option key={year} value={year}>
-              {year}
-            </option>
-          ))}
+          <option value="">Year</option>
+          {years.map((year) => <option key={year} value={year}>{year}</option>)}
         </Form.Select>
       </div>
 
-      <div style={{ width: "100%" }}>
-        <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-          {searchResults.length > 0
-            ? searchResults.map((movie) => (
-                <div className="col" key={`${movie.id}-${currentPage}`}>
-                  <MovieCard
-                    movie={movie}
-                    watchlist={watchlistIds}
-                    onWatchTrailerClick={handleWatchTrailerClick}
-                    onWatchlistClick={handleWatchlistClick}
-                    onMovieClick={handleSearchClick}
-                  />
-                </div>
-              ))
-            : !loading && (
-                <p className="text-muted col-12">
-                  No movies found matching your criteria.
-                </p>
-              )}
+      <div className="d-flex justify-content-center">
+        <div 
+          className="row row-cols-3 sh-grid w-100 justify-content-center"
+          style={{ maxWidth: "1500px" }}
+        >
+          {searchResults.length > 0 ? (
+            searchResults.map((movie) => (
+              <div className="col d-flex justify-content-center mb-3" key={`${movie.id}-${currentPage}`}>
+                <MovieCard
+                  movie={movie}
+                  watchlist={watchlistIds}
+                  onWatchTrailerClick={handleWatchTrailerClick}
+                  onWatchlistClick={handleWatchlistClick}
+                />
+              </div>
+            ))
+          ) : (
+            <div className="col-12 text-center py-5 text-muted">No movies found.</div>
+          )}
         </div>
       </div>
 
-      <div className="text-center mt-5 mb-4">
+      <div className="text-center mt-5 mb-5">
         {currentPage < totalPages && !loadingMore && (
-          <Button variant="outline-light" onClick={handleLoadMore}>
+          <Button variant="outline-light" onClick={handleLoadMore} className="sh-load-more-btn">
             Load More
           </Button>
         )}
-        {loadingMore && <Spinner animation="border" variant="light" />}
+        {loadingMore && <Spinner animation="border" variant="danger" size="sm" />}
       </div>
 
-      <VideoModal
-        show={showVideoModal}
-        handleClose={handleCloseVideoModal}
-        videoKey={videoKey}
-      />
+      <VideoModal show={showVideoModal} handleClose={() => setShowVideoModal(false)} videoKey={videoKey} />
     </div>
   );
 };

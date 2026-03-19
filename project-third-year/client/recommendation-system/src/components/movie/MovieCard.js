@@ -79,12 +79,19 @@ const MovieCard = ({
     }
   }
 
-  @media (max-width: 390px) {
+  @media (max-width: 450px) {
     .mc-card {
-      width: 112px;
+      width: 118px;
       height: 170px;
     }
   }
+    @media (max-width: 390px) {
+    .mc-card {
+      width: 108px;
+      height: 170px;
+    }
+  }
+    
 
   /* Desktop hover lift */
   @media (min-width: 769px) {

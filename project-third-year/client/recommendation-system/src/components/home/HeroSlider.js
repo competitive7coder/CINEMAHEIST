@@ -356,7 +356,7 @@ const HeroSlider = ({
     }
 
     /* ════════════════════════════════
-       MOBILE — key fix: position:absolute on slide inner
+       MOBILE 
     ════════════════════════════════ */
    @media (max-width: 480px) {
   .hero-slider {

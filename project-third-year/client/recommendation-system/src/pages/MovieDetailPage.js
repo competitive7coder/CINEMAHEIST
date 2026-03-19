@@ -16,7 +16,7 @@ const MovieDetailPage = () => {
   const [showVideoModal, setShowVideoModal]           = useState(false);
   const [videoKey, setVideoKey]                       = useState(null);
   const [showWatchModal, setShowWatchModal]           = useState(false);
-  const [visibleRelatedCount, setVisibleRelatedCount] = useState(window.innerWidth <= 768 ? 6 : 10);
+const [visibleRelatedCount, setVisibleRelatedCount] = useState(20);
   const [isInWatchlist, setIsInWatchlist]             = useState(false);
   const [watchlistIds, setWatchlistIds]               = useState([]);
 
@@ -119,7 +119,7 @@ const MovieDetailPage = () => {
   };
 
   const handleLoadMore = () => {
-    const increment = window.innerWidth <= 768 ? 6 : 10;
+const increment = 6;
     setVisibleRelatedCount((prev) => prev + increment);
   };
 
@@ -313,7 +313,7 @@ const MovieDetailPage = () => {
     }
     .mdp-related-grid {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(6, 1fr);
       gap: 10px;
     }
     .mdp-load-more-wrap { display: flex; justify-content: center; margin-top: 2rem; }

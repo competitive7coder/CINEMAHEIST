@@ -1,12 +1,8 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
-// import axios from "axios"; // --- 1. REMOVED
-import api from "../services/api"; 
-// import MovieCard from "./MovieCard";
-// import VideoModal from "./VideoModal";
+import api from "../services/api";
 import { toast } from "react-toastify";
-// import LoadingSpinner from "./LoadingSpinner";
-import { Dropdown, Form, Spinner } from "react-bootstrap";
+import { Dropdown, Form, Spinner, Button } from "react-bootstrap";
 import MovieCard from "../components/movie/MovieCard";
 import VideoModal from "../components/common/VideoModal";
 import LoadingSpinner from "../components/common/LoadingSpinner";
@@ -42,8 +38,6 @@ const GenrePage = () => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [watchlistIds, setWatchlistIds] = useState([]);
 
-  // const API_BASE_URL = "http://localhost:5000/api"; // --- 2. REMOVED
-
   const fetchMoviesByGenre = useCallback(
     async (page = 1, loadMore = false) => {
       if (!loadMore) {
@@ -55,42 +49,39 @@ const GenrePage = () => {
         let url;
         const params = { page };
 
-        if (genreId === "popular") url = `/movies/popular`; // --- 3. FIXED
-        else if (genreId === "new-releases")
-          url = `/movies/now-playing`; // --- 3. FIXED
+        if (genreId === "popular") url = `/movies/popular`;
+        else if (genreId === "new-releases") url = `/movies/now-playing`;
         else {
-          url = `/movies/genre/${genreId}`; // --- 3. FIXED
+          url = `/movies/genre/${genreId}`;
           params.sort_by = sortBy;
           if (filterYear) params.year = filterYear;
         }
 
-        // const res = await axios.get(url, { params }); // --- 3. OLD
-        const res = await api.get(url, { params }); // --- 3. FIXED
+        const res = await api.get(url, { params });
         const newResults = Array.isArray(res.data)
           ? res.data
           : Array.isArray(res.data?.results)
-          ? res.data.results
-          : [];
+            ? res.data.results
+            : [];
 
         setMovies((prev) => (loadMore ? [...prev, ...newResults] : newResults));
         setTotalPages(res.data?.total_pages || res.data?.totalPages || 1);
       } catch (err) {
-        console.error("Error fetching movies:", err);
         toast.error("Could not load movies.");
       } finally {
         setLoading(false);
         setLoadingMore(false);
       }
     },
-    [genreId, sortBy, filterYear]
+    [genreId, sortBy, filterYear],
   );
 
-  // Fetch watchlist IDs so cards show correct Add/In List state
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
-    api.get("/users/watchlist")
-      .then(res => setWatchlistIds(Array.isArray(res.data) ? res.data : []))
+    api
+      .get("/users/watchlist")
+      .then((res) => setWatchlistIds(Array.isArray(res.data) ? res.data : []))
       .catch(() => {});
   }, []);
 
@@ -110,20 +101,16 @@ const GenrePage = () => {
   const handleYearChange = (e) => setFilterYear(e.target.value);
 
   const handleWatchTrailerClick = async (movie) => {
-    const movieId = movie?.id ?? movie; // handles full object or raw id
+    const movieId = movie?.id ?? movie;
     try {
       const res = await api.get(`/movies/${movieId}/videos`);
       const trailer = res.data?.results?.find(
-        (vid) => vid.type === "Trailer" && vid.site === "YouTube"
+        (v) => v.type === "Trailer" && v.site === "YouTube",
       );
-      const fallbackVideo = res.data?.results?.find(
-        (vid) => vid.site === "YouTube"
-      );
-      setVideoKey(trailer?.key || fallbackVideo?.key || res.data?.key || null);
+      const fallback = res.data?.results?.find((v) => v.site === "YouTube");
+      setVideoKey(trailer?.key || fallback?.key || res.data?.key || null);
       setShowVideoModal(true);
     } catch (err) {
-      console.error("Error fetching trailer:", err);
-      toast.error("Could not load trailer.");
       setVideoKey(null);
       setShowVideoModal(true);
     }
@@ -131,23 +118,21 @@ const GenrePage = () => {
 
   const handleWatchlistClick = async (movie) => {
     const token = localStorage.getItem("token");
-    if (!token) { toast.error("Please log in to add to your watchlist."); return; }
-
+    if (!token) {
+      toast.error("Please log in.");
+      return;
+    }
     const inList = watchlistIds.includes(movie.id);
-    // Optimistic update — button flips instantly
-    setWatchlistIds(prev => inList ? prev.filter(id => id !== movie.id) : [...prev, movie.id]);
+    setWatchlistIds((prev) =>
+      inList ? prev.filter((id) => id !== movie.id) : [...prev, movie.id],
+    );
     try {
-      if (inList) {
-        await api.delete(`/users/watchlist/${movie.id}`);
-        toast.info("Removed from watchlist");
-      } else {
-        const res = await api.post(`/users/watchlist/${movie.id}`, {});
-        toast.success(res.data.msg || "Added to watchlist");
-      }
+      if (inList) await api.delete(`/users/watchlist/${movie.id}`);
+      else await api.post(`/users/watchlist/${movie.id}`, {});
     } catch (err) {
-      // Revert on failure
-      setWatchlistIds(prev => inList ? [...prev, movie.id] : prev.filter(id => id !== movie.id));
-      toast.error(err.response?.data?.detail || "Could not update watchlist.");
+      setWatchlistIds((prev) =>
+        inList ? [...prev, movie.id] : prev.filter((id) => id !== movie.id),
+      );
     }
   };
 
@@ -156,95 +141,128 @@ const GenrePage = () => {
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 50 }, (_, i) => currentYear - i);
 
-  // --- Load More Button styles ---
-  const buttonStyles = `
-    .load-more-btn {
-      transform: rotate(-25deg) skew(25deg);
-      transform-style: preserve-3d;
-      position: relative;
-      list-style: none;
-      width: 120px; 
-      height: 40px; 
-      border: none;
-      background: transparent;
-      font-family: inherit;
-      cursor: pointer;
-      margin: 1rem 0; 
-    }
-    .load-more-btn:before { content: ''; position: absolute; bottom: -10px; left: -5px; width: 100%; height: 10px; background: #2a2a2a; transform: skewX(-41deg); }
-    .load-more-btn:after { content: ''; position: absolute; top: 5px; left: -9px; width: 9px; height: 100%; background: #2a2a2a; transform: skewY(-49deg); }
-    .load-more-btn span { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #2a2a2a; color: #fff; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; transition: 1.1s ease-out; }
-    .load-more-btn:hover span { z-index: 1000; transition: .3s; color: #fff; background: #8a928fff; }
-    .load-more-btn:hover span:nth-child(5) { transform: translate(40px, -40px); opacity: 1; }
-    .load-more-btn:hover span:nth-child(4) { transform: translate(30px, -30px); opacity: .8; }
-    .load-more-btn:hover span:nth-child(3) { transform: translate(20px, -20px); opacity: .6; }
-    .load-more-btn:hover span:nth-child(2) { transform: translate(10px, -10px); opacity: .4; }
-    .load-more-btn:hover span:nth-child(1) { transform: translate(0px, 0px); opacity: .2; }
-  `;
-
-  const headerStyles = `
-    .genre-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-      padding: 0 3rem;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-    .genre-title {
-    width: 90%;
-      font-weight: 800;
-      font-size: 1.8em;
-      color: #fff;
-      margin: 0;
-      flex: 1;
-      text-align: left;
-      padding: 0 .5rem;
-    }
-    .genre-filters {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      gap: 0.75rem;
-    }
-    .genre-filters .dropdown-toggle, 
-    .genre-filters .form-select {
-      background-color: #343a40 !important;
-      border-color: #6c757d !important;
-      color: #fff !important;
-      font-size: 0.9rem;
-      padding: 0.3rem 0.75rem;
-      height: auto;
-      line-height: 1.5;
-    }
-    .genre-filters .form-select {
-      width: 130px;
-    }
-    .genre-filters .dropdown-menu {
-      font-size: 0.9rem;
-    }
-  `;
-
   return (
-    <div className="container-fluid pt-3 pb-5" style={{ color: "white" }}>
-      <style>{buttonStyles}</style>
-      <style>{headerStyles}</style>
+    <div
+      className="container-fluid py-4 px-1 px-md-3"
+      style={{ color: "white", paddingTop: "100px" }}
+    >
+      <style>{`
+        /* Force 7-column desktop grid */
+        @media (min-width: 992px) {
+          .sh-grid {
+            display: grid !important;
+            grid-template-columns: repeat(7, 1fr) !important;
+            gap: 12px !important;
+          }
+          .sh-grid > .col {
+            width: 100% !important;
+            max-width: none !important;
+            flex: 0 0 auto !important;
+          }
+        }
 
-      {/* Header Section */}
-      <div className="genre-header">
-        <h2 className="genre-title">{genreName}</h2>
+        /* Professional Glass Header */
+        .sh-genre-header {
+          background: rgba(255, 255, 255, 0.03);
+          backdrop-filter: blur(12px);
+          border-radius: 15px;
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+          transition: transform 0.3s ease;
+        }
+
+        /* Stylish Dropdown Styling */
+        .sh-custom-select {
+          background-color: rgba(20, 20, 20, 0.8) !important;
+          color: #efefef !important;
+          border: 1px solid rgba(255, 255, 255, 0.2) !important;
+          border-radius: 8px !important;
+          padding: 8px 35px 8px 15px !important;
+          font-size: 0.85rem !important;
+          font-weight: 500 !important;
+          cursor: pointer !important;
+          transition: all 0.3s ease !important;
+          appearance: none !important;
+          background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+          background-repeat: no-repeat !important;
+          background-position: right 0.75rem center !important;
+          background-size: 16px 12px !important;
+        }
+        .sh-custom-select:hover { border-color: rgba(255, 255, 255, 0.5) !important; background-color: rgba(40, 40, 40, 0.9) !important; }
+
+        /* Stylish Load More Button */
+        .sh-load-more-btn {
+          background: rgba(255, 255, 255, 0.05);
+          backdrop-filter: blur(8px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 30px;
+          padding: 12px 45px;
+          font-weight: 600;
+          letter-spacing: 1px;
+          text-transform: uppercase;
+          font-size: 0.75rem;
+          transition: all 0.3s ease;
+          color: #fff;
+        }
+        .sh-load-more-btn:hover {
+          background: #fff !important;
+          color: #000 !important;
+          transform: translateY(-3px);
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+        }
+      `}</style>
+
+      {/* Glassmorphism Header Bar */}
+      <div
+        className="sh-genre-header d-flex flex-wrap justify-content-between align-items-center mx-auto"
+        style={{
+          maxWidth: "1450px",
+          marginTop: "40px",
+          marginBottom: "35px",
+          padding: "18px 25px",
+
+          /* Style Fixes */
+          background: "rgba(255, 255, 255, 0.03)",
+          backdropFilter: "blur(12px)",
+          borderRadius: "15px",
+          border: "1px solid rgba(255, 255, 255, 0.08)",
+          boxShadow: "0 8px 32px 0 rgba(0, 0, 0, 0.3)",
+          position: "relative",
+          zIndex: 10,
+        }}
+      >
+        <div className="d-flex align-items-center gap-2">
+          <div
+            style={{
+              width: "4px",
+              height: "26px",
+              background: "#e50914",
+              borderRadius: "2px",
+            }}
+          />
+          <h3
+            className="fw-bold mb-0 text-truncate"
+            style={{ letterSpacing: "0.5px" }}
+          >
+            {genreName}
+          </h3>
+        </div>
 
         {genreId !== "popular" && genreId !== "new-releases" && (
-          <div className="genre-filters">
+          <div className="d-flex align-items-center gap-3 mt-3 mt-sm-0">
             <Dropdown onSelect={handleSortChange}>
-              <Dropdown.Toggle variant="dark" id="dropdown-sort" size="sm">
-                Sort By:{" "}
+              <Dropdown.Toggle
+                variant="dark"
+                id="dropdown-sort"
+                className="sh-custom-select"
+                style={{ width: "auto" }}
+              >
+                Sort:{" "}
                 {sortBy.includes("pop")
-                  ? "Popularity"
+                  ? "Popular"
                   : sortBy.includes("release")
-                  ? "Release Date"
-                  : "Rating"}
+                    ? "Recent"
+                    : "Rating"}
               </Dropdown.Toggle>
               <Dropdown.Menu variant="dark">
                 <Dropdown.Item eventKey="popularity.desc">
@@ -260,12 +278,12 @@ const GenrePage = () => {
             </Dropdown>
 
             <Form.Select
-              aria-label="Filter by year"
               value={filterYear}
               onChange={handleYearChange}
-              size="sm"
+              className="sh-custom-select"
+              style={{ width: "135px" }}
             >
-              <option value="">All Years</option>
+              <option value="">Year</option>
               {years.map((year) => (
                 <option key={year} value={year}>
                   {year}
@@ -276,44 +294,50 @@ const GenrePage = () => {
         )}
       </div>
 
-      {/* Movies Grid */}
-      <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5 g-3">
-        {Array.isArray(movies) && movies.length > 0 ? (
-          movies.map((movie) => (
-            <div
-              className="col d-flex justify-content-center"
-              key={`${movie.id}-${currentPage}`}
-            >
-              <MovieCard
-                movie={movie}
-                watchlist={watchlistIds}
-                onWatchTrailerClick={handleWatchTrailerClick}
-                onWatchlistClick={handleWatchlistClick}
-              />
-            </div>
-          ))
-        ) : (
-          !loading && (
-            <p className="text-muted col-12 text-center">No movies found.</p>
-          )
-        )}
+      {/* Movies Grid: Forced 7-cols Desktop / 3-cols Mobile */}
+      <div className="d-flex justify-content-center">
+        <div
+          className="row row-cols-3 sh-grid w-100 justify-content-center"
+          style={{ maxWidth: "1450px" }}
+        >
+          {movies.length > 0
+            ? movies.map((movie) => (
+                <div
+                  className="col d-flex justify-content-center mb-3"
+                  key={`${movie.id}-${currentPage}`}
+                >
+                  <MovieCard
+                    movie={movie}
+                    watchlist={watchlistIds}
+                    onWatchTrailerClick={handleWatchTrailerClick}
+                    onWatchlistClick={handleWatchlistClick}
+                  />
+                </div>
+              ))
+            : !loading && (
+                <div className="col-12 text-center py-5 text-muted">
+                  No movies found in this genre.
+                </div>
+              )}
+        </div>
       </div>
 
-      {/* Load More Button */}
-      <div className="text-center mt-5 mb-4">
+      {/* Load More Section */}
+      <div className="text-center mt-5 mb-5">
         {currentPage < totalPages && !loadingMore && (
-          <button className="load-more-btn" onClick={handleLoadMore}>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span>Load More</span>
-          </button>
+          <Button
+            variant="outline-light"
+            className="sh-load-more-btn"
+            onClick={handleLoadMore}
+          >
+            Load More
+          </Button>
         )}
-        {loadingMore && <Spinner animation="border" variant="light" />}
+        {loadingMore && (
+          <Spinner animation="border" variant="danger" size="sm" />
+        )}
       </div>
 
-      {/* Video Modal */}
       <VideoModal
         show={showVideoModal}
         handleClose={() => setShowVideoModal(false)}

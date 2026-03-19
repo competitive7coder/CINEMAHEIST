@@ -396,7 +396,7 @@ const MovieDetailPage = () => {
       .mdp-load-more { padding: 10px 28px; font-size: 0.8rem; border-radius: 10px; }
     }
     @media (max-width: 400px) {
-      .mdp-cast-grid { grid-template-columns: repeat(3, 1fr); }
+      .mdp-cast-grid { grid-template-columns: repeat(5, 1fr); }
       .mdp-related-grid { grid-template-columns: repeat(3, 1fr); }
     }
   `;

@@ -263,7 +263,7 @@ const MovieDetailPage = () => {
     .mdp-body {
       max-width: 1240px;
       margin: 0 auto;
-      padding: 2.5rem 3rem 0;
+      padding: 2.5rem 5rem 0;
     }
 
     /* ── Cast section ── */
@@ -276,7 +276,7 @@ const MovieDetailPage = () => {
 
     .mdp-cast-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
       gap: 10px;
     }
     .mdp-cast-item {
@@ -308,8 +308,8 @@ const MovieDetailPage = () => {
     /* ── Related ── */
     .mdp-related {
       max-width: 1240px; margin: 0 auto;
-      padding: 2rem 3rem 5rem;
-      border-top: 1px solid rgba(0, 0, 0, 0.96);
+      padding: 2rem 5rem 5rem;
+      border-top: 1px solid rgb(0, 0, 0);
     }
     .mdp-related-grid {
       display: grid;
@@ -397,7 +397,7 @@ const MovieDetailPage = () => {
     }
     @media (max-width: 400px) {
       .mdp-cast-grid { grid-template-columns: repeat(3, 1fr); }
-      .mdp-related-grid { grid-template-columns: repeat(2, 1fr); }
+      .mdp-related-grid { grid-template-columns: repeat(3, 1fr); }
     }
   `;
 

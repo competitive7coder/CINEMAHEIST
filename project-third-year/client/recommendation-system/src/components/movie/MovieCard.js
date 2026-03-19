@@ -79,10 +79,10 @@ const MovieCard = ({
     }
   }
 
-  @media (max-width: 380px) {
+  @media (max-width: 390px) {
     .mc-card {
-      width: 105px;
-      height: 158px;
+      width: 112px;
+      height: 170px;
     }
   }
 

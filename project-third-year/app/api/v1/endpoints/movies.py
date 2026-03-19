@@ -316,22 +316,30 @@ async def get_user_recommendations(
 # ---------------------------------------------------
 @router.get("/recommendations/{movie_id}")
 async def get_movie_recommendations(movie_id: int):
-
     try:
-        data = await fetch_tmdb(
-            f"/movie/{movie_id}/recommendations",
-            {"language": "en-US", "page": 1}
-        )
+        async with httpx.AsyncClient(base_url=TMDB_BASE_URL, timeout=httpx.Timeout(20.0)) as client:
+            # Fetch recommendations + similar in parallel
+            rec_data, sim_data = await asyncio.gather(
+                fetch_tmdb(f"/movie/{movie_id}/recommendations", {"language": "en-US", "page": 1}, client),
+                fetch_tmdb(f"/movie/{movie_id}/similar",        {"language": "en-US", "page": 1}, client),
+            )
 
-        return data.get("results", [])[:12]
+        rec     = rec_data.get("results", [])
+        similar = sim_data.get("results", [])
+
+        # Merge and deduplicate by id
+        seen = set()
+        merged = []
+        for m in rec + similar:
+            if m["id"] not in seen:
+                seen.add(m["id"])
+                merged.append(m)
+
+        return merged[:20]
 
     except Exception as e:
         print("Recommendation error:", e)
-        raise HTTPException(
-            status_code=500,
-            detail="Failed to fetch recommendations"
-        )
-
+        raise HTTPException(status_code=500, detail="Failed to fetch recommendations")
 
 
 

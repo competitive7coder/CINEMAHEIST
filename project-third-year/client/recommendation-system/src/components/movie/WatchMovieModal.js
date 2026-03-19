@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Modal } from "react-bootstrap";
 import api from "../../services/api";
 
@@ -510,6 +510,21 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
   const [language, setLanguage] = useState("en");
   const playerRef = useRef(null);
 
+  const fetchSources = useCallback(async () => {
+    if (!tmdbId) return;
+    setLoading(true);
+    setError(false);
+    try {
+      const res = await api.get(`/stream/sources/${tmdbId}`);
+      setSources(res.data);
+    } catch (err) {
+      console.error(err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
+  }, [tmdbId]);
+
   // Reset on open
   useEffect(() => {
     if (show) {
@@ -523,14 +538,14 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
       setLanguage("en");
       fetchSources();
     }
-  }, [show, tmdbId]);
+  }, [show, tmdbId, fetchSources]);
 
   // Re-fetch when language changes (for servers that support lang param)
   useEffect(() => {
     if (show && sources) {
       setActiveIndex(0);
     }
-  }, [language]);
+  }, [language, show, sources]);
 
   // ESC to exit fullscreen
   useEffect(() => {
@@ -540,21 +555,6 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
   }, [isFullscreen]);
-
-  const fetchSources = async () => {
-    if (!tmdbId) return;
-    setLoading(true);
-    setError(false);
-    try {
-      const res = await api.get(`/stream/sources/${tmdbId}`);
-      setSources(res.data);
-    } catch (err) {
-      console.error(err);
-      setError(true);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Build server URL with language param for supported servers
   const getServerUrl = (source) => {

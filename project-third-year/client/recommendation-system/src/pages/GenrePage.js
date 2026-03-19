@@ -221,7 +221,6 @@ const GenrePage = () => {
           marginBottom: "35px",
           padding: "18px 25px",
 
-          /* Style Fixes */
           background: "rgba(255, 255, 255, 0.03)",
           backdropFilter: "blur(12px)",
           borderRadius: "15px",
@@ -294,7 +293,6 @@ const GenrePage = () => {
         )}
       </div>
 
-      {/* Movies Grid: Forced 7-cols Desktop / 3-cols Mobile */}
       <div className="d-flex justify-content-center">
         <div
           className="row row-cols-3 sh-grid w-100 justify-content-center"

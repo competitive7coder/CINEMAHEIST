@@ -8,7 +8,7 @@ const MovieCard = ({
   onWatchTrailerClick,
   onWatchlistClick,
   isInWatchlist: isInWatchlistProp = null,
-  isOnWatchlistPage = false
+  isOnWatchlistPage = false,
 }) => {
   const navigate = useNavigate();
   const [showWatchModal, setShowWatchModal] = useState(false);
@@ -17,9 +17,17 @@ const MovieCard = ({
     ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
     : "https://placehold.co/200x300?text=No+Image";
 
-  const year = movie.release_date ? new Date(movie.release_date).getFullYear() : "N/A";
-  const rating = typeof movie.vote_average === "number" ? movie.vote_average.toFixed(1) : "N/A";
-  const isInWatchlist = isInWatchlistProp !== null ? isInWatchlistProp : watchlist.includes(movie.id);
+  const year = movie.release_date
+    ? new Date(movie.release_date).getFullYear()
+    : "N/A";
+  const rating =
+    typeof movie.vote_average === "number"
+      ? movie.vote_average.toFixed(1)
+      : "N/A";
+  const isInWatchlist =
+    isInWatchlistProp !== null
+      ? isInWatchlistProp
+      : watchlist.includes(movie.id);
 
   const handleCardClick = () => navigate(`/movie/${movie.id}`);
 
@@ -185,21 +193,35 @@ const MovieCard = ({
 
         {/* Desktop Hover Overlay */}
         <div className="mc-overlay">
-          <h6 className="text-white fw-bold mb-1 text-truncate" style={{ fontSize: "0.85rem" }}>{movie.title}</h6>
-          <div className="d-flex gap-2 mb-2" style={{ fontSize: "0.7rem", color: "#aaa" }}>
+          <h6
+            className="text-white fw-bold mb-1 text-truncate"
+            style={{ fontSize: "0.85rem" }}
+          >
+            {movie.title}
+          </h6>
+          <div
+            className="d-flex gap-2 mb-2"
+            style={{ fontSize: "0.7rem", color: "#aaa" }}
+          >
             <span>{year}</span>
             <span className="text-warning">⭐ {rating}</span>
           </div>
-          
+
           <button className="mc-btn-now" onClick={handleWatchNow}>
-            <i className="bi bi-play-fill"></i> Watch Now
+            ▶ Watch Now
           </button>
-          
+
           <div className="mc-btn-row">
-            <button className="mc-small-btn" onClick={(e) => stopAndAction(e, onWatchTrailerClick)}>
+            <button
+              className="mc-small-btn"
+              onClick={(e) => stopAndAction(e, onWatchTrailerClick)}
+            >
               Trailer
             </button>
-            <button className="mc-small-btn" onClick={(e) => stopAndAction(e, onWatchlistClick)}>
+            <button
+              className={`mc-small-btn ${isInWatchlist ? "saved" : ""}`}
+              onClick={(e) => stopAndAction(e, onWatchlistClick)}
+            >
               {isInWatchlist ? "✓ Saved" : "+ Save"}
             </button>
           </div>

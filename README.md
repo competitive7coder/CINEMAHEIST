@@ -2,28 +2,30 @@
 
 <div align="center">
 
-![StreamHub Banner](https://img.shields.io/badge/StreamHub-OTT%20Recommendation-blue?style=for-the-badge&logo=netflix)
-![Python](https://img.shields.io/badge/Python-3.13-green?style=for-the-badge&logo=python)
-![React](https://img.shields.io/badge/React-18-blue?style=for-the-badge&logo=react)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.104-teal?style=for-the-badge&logo=fastapi)
-![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-green?style=for-the-badge&logo=mongodb)
-![IEEE](https://img.shields.io/badge/IEEE%20Access-Submitted-orange?style=for-the-badge)
+![StreamHub](https://img.shields.io/badge/StreamHub-OTT%20Platform-blue?style=for-the-badge&logo=netflix&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.13-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.104-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
+![IEEE](https://img.shields.io/badge/IEEE%20Access-Submitted-FF6B00?style=for-the-badge)
 
-**A full-stack OTT movie recommendation system with novel temporal decay and multi-signal implicit feedback algorithms.**
+**A complete Netflix-style OTT movie recommendation platform with novel temporal decay and multi-signal implicit feedback algorithms.**
 
-[Features](#features) • [Architecture](#architecture) • [ML Engine](#ml-engine) • [Research Paper](#research-paper) • [Setup](#setup) • [Results](#results)
+*Research paper submitted to IEEE Access*
+
+[🚀 Features](#-features) • [🏗️ Architecture](#️-architecture) • [🤖 ML Engine](#-ml-engine) • [📊 Results](#-results) • [⚙️ Setup](#️-setup) • [🔬 Reproduce](#-reproduce-research-results)
 
 </div>
 
 ---
 
-## 🌟 What Is StreamHub?
+## 🌟 Overview
 
-StreamHub is a complete Netflix-style movie streaming platform built from scratch, featuring an intelligent recommendation engine that learns from how users interact with content — not just what they watch.
+StreamHub is a full-stack OTT recommendation system built from scratch with a novel machine learning engine that goes beyond conventional approaches:
 
-Unlike conventional systems that treat all user interactions the same, StreamHub:
-- **Remembers when** you added movies to your watchlist — recent additions matter more
-- **Understands why** — watching a trailer means something different than just searching
+- **Remembers recency** — movies added to your watchlist recently matter more than old ones
+- **Understands behavior** — watching a trailer signals different intent than just searching
+- **Real system** — not just scripts, a complete working platform with 10,000 movies
 
 ---
 
@@ -31,52 +33,129 @@ Unlike conventional systems that treat all user interactions the same, StreamHub
 
 | Feature | Description |
 |---|---|
-| 🎬 10,000 Movies | Full catalog with posters, ratings, trailers |
-| 🔍 Smart Search | Search by title, genre, year |
-| 📋 Watchlist | Personal watchlist with timestamp tracking |
-| 🎯 Recommendations | AI-powered personalized recommendations |
-| 🎞️ Trailers | Watch trailers directly in the app |
-| 👤 User Profiles | Authentication, profile settings, avatar |
+| 🎬 10,000 Movies | Full catalog with posters, ratings, trailers via TMDB API |
+| 🔍 Smart Search | Search by title with year filter and pagination |
+| 📋 Watchlist | Personal watchlist with timestamp tracking per user |
+| 🎯 Recommendations | AI-powered hybrid TF-IDF + SVD recommendations |
+| 🎞️ Trailers | Watch trailers directly in the app via VideoModal |
+| 👤 User Auth | JWT authentication, signup, login, profile settings |
+| 🖼️ Avatar Upload | Profile picture upload via Cloudinary |
 | 📊 Activity Feed | Real-time activity updates via Socket.IO |
-| 🌙 Mood Filter | Get recommendations by mood (intense, happy, romantic...) |
-| 📱 Responsive | Works on desktop and mobile |
+| 🌙 Mood Filter | Recommendations by mood (intense, happy, romantic, scary) |
+| 🏆 Genre Pages | Browse movies by genre with infinite scroll |
+| 🔔 Notifications | Toast notifications for all user actions |
+| 📱 Responsive | Works on desktop, tablet, and mobile |
+| 🔑 Password Reset | Forgot password with email OTP flow via Brevo |
+| 📈 Dashboard | Personal dashboard with recommendations and activity |
+| 🎥 Watch Modal | Watch movies with WatchMovieModal component |
 
 ---
 
 ## 🏗️ Architecture
 
 ```
-┌─────────────────────────────────────────────────────────┐
-│                     StreamHub                           │
-├───────────────┬─────────────────┬───────────────────────┤
-│   Frontend    │    Backend      │     ML Engine         │
-│   React.js    │    FastAPI      │   TF-IDF + SVD        │
-│   Bootstrap   │    MongoDB      │   Temporal Decay      │
-│   Socket.IO   │    JWT Auth     │   Signal Weighting    │
-└───────────────┴─────────────────┴───────────────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│                         StreamHub                                │
+│                                                                  │
+│  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────┐  │
+│  │   Frontend      │    │    Backend      │    │  ML Engine  │  │
+│  │                 │    │                 │    │             │  │
+│  │  React.js 18    │◄──►│  FastAPI        │◄──►│  TF-IDF     │  │
+│  │  Bootstrap 5    │    │  Python 3.13    │    │  SVD        │  │
+│  │  Socket.IO      │    │  MongoDB Atlas  │    │  Temporal   │  │
+│  │  React Router   │    │  Beanie ODM     │    │  Decay      │  │
+│  │  TMDB Images    │    │  JWT Auth       │    │  OMSIF      │  │
+│  └─────────────────┘    └─────────────────┘    └─────────────┘  │
+│                                                                  │
+│  External Services:                                              │
+│  • TMDB API        — movie data, posters, trailers               │
+│  • Cloudinary      — user avatar image storage                   │
+│  • Brevo           — email OTP for password reset                │
+│  • MongoDB Atlas   — cloud database                              │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
-### Tech Stack
+---
 
-**Frontend**
-- React.js 18
-- React Router v6
-- Bootstrap 5
-- Socket.IO Client
-- React Toastify
+## 📁 Project Structure
 
-**Backend**
-- FastAPI (Python 3.13)
-- MongoDB with Beanie ODM
-- JWT Authentication
-- Socket.IO
-- TMDB API Integration
-
-**Machine Learning**
-- scikit-learn (TF-IDF, cosine similarity)
-- scipy (SVD, sparse matrices)
-- numpy + pandas
-- 20M+ interaction logs from MovieLens 25M
+```
+streamhub_research/
+└── project-third-year/
+    │
+    ├── main.py                           ← FastAPI entry point
+    ├── requirements.txt                  ← Python dependencies
+    │
+    ├── app/                              ← Backend application
+    │   ├── config.py                     ← App settings
+    │   ├── security.py                   ← Password hashing, JWT
+    │   ├── socket_manager.py             ← Socket.IO real-time events
+    │   │
+    │   ├── api/v1/endpoints/
+    │   │   ├── auth.py                   ← Login, signup, token refresh
+    │   │   ├── movies.py                 ← Search, details, recommendations
+    │   │   ├── users.py                  ← Watchlist, profile
+    │   │   ├── activity.py               ← Log user interactions
+    │   │   ├── profile.py                ← Avatar upload, settings
+    │   │   └── feedback.py               ← User feedback
+    │   │
+    │   ├── models/
+    │   │   ├── user.py                   ← User + watchlist_timestamps field
+    │   │   ├── activity.py               ← Activity log (4 signal types)
+    │   │   └── feedback.py
+    │   │
+    │   ├── schemas/
+    │   │   ├── user.py
+    │   │   ├── token.py
+    │   │   └── movie.py
+    │   │
+    │   ├── utils/
+    │   │   ├── email.py                  ← Brevo OTP email sender
+    │   │   └── cloudinary.py             ← Avatar upload helper
+    │   │
+    │   └── ml/                           ← Machine learning
+    │       ├── engine.py                 ← Core engine (C1 + C2)
+    │       ├── ablation_study_v4.py      ← Reproduces Table IV
+    │       ├── sensitivity_analysis.py   ← Reproduces Table V
+    │       ├── movielens_to_streamhub.py ← Dataset conversion
+    │       ├── expand_dataset.py         ← TMDB dataset builder
+    │       ├── enrich_movies.py          ← Add metadata to movies
+    │       ├── movies.csv                ← Fallback movie list
+    │       ├── movies_enriched.csv       ← 10k movies (generated)
+    │       └── movielens/
+    │           ├── ratings.csv           ← Download separately (623MB)
+    │           └── links.csv             ← TMDB-MovieLens ID map
+    │
+    └── client/recommendation-system/    ← React frontend
+        ├── src/
+        │   ├── App.js                    ← Routes + layout
+        │   ├── services/api.js           ← Axios + interceptors
+        │   │
+        │   ├── components/
+        │   │   ├── auth/                 ← ForgotPassword, ResetPassword
+        │   │   ├── common/               ← LoadingSpinner, VideoModal
+        │   │   ├── dashboard/            ← ActivityFeed
+        │   │   ├── home/                 ← HeroSection, HeroSlider
+        │   │   ├── layout/               ← Navbar, Footer, MainLayout
+        │   │   └── movie/                ← MovieCard, MovieRow,
+        │   │                               MovieDetailModal, WatchMovieModal
+        │   │
+        │   └── pages/
+        │       ├── HomePage.js           ← Authenticated home
+        │       ├── PublicHome.js         ← Guest landing page
+        │       ├── Dashboard.js          ← User dashboard
+        │       ├── SearchPage.js         ← Search + year filter
+        │       ├── MovieDetailPage.js    ← Movie details + trailer
+        │       ├── GenrePage.js          ← Browse by genre
+        │       ├── Login.js / Signup.js
+        │       └── ProfileSettings.js
+        │
+        └── footer/
+            ├── FAQ.js
+            ├── PrivacyPolicy.js
+            ├── TermsOfService.js
+            └── CareersPage.js
+```
 
 ---
 
@@ -85,260 +164,206 @@ Unlike conventional systems that treat all user interactions the same, StreamHub
 The recommendation engine uses a **5-stage hybrid pipeline**:
 
 ```
-User Watchlist
-      │
-      ▼
-┌─────────────────────────────────────────────┐
-│  Stage 1: TF-IDF Content Scoring            │
-│  • Genre, cast, director, keywords          │
-│  • Temporal decay weights (Contribution 1)  │
-│  • w_i = exp(-0.693 × d_i / T_half)         │
-└─────────────────────────────────────────────┘
-      │
-      ▼
-┌─────────────────────────────────────────────┐
-│  Stage 2: SVD Collaborative Scoring         │
-│  • 162,528 users × 10,000 movies            │
-│  • Per-signal confidence (Contribution 2)   │
-│  • C_ui = 1 + α_k × r_ui                   │
-└─────────────────────────────────────────────┘
-      │
-      ▼
-┌─────────────────────────────────────────────┐
-│  Stage 3: Hybrid Blend                      │
-│  • score = 0.15 × content + 0.85 × collab  │
-└─────────────────────────────────────────────┘
-      │
-      ▼
-┌─────────────────────────────────────────────┐
-│  Stage 4: Recency Boost                     │
-│  • Recent releases get up to 10% boost      │
-└─────────────────────────────────────────────┘
-      │
-      ▼
-┌─────────────────────────────────────────────┐
-│  Stage 5: Genre Diversity                   │
-│  • 15% penalty per repeated genre           │
-└─────────────────────────────────────────────┘
-      │
-      ▼
-  Top-N Recommendations
+User Watchlist + Interaction History
+            │
+            ▼
+┌───────────────────────────────────────────────┐
+│  Stage 1 — TF-IDF Content Scoring             │
+│  Features: genre×3, director×3,               │
+│            cast×2, keywords×2, overview×1     │
+│  + Temporal Decay Weighting ← Contribution 1  │
+└───────────────────────────────────────────────┘
+            │
+            ▼
+┌───────────────────────────────────────────────┐
+│  Stage 2 — SVD Collaborative Scoring          │
+│  162,528 users × 10,000 movies                │
+│  k = 50 latent factors                        │
+│  + Per-Signal Confidence ← Contribution 2     │
+└───────────────────────────────────────────────┘
+            │
+            ▼
+┌───────────────────────────────────────────────┐
+│  Stage 3 — Hybrid Blend                       │
+│  score = 0.15 × content + 0.85 × collab       │
+└───────────────────────────────────────────────┘
+            │
+            ▼
+┌───────────────────────────────────────────────┐
+│  Stage 4 — Recency Boost                      │
+│  Up to 10% boost for recently released movies │
+└───────────────────────────────────────────────┘
+            │
+            ▼
+┌───────────────────────────────────────────────┐
+│  Stage 5 — Genre Diversity Re-ranking         │
+│  15% penalty per repeated genre in top-60     │
+└───────────────────────────────────────────────┘
+            │
+            ▼
+      Top-N Recommendations
 ```
 
-### Novel Contributions
+### 🕐 Contribution 1 — Temporal Watchlist Decay
 
-#### 🕐 Contribution 1 — Temporal Watchlist Decay
-Movies added recently to your watchlist carry more weight than old ones.
+```
+w_i = exp(-0.693 × days_ago / T_half)    T_half = 30 days
 
-```python
-w_i = exp(-0.693 × days_ago / T_half)
-
-# Examples with T_half = 30 days:
-# Added today    → weight = 1.000
-# Added 30 days  → weight = 0.500  
-# Added 90 days  → weight = 0.125
-# Added 180 days → weight = 0.016
+Added today    → w = 1.000  (full influence)
+Added 7 days   → w = 0.857  (high)
+Added 30 days  → w = 0.500  (half-life)
+Added 90 days  → w = 0.125  (minimal)
+Added 180 days → w = 0.016  (near zero)
 ```
 
-#### 🎯 Contribution 2 — OTT Signal Weighting
-Different user actions mean different things.
+### 🎯 Contribution 2 — OTT Multi-Signal Implicit Feedback
+
+```
+C_ui = 1 + α_k × r_ui
+```
 
 | Signal | Weight | Alpha | Confidence | Meaning |
 |---|---|---|---|---|
-| Added to Watchlist | 1.0 | 40 | 41.0 | Strongest intent |
-| Watched Trailer | 0.5 | 20 | 11.0 | Medium interest |
-| Search Click | 0.3 | 10 | 4.0 | Passive interest |
-| Removed | -0.5 | 0 | -0.5 | Rejection |
+| `added_to_watchlist` | 1.0 | 40 | 41.0 | Strongest intent |
+| `trailer_watch` | 0.5 | 20 | 11.0 | Medium interest |
+| `search_click` | 0.3 | 10 | 4.0 | Passive interest |
+| `removed_from_watchlist` | -0.5 | 0 | -0.5 | Explicit rejection |
 
 ---
 
-## 📊 Research Paper
+## 📊 Results
 
-> **"Temporal Watchlist Decay and OTT-Specific Multi-Signal Implicit Feedback for Hybrid Movie Recommendation in Streaming Platforms"**
->
-> Submitted to **IEEE Access** (Impact Factor: 3.6, Scopus indexed)
-
-### Ablation Study Results
+### Ablation Study
 
 | Model | P@10 | R@10 | NDCG@10 |
 |---|---|---|---|
 | Random Baseline | 0.0061 | 0.0011 | 0.0065 |
 | Popularity-Based | 0.0000 | 0.0000 | 0.0000 |
 | TF-IDF Content Only | 0.0631 | 0.0196 | 0.0731 |
-| SVD Collaborative Only | **0.6071** | **0.2059** | **0.6624** |
-| Base Hybrid (TF-IDF + SVD) | 0.3154 | 0.1234 | 0.3322 |
-| + OTT Signal Weighting (C2) | 0.3154 | 0.1234 | 0.3322 |
-| + Temporal Decay (C1) | 0.3148 | 0.1232 | 0.3315 |
-| **Full System [Ours]** | 0.3148 | 0.1232 | 0.3315 |
+| **SVD Collaborative Only** | **0.6071** | **0.2059** | **0.6624** |
+| Base Hybrid | 0.3154 | 0.1234 | 0.3322 |
+| Full System C1+C2 | 0.3148 | 0.1232 | 0.3315 |
 
 ### Dataset
 
 | Statistic | Value |
 |---|---|
-| Total Activity Logs | 21,031,333 |
+| Total Logs | 21,031,333 |
 | Unique Users | 162,528 |
 | Movies | 10,000 |
-| Source | MovieLens 25M (Harper & Konstan, 2015) |
+| Source | MovieLens 25M |
 
 ---
 
-## 🚀 Setup
+## ⚙️ Setup
 
 ### Prerequisites
+
 ```
-Python 3.13+
-Node.js 18+
-MongoDB Atlas account
-TMDB API key (free at themoviedb.org)
+Python 3.13+        Node.js 18+
+MongoDB Atlas       TMDB API key (free)
+Cloudinary account  Brevo account (free)
 ```
 
-### Backend Setup
+### Backend
 
 ```bash
-# Clone repo
 git clone https://github.com/competitive7coder/streamhub_research.git
 cd streamhub_research/project-third-year
-
-# Install Python dependencies
 pip install -r requirements.txt
+```
 
-# Create .env file
-cp .env.example .env
-# Fill in: MONGODB_URL, TMDB_API_KEY, JWT_SECRET, FRONTEND_URL
+Create `app/.env`:
 
-# Start backend
+```env
+ALGORITHM=HS256
+JWT_SECRET=your_secret_here
+MONGO_URI=mongodb+srv://user:pass@cluster.mongodb.net/streamhub
+TMDB_API_KEY=your_tmdb_key
+FRONTEND_URL=http://localhost:3000
+CLIENT_URL=http://localhost:3000
+BACKEND_URL=http://localhost:8000
+CLOUDINARY_API_KEY=your_key
+CLOUDINARY_API_SECRET=your_secret
+CLOUDINARY_CLOUD_NAME=your_name
+BREVO_API_KEY=your_brevo_key
+SEND_FROM_EMAIL=your@email.com
+PORT=8000
+NODE_ENV=development
+DOCS_ENABLED=true
+SOCKET_DEBUG=false
+ML_SERVICE_URL=http://localhost:8000
+```
+
 ```bash
-cd project-third-year
-uvicorn app.main:app --reload --port 8000
+uvicorn main:app --reload
+# API: http://localhost:8000
+# Docs: http://localhost:8000/docs
+```
 
-
-### Frontend Setup
+### Frontend
 
 ```bash
 cd client/recommendation-system
-
-# Install dependencies
 npm install
-
-# Create .env.development
 echo "REACT_APP_API_URL=http://localhost:8000" > .env.development
-
-# Start frontend
 npm start
+# App: http://localhost:3000
 ```
 
-### ML Dataset Setup
+### ML Dataset
 
 ```bash
 cd app/ml
 
-# Step 1 — Generate movie dataset (30-60 min, needs TMDB API key)
+# 1. Generate movies (30-60 min)
 python expand_dataset.py --target 10000
 
-# Step 2 — Download MovieLens 25M from:
-# https://grouplens.org/datasets/movielens/25m/
-# Place ratings.csv, links.csv in app/ml/movielens/
+# 2. Download MovieLens 25M → https://grouplens.org/datasets/movielens/25m/
+#    Place ratings.csv + links.csv in app/ml/movielens/
 
-# Step 3 — Convert to StreamHub format
+# 3. Convert to StreamHub format
 python movielens_to_streamhub.py
-
-# Step 4 — Start backend (SVD trains automatically on first run)
-uvicorn main:app --reload
 ```
 
 ---
 
 ## 🔬 Reproduce Research Results
 
-### Reproduce Table IV (Ablation Study)
 ```bash
 cd app/ml
+
+# Table IV — Ablation Study (~10 min)
 python ablation_study_v4.py
-# Results saved to: ablation_results.txt
-```
+# → ablation_results.txt
 
-### Reproduce Table V (Sensitivity Analysis)
-```bash
-cd app/ml
+# Table V — Sensitivity Analysis (~15 min)
 python sensitivity_analysis.py
-# Results saved to: sensitivity_results.txt
+# → sensitivity_results.txt
 ```
 
-> **Note:** Both scripts require `movies_enriched.csv` and `ml_activity_logs.csv`.
-> These are not included in the repo due to file size limits.
-> Generate them using the steps above.
+> `movies_enriched.csv` and `ml_activity_logs.csv` are not in the repo (too large).
+> Generate them using the ML Dataset setup steps above.
 
 ---
 
-## 📁 Project Structure
+## 📚 Research Paper
 
-```
-streamhub_research/
-├── project-third-year/
-│   ├── main.py                    ← FastAPI entry point
-│   ├── requirements.txt
-│   ├── app/
-│   │   ├── api/v1/endpoints/      ← REST API routes
-│   │   │   ├── auth.py
-│   │   │   ├── movies.py
-│   │   │   ├── users.py
-│   │   │   ├── activity.py
-│   │   │   └── profile.py
-│   │   ├── models/                ← MongoDB models
-│   │   │   ├── user.py
-│   │   │   └── activity.py
-│   │   ├── ml/                    ← Machine learning
-│   │   │   ├── engine.py          ← Core recommendation engine
-│   │   │   ├── ablation_study_v4.py
-│   │   │   ├── sensitivity_analysis.py
-│   │   │   ├── movielens_to_streamhub.py
-│   │   │   └── expand_dataset.py
-│   │   └── socket_manager.py      ← Real-time events
-│   └── client/
-│       └── recommendation-system/
-│           └── src/
-│               ├── pages/         ← React pages
-│               └── components/    ← React components
-```
-
----
-
-## 🔑 Environment Variables
-
-```env
-# Backend (.env)
-MONGODB_URL=mongodb+srv://...
-TMDB_API_KEY=your_tmdb_key
-JWT_SECRET=your_secret_key
-FRONTEND_URL=http://localhost:3000
-DOCS_ENABLED=true
-
-# Frontend (.env.development)
-REACT_APP_API_URL=http://localhost:8000
-```
-
----
-
-## 📚 References
-
-- Harper, F. M., & Konstan, J. A. (2015). The MovieLens Datasets. *ACM TIIS*
-- Hu, Y., Koren, Y., & Volinsky, C. (2008). Collaborative Filtering for Implicit Feedback. *IEEE ICDM*
-- Koren, Y., Bell, R., & Volinsky, C. (2009). Matrix Factorization Techniques. *IEEE Computer*
-- Gomez-Uribe, C. A., & Hunt, N. (2015). The Netflix Recommender System. *ACM TMIS*
+> **"Temporal Watchlist Decay and OTT-Specific Multi-Signal Implicit Feedback for Hybrid Movie Recommendation in Streaming Platforms"**
+> Submitted to **IEEE Access** | Author: Protyush Ghorui, MCKV Institute of Engineering
 
 ---
 
 ## 👤 Author
 
 **Protyush Ghorui**
-Department of Information Technology
-MCKV Institute of Engineering, Hooghly, India
-📧 ghorui.protyushraj@gmail.com
+Department of Information Technology, MCKV Institute of Engineering, Hooghly, India
+<br> ghorui.protyushraj@gmail.com
 
 ---
 
 <div align="center">
 
-⭐ If this project helped you, please give it a star!
+⭐ Star this repo if it helped you!
 
 </div>

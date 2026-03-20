@@ -1,6 +1,8 @@
 import secrets
 from datetime import datetime, timedelta
-from fastapi import APIRouter, HTTPException, status, Body
+from fastapi import APIRouter, HTTPException, status, Body, Request
+from slowapi import Limiter
+from slowapi.util import get_remote_address
 from app.models.user import User
 from app.schemas.user import UserCreate, UserOut
 from app.schemas.token import Token
@@ -8,6 +10,7 @@ from app.security import get_password_hash, verify_password, create_access_token
 from app.utils.email import send_reset_email
 
 router = APIRouter()
+limiter = Limiter(key_func=get_remote_address)
 
 
 @router.post("/register", status_code=status.HTTP_201_CREATED)
@@ -18,7 +21,6 @@ async def register(request_data: dict = Body(...)):
     username = (data.get("name") or data.get("username", "")).strip()
     password = data.get("password", "")
 
-    # FIX #8: proper field validation with meaningful messages
     if not email:
         raise HTTPException(status_code=422, detail="Email is required")
     if not username:
@@ -44,7 +46,8 @@ async def register(request_data: dict = Body(...)):
 
 
 @router.post("/login")
-async def login(credentials: dict = Body(...)):
+@limiter.limit("5/minute")
+async def login(request: Request, credentials: dict = Body(...)):
     data  = credentials.get("formData", credentials)
     email = data.get("email", "").strip().lower()
     password = data.get("password", "")
@@ -72,7 +75,6 @@ async def forgot_password(data: dict = Body(...)):
 
     user = await User.find_one(User.email == email)
     if not user:
-        # Don't reveal whether email exists — always return same message
         return {"msg": "If an account exists, a reset link has been sent."}
 
     token = secrets.token_hex(20)
@@ -89,7 +91,6 @@ async def reset_password(token: str, password_data: dict = Body(...)):
     inner_data   = password_data.get("formData", password_data)
     new_password = inner_data.get("password") or inner_data.get("new_password", "")
 
-    # FIX #8: validate new password length too
     if not new_password or len(new_password) < 8:
         raise HTTPException(status_code=422, detail="Password must be at least 8 characters")
 

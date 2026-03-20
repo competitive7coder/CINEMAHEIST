@@ -11,10 +11,8 @@ import ProfileSettings from "./ProfileSettings";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import { io } from "socket.io-client";
 
-// ── Single source of truth for action type strings ───────────────────────────
-// Must match activity.py ACTION_TYPES exactly
 const ACTION = {
-  ADDED:   "added_to_watchlist",
+  ADDED: "added_to_watchlist",
   REMOVED: "removed_from_watchlist",
   TRAILER: "trailer_watch",
 };
@@ -45,9 +43,12 @@ const Dashboard = ({ setIsLoggedIn }) => {
       // /users/watchlist returns movie IDs — fetch full TMDB details for each
       const idsRes = await api.get("/users/watchlist");
       const ids = idsRes.data || [];
-      if (ids.length === 0) { setWatchlistMovies([]); return; }
+      if (ids.length === 0) {
+        setWatchlistMovies([]);
+        return;
+      }
       const results = await Promise.allSettled(
-        ids.map((id) => api.get(`/movies/details/${id}`))
+        ids.map((id) => api.get(`/movies/details/${id}`)),
       );
       const movies = results
         .filter((r) => r.status === "fulfilled")
@@ -94,18 +95,19 @@ const Dashboard = ({ setIsLoggedIn }) => {
     // IMPORTANT: python-socketio requires the handshake to start over HTTP
     // polling before upgrading to WebSocket. Starting with ["websocket"] only
     // skips the HTTP handshake and causes the "closed before established" error.
-    const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || "http://localhost:8000";
+    const SOCKET_URL =
+      process.env.REACT_APP_SOCKET_URL || "http://localhost:8000";
     const socket = io(SOCKET_URL, {
       path: "/socket.io",
       transports: ["polling", "websocket"], // polling first → upgrades to WS
       upgrade: true,
       reconnection: true,
-      reconnectionAttempts: Infinity,       // keep retrying — don't give up
-      reconnectionDelay: 1000,              // 1s first retry
-      reconnectionDelayMax: 10000,          // cap at 10s between retries
-      randomizationFactor: 0.3,            // jitter so all clients don't retry at once
-      timeout: 20000,                       // 20s handshake timeout (was 10s — too short)
-      forceNew: false,                      // reuse connection if it exists
+      reconnectionAttempts: Infinity, // keep retrying — don't give up
+      reconnectionDelay: 1000, // 1s first retry
+      reconnectionDelayMax: 10000, // cap at 10s between retries
+      randomizationFactor: 0.3, // jitter so all clients don't retry at once
+      timeout: 20000, // 20s handshake timeout (was 10s — too short)
+      forceNew: false, // reuse connection if it exists
     });
 
     socket.on("connect", () => {
@@ -114,7 +116,6 @@ const Dashboard = ({ setIsLoggedIn }) => {
     });
 
     socket.on("activity_update", (data) => {
-
       // Always prepend to history feed — no extra API call needed
       setHistory((prev) => [data, ...prev].slice(0, 20));
 
@@ -124,23 +125,21 @@ const Dashboard = ({ setIsLoggedIn }) => {
         toast.success(`✅ Added "${data.movie_title}" to watchlist`);
       } else if (data.action_type === ACTION.REMOVED) {
         setWatchlistMovies((prev) =>
-          prev.filter((m) => m.id !== data.movie_id)
+          prev.filter((m) => m.id !== data.movie_id),
         );
         toast.info(`Removed "${data.movie_title}"`);
       }
       // TRAILER action only updates history feed (handled above)
     });
 
-    socket.on("connect_error", (err) => {
-    });
+    socket.on("connect_error", (err) => {});
 
     socket.on("disconnect", (reason) => {
       // "io server disconnect" means server actively kicked us — must reconnect manually
       if (reason === "io server disconnect") socket.connect();
     });
 
-    socket.on("reconnect_attempt", (n) => {
-    });
+    socket.on("reconnect_attempt", (n) => {});
 
     socket.on("reconnect", () => {
       socket.emit("join_room", { userId }); // re-join private room after reconnect
@@ -167,13 +166,15 @@ const Dashboard = ({ setIsLoggedIn }) => {
         ]);
 
         setUserName(userRes.data.name || userRes.data.username || "");
-        setUserProfilePicture(userRes.data.profilePicture || userRes.data.profile_picture || "");
+        setUserProfilePicture(
+          userRes.data.profilePicture || userRes.data.profile_picture || "",
+        );
         setUserBio(userRes.data.bio || "");
 
         const ids = watchlistRes.data || [];
         if (ids.length > 0) {
           const results = await Promise.allSettled(
-            ids.map((id) => api.get(`/movies/details/${id}`))
+            ids.map((id) => api.get(`/movies/details/${id}`)),
           );
           const movies = results
             .filter((r) => r.status === "fulfilled")
@@ -184,7 +185,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
         const recRes = await api.get("/movies/recommendations/user");
         const unique = recRes.data.filter(
           (movie, index, self) =>
-            index === self.findIndex((m) => m.id === movie.id)
+            index === self.findIndex((m) => m.id === movie.id),
         );
         setRecommendations(unique);
 
@@ -221,12 +222,12 @@ const Dashboard = ({ setIsLoggedIn }) => {
       const res = await api.get(`/movies/${movie.id}/videos`);
       const trailer = res.data;
       if (!trailer?.key) {
-  toast.error("Trailer not available");
-  return;
-}
+        toast.error("Trailer not available");
+        return;
+      }
 
-setCurrentVideoKey(trailer.key);
-setShowVideoModal(true);
+      setCurrentVideoKey(trailer.key);
+      setShowVideoModal(true);
     } catch (err) {
       console.error(err);
     }
@@ -238,7 +239,7 @@ setShowVideoModal(true);
       toast.success(res.data.msg);
       // Optimistic UI update
       setWatchlistMovies((prev) =>
-        prev.some((m) => m.id === movie.id) ? prev : [movie, ...prev]
+        prev.some((m) => m.id === movie.id) ? prev : [movie, ...prev],
       );
       // Fire-and-forget — socket confirms and updates history
       logActivity(movie, ACTION.ADDED);
@@ -290,34 +291,38 @@ setShowVideoModal(true);
       <div className="dashboard-layout">
         {/* ── MOBILE OVERLAY ── */}
         {sidebarOpen && (
-          <div className="sidebar-overlay" onClick={() => setSidebarOpen(false)} />
+          <div
+            className="sidebar-overlay"
+            onClick={() => setSidebarOpen(false)}
+          />
         )}
 
         {/* ── SIDEBAR ── */}
         <aside className={`sidebar-glass${sidebarOpen ? " sidebar-open" : ""}`}>
           <div className="brand-zone">
-            <button className="sidebar-close-btn" onClick={() => setSidebarOpen(false)}>
-              <i className="bi bi-x-lg"></i>
-            </button>
-            <div className="brand-logo">
-              <div className="logo-inner"></div>
-            </div>
-            <h2 className="brand-text">
-              STREAM<span>HUB</span>
-            </h2>
-          </div>
+  <button className="sidebar-close-btn" onClick={() => setSidebarOpen(false)}>
+    <i className="bi bi-x-lg"></i>
+  </button>
+</div>
 
           <nav className="main-nav">
             <div className="nav-label">Main Menu</div>
             {[
-              { id: "watchlist",       label: "My Library",  icon: "bi-collection-play" },
-              { id: "recommendations", label: "Discovery",   icon: "bi-compass"         },
-              { id: "history",         label: "Activity",    icon: "bi-clock-history"   },
-              { id: "settings",        label: "Settings",    icon: "bi-sliders"         },
+              {
+                id: "watchlist",
+                label: "My Library",
+                icon: "bi-collection-play",
+              },
+              { id: "recommendations", label: "Discovery", icon: "bi-compass" },
+              { id: "history", label: "Activity", icon: "bi-clock-history" },
+              { id: "settings", label: "Settings", icon: "bi-sliders" },
             ].map((item) => (
               <button
                 key={item.id}
-                onClick={() => { setActiveTab(item.id); setSidebarOpen(false); }}
+                onClick={() => {
+                  setActiveTab(item.id);
+                  setSidebarOpen(false);
+                }}
                 className={`nav-btn ${activeTab === item.id ? "active" : ""}`}
               >
                 <div className="active-indicator"></div>
@@ -346,20 +351,28 @@ setShowVideoModal(true);
         </aside>
 
         {/* ── MOBILE TOP BAR ── */}
-        <div className="mobile-topbar">
-          <button className="hamburger-btn" onClick={() => setSidebarOpen(true)}>
-            <i className="bi bi-list"></i>
-          </button>
-          <h2 className="brand-text" style={{margin: 0}}>CINE<span>.</span></h2>
-          <img
-            src={userProfilePicture || "https://placehold.co/36"}
-            alt="user"
-            className="mobile-avatar"
-          />
-        </div>
+      <div className="mobile-topbar">
+  <button
+    className="hamburger-btn"
+    onClick={() => setSidebarOpen(true)}
+  >
+    <i className="bi bi-list"></i>
+  </button>
+  <h2 className="brand-text" style={{ margin: 0 }}>
+    STREAM<span>HUB</span>
+  </h2>
+  <img
+    src={userProfilePicture || "https://placehold.co/36"}
+    alt="user"
+    className="mobile-avatar"
+  />
+</div>
 
         {/* ── MAIN CONTENT ── */}
-        <main className="content-hub custom-scrollbar">
+        <main
+          className="content-hub custom-scrollbar py-5"
+          style={{ paddingTop: "4rem" }}
+        >
           <header className="content-header-refined">
             <div className="header-left">
               <span className="breadcrumb-mini">Pages / {activeTab}</span>
@@ -381,8 +394,12 @@ setShowVideoModal(true);
                       <div key={movie.id} className="grid-item-refined">
                         <MovieCard
                           movie={movie}
-                          onWatchTrailerClick={() => handleWatchTrailerClick(movie)}
-                          onWatchlistClick={() => handleRemoveFromWatchlist(movie)}
+                          onWatchTrailerClick={() =>
+                            handleWatchTrailerClick(movie)
+                          }
+                          onWatchlistClick={() =>
+                            handleRemoveFromWatchlist(movie)
+                          }
                           isInWatchlist={true}
                         />
                       </div>
@@ -427,13 +444,17 @@ setShowVideoModal(true);
                       <div key={movie.id} className="grid-item-refined">
                         <MovieCard
                           movie={movie}
-                          onWatchTrailerClick={() => handleWatchTrailerClick(movie)}
+                          onWatchTrailerClick={() =>
+                            handleWatchTrailerClick(movie)
+                          }
                           onWatchlistClick={() =>
                             watchlistMovies.some((m) => m.id === movie.id)
                               ? handleRemoveFromWatchlist(movie)
                               : handleAddToWatchlist(movie)
                           }
-                          isInWatchlist={watchlistMovies.some((m) => m.id === movie.id)}
+                          isInWatchlist={watchlistMovies.some(
+                            (m) => m.id === movie.id,
+                          )}
                         />
                       </div>
                     ))}
@@ -505,9 +526,16 @@ setShowVideoModal(true);
                     <div className="danger-card">
                       <div className="danger-text">
                         <p className="mb-0 fw-bold">Delete Account</p>
-                        <small>Once deleted, all your data is lost forever.</small>
+                        <small>
+                          Once deleted, all your data is lost forever.
+                        </small>
                       </div>
-                      <button className="danger-btn" onClick={() => setTriggerDelete(t => !t)}>Delete</button>
+                      <button
+                        className="danger-btn"
+                        onClick={() => setTriggerDelete((t) => !t)}
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -519,10 +547,10 @@ setShowVideoModal(true);
         {/* ── MOBILE BOTTOM NAV ── */}
         <nav className="mobile-bottom-nav">
           {[
-            { id: "watchlist",       icon: "bi-collection-play" },
-            { id: "recommendations", icon: "bi-compass"         },
-            { id: "history",         icon: "bi-clock-history"   },
-            { id: "settings",        icon: "bi-sliders"         },
+            { id: "watchlist", icon: "bi-collection-play" },
+            { id: "recommendations", icon: "bi-compass" },
+            { id: "history", icon: "bi-clock-history" },
+            { id: "settings", icon: "bi-sliders" },
           ].map((item) => (
             <button
               key={item.id}
@@ -803,11 +831,11 @@ setShowVideoModal(true);
 
           /* Sidebar → slide-in drawer */
           .sidebar-glass {
-            position:fixed; top:0; left:0; height:100dvh; width:270px;
-            z-index:100; transform:translateX(-100%); padding:1.5rem 1.25rem;
-          }
+  position:fixed; top:20; left:0; height:100dvh; width:270px;
+  z-index:200; transform:translateX(-100%); padding:1.5rem 1.25rem;
+}
           .sidebar-glass.sidebar-open { transform:translateX(0); }
-          .sidebar-overlay { display:block; }
+.sidebar-overlay { display:block; z-index:199; }
 
           /* Close btn */
           .sidebar-close-btn {
@@ -819,13 +847,7 @@ setShowVideoModal(true);
           }
 
           /* Mobile top bar */
-          .mobile-topbar {
-            display:flex; align-items:center; justify-content:space-between;
-            padding:0.7rem 1rem;
-            background:rgba(8,9,13,0.9); backdrop-filter:blur(20px);
-            border-bottom:1px solid var(--border);
-            position:sticky; top:0; z-index:10; flex-shrink:0;
-          }
+       .mobile-topbar { display: none; }
 
           /* Main content area */
           .content-hub {
@@ -843,6 +865,7 @@ setShowVideoModal(true);
             border-top:1px solid var(--border); height:58px; z-index:50;
             padding:0 0.5rem;
           }
+            .brand-zone { display: none; }
 
           /* Grid — 2 columns, tight */
           .movie-grid-refined { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
@@ -869,8 +892,6 @@ setShowVideoModal(true);
           .settings-main-form   { padding:1rem; }
         }
       `}</style>
-
-
     </div>
   );
 };

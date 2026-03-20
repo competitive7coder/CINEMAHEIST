@@ -82,11 +82,15 @@ StreamHub is a full-stack OTT recommendation system built from scratch with a no
 ```
 streamhub_research/
 └── project-third-year/
-    │
-    ├── main.py                           ← FastAPI entry point
+    ├── README.md
     ├── requirements.txt                  ← Python dependencies
+    ├── runtime.txt                       ← Python runtime version
+    ├── .gitignore
+    ├── LICENSE
     │
     ├── app/                              ← Backend application
+    │   ├── main.py                       ← FastAPI entry point
+    │   ├── requirements.txt
     │   ├── config.py                     ← App settings
     │   ├── security.py                   ← Password hashing, JWT
     │   ├── socket_manager.py             ← Socket.IO real-time events

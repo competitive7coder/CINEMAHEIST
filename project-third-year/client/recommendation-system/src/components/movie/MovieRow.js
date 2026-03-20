@@ -15,8 +15,8 @@ const MovieRow = ({
   onWatchlistClick,
   onSeeAllClick = null,
   seeAllLink = null
-}) => {  const swiperRef = useRef(null);
-
+}) => {
+  const swiperRef = useRef(null);
 
   const handleMouseEnter = () => {
     if (swiperRef.current?.swiper?.autoplay) {
@@ -29,154 +29,153 @@ const MovieRow = ({
     }
   };
 
- const styles = `
-.movie-row-container{
-position:relative;
-margin-bottom:2rem;
-overflow:visible;
-}
+  const styles = `
+    .movie-row-container {
+      position: relative;
+      margin-bottom: 2rem;
+      overflow: visible;
+    }
 
-.title{
-text-align:left;
-}
+    .title {
+      text-align: left;
+    }
 
-.h4{
-font-size:2rem;
-font-weight:700;
-letter-spacing:.5px;
-margin:0;
-}
+    .h4 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      margin: 0;
+    }
 
-/* animated title shine */
+    .btn-shine {
+      display: inline-block;
+      background: linear-gradient(to right, #606060 0%, #fff 40%, #fff 60%, #606060 100%);
+      background-size: 250%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: shine 4s linear infinite;
+    }
 
-.btn-shine{
-display:inline-block;
-background:linear-gradient(to right,#9f9f9f 0,#fff 10%,#868686 20%);
-background-size:200%;
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-animation:shine 3s linear infinite;
-}
+    @keyframes shine {
+      0%   { background-position: 100% center; }
+      100% { background-position: -100% center; }
+    }
 
-@keyframes shine{
-0%{background-position:100% center;}
-100%{background-position:-100% center;}
-}
+    .movie-row-container .swiper-button-next,
+    .movie-row-container .swiper-button-prev {
+      color: #fff;
+      background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04));
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      --swiper-navigation-size: 13px;
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+    }
 
-/* navigation arrows */
+    .movie-row-container:hover .swiper-button-next,
+    .movie-row-container:hover .swiper-button-prev {
+      opacity: 1;
+      transform: translateY(-50%) scale(1.0);
+    }
 
-.movie-row-container .swiper-button-next,
-.movie-row-container .swiper-button-prev{
-color:white;
-background:rgba(0,0,0,.45);
-border-radius:50%;
-width:42px;
-height:42px;
---swiper-navigation-size:20px;
-opacity:0;
-transition:all .3s ease;
-backdrop-filter:blur(6px);
-}
+    .movie-row-container .swiper-button-next:hover,
+    .movie-row-container .swiper-button-prev:hover {
+      background: linear-gradient(135deg, rgba(255,255,255,0.22), rgba(255,255,255,0.08));
+      border-color: rgba(255,255,255,0.35);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.2);
+      transform: translateY(-50%) scale(1.12);
+    }
 
-.movie-row-container:hover .swiper-button-next,
-.movie-row-container:hover .swiper-button-prev{
-opacity:1;
-}
+    .movie-row-container .swiper-button-next:after,
+    .movie-row-container .swiper-button-prev:after {
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: -1px;
+    }
 
-.swiper-button-next{right:10px;}
-.swiper-button-prev{left:10px;}
+    .swiper-button-next { right: 6px; }
+    .swiper-button-prev { left: 6px; }
 
-/* see all button */
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      padding: 4px 0;
+      position: relative;
+    }
 
-.cta{
-position:relative;
-padding:12px 18px;
-border:none;
-background:none;
-cursor:pointer;
-text-decoration:none;
-}
+    .cta span {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #666;
+      transition: color 0.2s ease;
+    }
 
-.cta:before{
-content:"";
-position:absolute;
-top:0;
-left:0;
-border-radius:50px;
-background:#2a2a2a;
-width:45px;
-height:45px;
-transition:all .3s ease;
-}
+    .cta svg {
+      stroke: #666;
+      stroke-width: 2;
+      transition: all 0.25s ease;
+      transform: translateX(0);
+    }
 
-.cta span{
-position:relative;
-font-size:16px;
-font-weight:700;
-letter-spacing:.05em;
-color:#a0a0a0;
-}
+    .cta::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0%;
+      height: 1px;
+      background: #fff;
+      transition: width 0.25s ease;
+    }
 
-.cta svg{
-margin-left:10px;
-stroke:#a0a0a0;
-stroke-width:2;
-transform:translateX(-5px);
-transition:all .3s ease;
-}
+    .cta:hover span { color: #fff; }
+    .cta:hover svg  { stroke: #fff; transform: translateX(4px); }
+    .cta:hover::after { width: 100%; }
+  `;
 
-.cta:hover:before{
-width:100%;
-background:#333;
-}
-
-.cta:hover span{
-color:white;
-}
-
-.cta:hover svg{
-transform:translateX(0);
-stroke:white;
-}
-`;
-
-  // --- 2. UPDATED LOGIC FOR "SEE ALL" BUTTON ---
   let seeAllButton = null;
   if (onSeeAllClick) {
-    // Priority 1: Use the click handler if provided (for Recommendations)
     seeAllButton = (
       <button onClick={onSeeAllClick} className="cta">
         <span>See All</span>
-        <svg width="15" height="10" viewBox="0 0 13 10">
-          <path d="M1,5 L11,5"></path>
-          <polyline points="8 1 12 5 8 9"></polyline>
+        <svg width="13" height="10" viewBox="0 0 13 10" fill="none">
+          <path d="M1,5 L11,5"/>
+          <polyline points="8 1 12 5 8 9"/>
         </svg>
       </button>
     );
   } else if (seeAllLink) {
-    // Priority 2: Use the custom link if provided
     seeAllButton = (
       <Link to={seeAllLink} className="cta">
         <span>See All</span>
-        <svg width="15" height="10" viewBox="0 0 13 10">
-          <path d="M1,5 L11,5"></path>
-          <polyline points="8 1 12 5 8 9"></polyline>
+        <svg width="13" height="10" viewBox="0 0 13 10" fill="none">
+          <path d="M1,5 L11,5"/>
+          <polyline points="8 1 12 5 8 9"/>
         </svg>
       </Link>
     );
   } else if (genreId) {
-    // Priority 3: Use the genreId (for standard rows)
     seeAllButton = (
       <Link to={`/genre/${genreId}`} className="cta">
         <span>See All</span>
-        <svg width="15" height="10" viewBox="0 0 13 10">
-          <path d="M1,5 L11,5"></path>
-          <polyline points="8 1 12 5 8 9"></polyline>
+        <svg width="13" height="10" viewBox="0 0 13 10" fill="none">
+          <path d="M1,5 L11,5"/>
+          <polyline points="8 1 12 5 8 9"/>
         </svg>
       </Link>
     );
   }
-  // If none are provided, the button stays hidden
 
   return (
     <div
@@ -190,10 +189,7 @@ stroke:white;
         <div className="title">
           <h3 className="h4 btn-shine">{title}</h3>
         </div>
-        
-        {/* --- 3. RENDER THE CORRECT BUTTON --- */}
         {seeAllButton}
-      
       </div>
 
       <Swiper
@@ -209,11 +205,11 @@ stroke:white;
           movies.map((movie) => (
             <SwiperSlide key={movie.id} style={{ width: "auto" }}>
               <MovieCard
-  movie={movie}
-  watchlist={watchlist}
-  onWatchTrailerClick={onWatchTrailerClick}
-  onWatchlistClick={onWatchlistClick}
-/>
+                movie={movie}
+                watchlist={watchlist}
+                onWatchTrailerClick={onWatchTrailerClick}
+                onWatchlistClick={onWatchlistClick}
+              />
             </SwiperSlide>
           ))
         ) : (

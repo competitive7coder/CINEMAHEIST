@@ -2,16 +2,20 @@
 node_modules/
 client/recommendation-system/node_modules/
 client/recommendation-system/node_modules/.cache/
+project-third-year/client/recommendation-system/node_modules/
+project-third-year/client/recommendation-system/node_modules/.cache/
 
 # Production build
 build/
 client/recommendation-system/build/
+project-third-year/client/recommendation-system/build/
 
 # Environment variables
 .env
 .env.local
 *.env
 app/.env
+project-third-year/app/.env
 
 # Logs
 npm-debug.log*
@@ -25,7 +29,7 @@ __pycache__/
 .venv/
 venv/
 
-# Large ML files
+# Large ML files (root path)
 app/ml/ml_activity_logs.csv
 app/ml/movies_enriched.csv
 app/ml/model_cache/
@@ -35,3 +39,15 @@ app/ml/ablation_results.txt
 app/ml/ml_stats.txt
 app/ml/amazon_movies_reviews.csv
 app/ml/__pycache__/
+
+# Large ML files (project-third-year path)
+project-third-year/app/ml/ml_activity_logs.csv
+project-third-year/app/ml/movies_enriched.csv
+project-third-year/app/ml/model_cache/
+project-third-year/app/ml/movielens/
+project-third-year/app/ml/amazon_cache/
+project-third-year/app/ml/ablation_results.txt
+project-third-year/app/ml/ml_stats.txt
+project-third-year/app/ml/amazon_movies_reviews.csv
+project-third-year/app/ml/__pycache__/
+project-third-year/app/ml/sensitivity_results.txt

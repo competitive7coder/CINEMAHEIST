@@ -300,7 +300,8 @@ ML_SERVICE_URL=http://localhost:8000
 ```
 
 ```bash
-uvicorn main:app --reload
+cd project-third-year
+uvicorn app.main:app --reload --port 8000
 # API: http://localhost:8000
 # Docs: http://localhost:8000/docs
 ```

@@ -1,3 +1,4 @@
+import re
 import secrets
 from datetime import datetime, timedelta
 from fastapi import APIRouter, HTTPException, status, Body, Request
@@ -29,6 +30,10 @@ async def register(request_data: dict = Body(...)):
         raise HTTPException(status_code=422, detail="Password is required")
     if len(password) < 8:
         raise HTTPException(status_code=422, detail="Password must be at least 8 characters")
+    if not re.search(r"[A-Z]", password):
+        raise HTTPException(status_code=422, detail="Password must contain an uppercase letter")
+    if not re.search(r"[0-9]", password):
+        raise HTTPException(status_code=422, detail="Password must contain a number")
     if len(username) < 2:
         raise HTTPException(status_code=422, detail="Username must be at least 2 characters")
 

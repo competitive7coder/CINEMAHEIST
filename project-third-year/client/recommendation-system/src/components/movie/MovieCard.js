@@ -118,27 +118,57 @@ const MovieCard = ({
   @media (max-width: 991px) { .mc-overlay { display: none; } }
 
   .mc-btn-now {
-    background: #e50914;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    padding: 6px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    margin-bottom: 6px;
-  }
+  width: 100%;
+  background: rgba(255,255,255,0.92);
+  color: #0a0a0a;
+  border: none;
+  border-radius: 5px;
+  padding: 7px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
 
-  .mc-btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.mc-btn-now:hover {
+  background: #ffffff;
+  transform: translateY(-1px);
+}
 
-  .mc-small-btn {
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.2);
-    color: white;
-    font-size: 0.65rem;
-    padding: 4px;
-    border-radius: 4px;
-    backdrop-filter: blur(5px);
-  }
+.mc-btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; }
+
+.mc-small-btn {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.3);
+  color: rgba(255,255,255,0.85);
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 5px 4px;
+  border-radius: 5px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.mc-small-btn:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.6);
+  color: #fff;
+}
+
+.mc-small-btn.saved {
+  background: transparent;
+  border-color: #2ecc71;
+  color: #2ecc71;
+}
+
+.mc-small-btn.saved:hover {
+  background: rgba(46, 204, 113, 0.12);
+}
   `;
 
   return (

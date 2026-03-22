@@ -6,6 +6,7 @@ import LoadingSpinner from "../components/common/LoadingSpinner";
 import VideoModal from "../components/common/VideoModal";
 import WatchMovieModal from "../components/movie/WatchMovieModal";
 import MovieCard from "../components/movie/MovieCard";
+import useSEO from "../hooks/useSEO";
 
 const MovieDetailPage = () => {
   const { movieId } = useParams();
@@ -19,6 +20,38 @@ const MovieDetailPage = () => {
 const [visibleRelatedCount, setVisibleRelatedCount] = useState(20);
   const [isInWatchlist, setIsInWatchlist]             = useState(false);
   const [watchlistIds, setWatchlistIds]               = useState([]);
+
+  // ── Dynamic SEO per movie ──
+  useSEO({
+    title: movie ? `${movie.title} (${movie.release_date?.split("-")[0] || ""})` : "Watch Movie",
+    description: movie
+      ? `Watch ${movie.title} online free on StreamHub. ${movie.overview?.slice(0, 120)}...`
+      : "Watch movies online free on StreamHub.",
+    image: movie?.backdrop_path
+      ? `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`
+      : movie?.poster_path
+      ? `https://image.tmdb.org/t/p/w780${movie.poster_path}`
+      : null,
+    url: movie ? `/movie/${movie.id}` : null,
+    type: "video.movie",
+    structuredData: movie ? {
+      "@context": "https://schema.org",
+      "@type": "Movie",
+      "name": movie.title,
+      "description": movie.overview,
+      "datePublished": movie.release_date,
+      "image": movie.poster_path ? `https://image.tmdb.org/t/p/w780${movie.poster_path}` : null,
+      "aggregateRating": movie.vote_average ? {
+        "@type": "AggregateRating",
+        "ratingValue": movie.vote_average.toFixed(1),
+        "ratingCount": movie.vote_count,
+        "bestRating": "10",
+        "worstRating": "1"
+      } : undefined,
+      "genre": movie.genres?.map(g => g.name),
+      "url": `https://streamhub-research.vercel.app/movie/${movie.id}`
+    } : null,
+  });
 
   const logActivity = async (movieData, actionType) => {
     const token = localStorage.getItem("token");

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
+import useSEO from "../hooks/useSEO";
 import { Link } from "react-router-dom";
 import styled, { createGlobalStyle, keyframes } from "styled-components";
 
@@ -295,6 +296,12 @@ const FooterBig = styled.footer`
 `;
 
 const PublicHome = () => {
+  useSEO({
+    title: "Watch Movies Online Free — Stream Latest Films",
+    description: "StreamHub lets you discover and watch movies online free. AI-powered recommendations, trending films, and the latest releases. No subscription needed.",
+    url: "/",
+  });
+
   const [time, setTime] = useState(new Date().toLocaleTimeString());
   const [isMobile, setIsMobile] = useState(false);
 

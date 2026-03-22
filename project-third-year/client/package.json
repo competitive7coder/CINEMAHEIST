@@ -2,6 +2,10 @@
   "dependencies": {
     "axios": "^1.12.2",
     "bootstrap": "^5.3.8",
-    "react-router-dom": "^7.9.4"
+    "react-router-dom": "^7.9.4",
+    "react-scripts": "^5.0.1"
+  },
+  "devDependencies": {
+    "baseline-browser-mapping": "^2.10.10"
   }
 }

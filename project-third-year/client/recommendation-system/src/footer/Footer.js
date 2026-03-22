@@ -72,29 +72,29 @@ const DisclaimerHighlight = styled.span`
   font-weight: 500;
 `;
 
-const SocialLinks = styled.div`
-  display: flex;
-  gap: 10px;
-  margin-top: 4px;
-`;
+// const SocialLinks = styled.div`
+//   display: flex;
+//   gap: 10px;
+//   margin-top: 4px;
+// `;
 
-const SocialIcon = styled.a`
-  width: 38px; height: 38px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  display: flex; align-items: center; justify-content: center;
-  color: rgba(255, 255, 255, 0.35);
-  font-size: 1rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  &:hover {
-    background: rgba(229, 9, 20, 0.1);
-    border-color: rgba(229, 9, 20, 0.4);
-    color: #e50914;
-    transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-  }
-`;
+// const SocialIcon = styled.a`
+//   width: 38px; height: 38px;
+//   border-radius: 10px;
+//   background: rgba(255, 255, 255, 0.03);
+//   border: 1px solid rgba(255, 255, 255, 0.07);
+//   display: flex; align-items: center; justify-content: center;
+//   color: rgba(255, 255, 255, 0.35);
+//   font-size: 1rem;
+//   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+//   &:hover {
+//     background: rgba(229, 9, 20, 0.1);
+//     border-color: rgba(229, 9, 20, 0.4);
+//     color: #e50914;
+//     transform: translateY(-4px);
+//     box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+//   }
+// `;
 
 const LinkGroup = styled.div`
   display: flex;
@@ -213,21 +213,21 @@ const Footer = () => {
               For copyright concerns:{" "}
               <DisclaimerHighlight>dmca.streamhub@proton.me</DisclaimerHighlight>
             </Disclaimer>
-            <SocialLinks>
+            {/* <SocialLinks>
               <SocialIcon href="#" aria-label="Facebook"><i className="bi bi-facebook" /></SocialIcon>
               <SocialIcon href="#" aria-label="Instagram"><i className="bi bi-instagram" /></SocialIcon>
               <SocialIcon href="#" aria-label="Twitter"><i className="bi bi-twitter-x" /></SocialIcon>
               <SocialIcon href="#" aria-label="YouTube"><i className="bi bi-youtube" /></SocialIcon>
-            </SocialLinks>
+            </SocialLinks> */}
           </BrandSection>
 
           {/* Browse */}
           <LinkGroup>
             <GroupTitle>Browse</GroupTitle>
-            <FooterLink to="/">Home</FooterLink>
-            <FooterLink to="/popular">Trending</FooterLink>
-            <FooterLink to="/watchlist">My Watchlist</FooterLink>
-            <FooterLink to="/profile">Profile</FooterLink>
+            <FooterLink to="/home">Home</FooterLink>
+            <FooterLink to="/home">Trending</FooterLink>
+            <FooterLink to="/dashboard">My Recommendations</FooterLink>
+            <FooterLink to="/search">Search Movies</FooterLink>
             <FooterLink to="/faq">FAQ</FooterLink>
             <FooterLink to="/contact">Contact Us</FooterLink>
           </LinkGroup>

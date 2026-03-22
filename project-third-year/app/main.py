@@ -1,14 +1,36 @@
 import os
 import httpx
+import asyncio
 import socketio
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.responses import JSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
 from contextlib import asynccontextmanager
 from app.socket_manager import sio
 from app.config import settings
 from app.db.base import init_db
 from app.api.v1.api import api_router
 from dotenv import load_dotenv
+
+
+# ── Timeout Middleware ────────────────────────────────────────────────────────
+# Skip timeout for SSE streaming endpoints — they stream indefinitely by design
+SKIP_TIMEOUT_PATHS = ["/stream", "/homepage-sections/stream"]
+
+class TimeoutMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        # SSE endpoints stream forever — don't apply timeout to them
+        if any(request.url.path.endswith(p) for p in SKIP_TIMEOUT_PATHS):
+            return await call_next(request)
+        try:
+            return await asyncio.wait_for(call_next(request), timeout=15.0)
+        except asyncio.TimeoutError:
+            return JSONResponse(
+                {"error": "Request timeout — please try again"},
+                status_code=504
+            )
 
 
 @asynccontextmanager
@@ -166,12 +188,18 @@ app = FastAPI(
 
 print("FRONTEND_URL:", FRONTEND_URL)
 
-# ── Step 1: Register CORS middleware first ────────────────────────────────────
+# ── Step 1: GZip compression — shrinks responses by 60-80% ──────────────────
+app.add_middleware(GZipMiddleware, minimum_size=1000)
+
+# ── Step 2: Request timeout — kills requests hanging >15s ────────────────────
+app.add_middleware(TimeoutMiddleware)
+
+# ── Step 3: Register CORS middleware ─────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://streamhub-research.vercel.app",
-        "http://localhost:3000",  
+        "http://localhost:3000",
     ],
     allow_credentials=True,
     allow_methods=["*"],

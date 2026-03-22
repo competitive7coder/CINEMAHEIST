@@ -4,6 +4,7 @@ import asyncio
 import traceback
 import re
 from app.config import settings
+from app.cache.redis import get_cache, set_cache, IMDB_ID_TTL, STREAM_SOURCES_TTL
 
 router = APIRouter(prefix="/stream", tags=["Stream"])
 
@@ -13,12 +14,21 @@ HINDI_KEYWORDS = ["hindi", "hin", "dual audio", "multi audio", "dubbed"]
 
 
 async def get_imdb_id(tmdb_id: str):
+    # IMDB IDs never change — cache for 7 days
+    cache_key = f"imdb_id:{tmdb_id}"
+    cached = await get_cache(cache_key)
+    if cached:
+        return cached
+
     try:
         url = f"https://api.themoviedb.org/3/movie/{tmdb_id}/external_ids"
         async with httpx.AsyncClient(timeout=10) as client:
             res = await client.get(url, params={"api_key": TMDB_API_KEY})
             data = res.json()
-            return data.get("imdb_id")
+            imdb_id = data.get("imdb_id")
+            if imdb_id:
+                await set_cache(cache_key, imdb_id, IMDB_ID_TTL)
+            return imdb_id
     except Exception as e:
         print(f"get_imdb_id error: {e}")
         return None
@@ -173,6 +183,12 @@ async def get_movie_sources(
         if not TMDB_API_KEY:
             raise HTTPException(status_code=500, detail="TMDB_API_KEY not set")
 
+        # Check cache first — stream sources cached for 30 mins
+        stream_cache_key = f"stream:sources:{tmdb_id}:{language}"
+        cached_sources = await get_cache(stream_cache_key)
+        if cached_sources:
+            return cached_sources
+
         imdb_id = await get_imdb_id(tmdb_id)
         print(f"tmdb_id={tmdb_id}, imdb_id={imdb_id}, language={language}")
 
@@ -188,7 +204,7 @@ async def get_movie_sources(
         # Hindi not available = user wants Hindi but no Hindi torrent found at all
         hindi_not_available = language == "hi" and not hindi_available
 
-        return {
+        result = {
             "tmdb_id":             tmdb_id,
             "imdb_id":             imdb_id,
             "language":            language,
@@ -202,6 +218,9 @@ async def get_movie_sources(
             "not_available":       imdb_id is None,
             "warning":             "Movie not available yet." if imdb_id is None else None,
         }
+        # Cache for 30 minutes
+        await set_cache(stream_cache_key, result, STREAM_SOURCES_TTL)
+        return result
 
     except HTTPException:
         raise

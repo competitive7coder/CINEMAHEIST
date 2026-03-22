@@ -134,6 +134,19 @@ async def lifespan(app: FastAPI):
     asyncio.create_task(warm_cache())
     asyncio.create_task(train_ml())
 
+    async def keep_db_warm():
+        # Ping MongoDB every 4 minutes — prevents Atlas free tier idle timeout
+        import asyncio as _asyncio
+        from app.models.user import User as _User
+        while True:
+            try:
+                await _asyncio.sleep(240)
+                await _User.find_one()
+            except Exception:
+                pass
+
+    asyncio.create_task(keep_db_warm())
+
     yield
 
     await app.state.http_client.aclose()

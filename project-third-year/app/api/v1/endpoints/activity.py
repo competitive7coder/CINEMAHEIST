@@ -22,6 +22,8 @@ ACTION_TYPES = {
     "added_to_watchlist",
     "removed_from_watchlist",
     "trailer_watch",
+    "search_click",       # fired when user opens a movie detail page
+    "watchlist_view",     # fired when user views watchlist
 }
 
 

@@ -27,6 +27,10 @@ class Settings(BaseSettings):
     CLOUDINARY_API_KEY: str
     CLOUDINARY_API_SECRET: str
 
+    # Upstash Redis (cache layer)
+    UPSTASH_REDIS_REST_URL:   str = ""   # https://powerful-spaniel-80991.upstash.io
+    UPSTASH_REDIS_REST_TOKEN: str = ""   #  token from Upstash dashboard
+
     # Configuration to read the .env file
     model_config = SettingsConfigDict(
         # We tell Pydantic to look specifically inside the 'app' directory

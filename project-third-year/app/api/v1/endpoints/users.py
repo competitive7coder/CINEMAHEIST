@@ -4,6 +4,7 @@ from datetime import datetime
 from app.models.user import User
 from app.security import get_current_user
 from app.schemas.user import UserOut
+from app.cache.redis import delete_cache
 
 router = APIRouter()
 
@@ -40,12 +41,15 @@ async def add_to_watchlist(
     current_user.watchlist.append(movie_id)
 
     # Store timestamp for Contribution 1 — Temporal Watchlist Decay
-    # Key must be string because MongoDB dict keys are strings
     if current_user.watchlist_timestamps is None:
         current_user.watchlist_timestamps = {}
     current_user.watchlist_timestamps[str(movie_id)] = datetime.utcnow()
 
     await current_user.save()
+
+    # Invalidate recommendations cache — watchlist changed so recs are stale
+    # We delete by prefix pattern — any key starting with user:recs:{user_id}
+    await delete_cache(f"user:recs:{str(current_user.id)}:*")
 
     return {
         "msg": "Movie added to watchlist",
@@ -76,10 +80,64 @@ async def remove_from_watchlist(
 
     await current_user.save()
 
+    # Invalidate ALL recommendation cache keys for this user
+    # including the empty watchlist key hash(()) 
+    user_id = str(current_user.id)
+    await delete_cache(f"user:recs:{user_id}:*")
+    # Also explicitly delete empty watchlist cache
+    await delete_cache(f"user:recs:{user_id}:{hash(())}")
+
     return {
         "msg": "Movie removed from watchlist",
         "watchlist": current_user.watchlist
     }
+
+
+# ---------------------------------------------------
+# GET WATCHLIST WITH FULL MOVIE DATA 
+# ---------------------------------------------------
+@router.get("/watchlist/full")
+async def get_watchlist_full(current_user: User = Depends(get_current_user)):
+    import asyncio
+    import httpx
+    from app.config import settings
+    from app.cache.redis import get_cache, set_cache, MOVIE_DETAIL_TTL
+
+    ids = current_user.watchlist or []
+    if not ids:
+        return []
+
+    TMDB_BASE = "https://api.themoviedb.org/3"
+
+    async def fetch_one(movie_id: int, client: httpx.AsyncClient):
+        cache_key = f"movie:details:{movie_id}"
+        cached = await get_cache(cache_key)
+        if cached:
+            return cached
+        try:
+            res = await client.get(
+                f"{TMDB_BASE}/movie/{movie_id}",
+                params={"api_key": settings.TMDB_API_KEY,
+                        "append_to_response": "videos,credits"},
+            )
+            if res.status_code != 200:
+                return None
+            data = res.json()
+            if data.get("title") and data.get("poster_path"):
+                await set_cache(cache_key, data, MOVIE_DETAIL_TTL)
+                return data
+            return None
+        except Exception:
+            return None
+
+    # Fetch ALL in parallel with one shared httpx client
+    async with httpx.AsyncClient(timeout=15.0) as client:
+        results = await asyncio.gather(
+            *[fetch_one(mid, client) for mid in ids],
+            return_exceptions=True
+        )
+
+    return [r for r in results if isinstance(r, dict) and r]
 
 
 # ---------------------------------------------------

@@ -9,6 +9,10 @@ from app.config import settings
 from app.models.user import User
 from app.security import get_current_user
 from app.ml.engine import get_recommendations
+from app.cache.redis import (
+    get_cache, set_cache, delete_cache,
+    MOVIE_DETAIL_TTL, TRENDING_TTL, HOMEPAGE_TTL, RECOMMENDATIONS_TTL,
+)
 
 
 router = APIRouter()
@@ -146,11 +150,17 @@ async def search_movies(
 # ---------------------------------------------------
 @router.get("/details/{movie_id}")
 async def get_movie_details(movie_id: int):
+    cache_key = f"movie:details:{movie_id}"
+    cached = await get_cache(cache_key)
+    if cached:
+        return cached
 
-    return await fetch_tmdb(
+    data = await fetch_tmdb(
         f"/movie/{movie_id}",
         {"append_to_response": "videos,credits,recommendations"}
     )
+    await set_cache(cache_key, data, MOVIE_DETAIL_TTL)
+    return data
 
 
 # ---------------------------------------------------
@@ -285,28 +295,32 @@ async def get_user_recommendations(
     current_user: User = Depends(get_current_user)
 ):
     try:
-        # safety check
         if not current_user:
             return []
 
         watchlist_ids = [int(mid) for mid in (current_user.watchlist or [])]
 
-        # no watchlist → no recommendations
+        # ✅ Empty watchlist check FIRST — always return [] if no watchlist
         if not watchlist_ids:
             return []
 
-        # Build timestamps dict for Contribution 1 — Temporal Watchlist Decay
-        # Converts {str_id: datetime} stored in user model → {int_id: datetime}
+        # ✅ Check Redis cache BEFORE running ML engine
+        user_id_str   = str(current_user.id)
+        rec_cache_key = f"user:recs:{user_id_str}:{hash(tuple(sorted(watchlist_ids)))}"
+        cached_recs   = await get_cache(rec_cache_key)
+        if cached_recs:
+            return cached_recs
+
+        # Cache miss — run ML engine
         raw_ts = current_user.watchlist_timestamps or {}
         watchlist_timestamps = {
             int(k): v for k, v in raw_ts.items()
             if isinstance(v, __import__('datetime').datetime)
         }
 
-        # ML recommendations with temporal decay
         recommendations = get_recommendations(
             watchlist_ids=watchlist_ids,
-            user_id=str(current_user.id),
+            user_id=user_id_str,
             watchlist_timestamps=watchlist_timestamps or None,
         )
 
@@ -314,19 +328,28 @@ async def get_user_recommendations(
             return []
 
         async def fetch_details(movie_id: int):
+            # Check movie detail cache first — avoids TMDB call
+            detail_key    = f"movie:details:{movie_id}"
+            cached_movie  = await get_cache(detail_key)
+            if cached_movie:
+                return cached_movie
             try:
-                return await fetch_tmdb(f"/movie/{movie_id}")
+                data = await fetch_tmdb(f"/movie/{movie_id}")
+                if data:
+                    await set_cache(detail_key, data, MOVIE_DETAIL_TTL)
+                return data
             except Exception:
                 return None
 
-        # fetch TMDB data safely
         results = await asyncio.gather(
             *[fetch_details(m["id"]) for m in recommendations],
             return_exceptions=True
         )
+        final = [r for r in results if isinstance(r, dict)]
 
-        # remove failed ones
-        return [r for r in results if isinstance(r, dict)]
+        # Cache result for 1 hour
+        await set_cache(rec_cache_key, final, RECOMMENDATIONS_TTL)
+        return final
 
     except Exception as e:
         print("Recommendation endpoint error:", e)

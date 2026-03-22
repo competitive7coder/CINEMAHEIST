@@ -16,21 +16,11 @@ from dotenv import load_dotenv
 
 
 # ── Timeout Middleware ────────────────────────────────────────────────────────
-# Skip timeout for SSE streaming endpoints — they stream indefinitely by design
-SKIP_TIMEOUT_PATHS = ["/stream", "/homepage-sections/stream"]
-
-class TimeoutMiddleware(BaseHTTPMiddleware):
-    async def dispatch(self, request: Request, call_next):
-        # SSE endpoints stream forever — don't apply timeout to them
-        if any(request.url.path.endswith(p) for p in SKIP_TIMEOUT_PATHS):
-            return await call_next(request)
-        try:
-            return await asyncio.wait_for(call_next(request), timeout=15.0)
-        except asyncio.TimeoutError:
-            return JSONResponse(
-                {"error": "Request timeout — please try again"},
-                status_code=504
-            )
+# Skip timeout for SSE + slow endpoints
+SKIP_TIMEOUT_PATHS = [
+    "/homepage-sections/stream",   # SSE — streams forever by design
+    "/recommendations/user",        # ML engine — can take 15-20s on cold cache
+]
 
 
 @asynccontextmanager
@@ -191,9 +181,6 @@ print("FRONTEND_URL:", FRONTEND_URL)
 # ── Step 1: GZip compression — shrinks responses by 60-80% ──────────────────
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
-# ── Step 2: Request timeout — kills requests hanging >15s ────────────────────
-app.add_middleware(TimeoutMiddleware)
-
 # ── Step 3: Register CORS middleware ─────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
@@ -222,5 +209,18 @@ async def root():
         "docs": "/docs"
     }
 
+
+# ── Request timeout via @app.middleware — avoids BaseHTTPMiddleware race condition
+@app.middleware("http")
+async def timeout_middleware(request: Request, call_next):
+    if any(request.url.path.endswith(p) for p in SKIP_TIMEOUT_PATHS):
+        return await call_next(request)
+    try:
+        return await asyncio.wait_for(call_next(request), timeout=25.0)
+    except asyncio.TimeoutError:
+        return JSONResponse(
+            {"error": "Request timeout — please try again"},
+            status_code=504
+        )
 
 app.include_router(api_router, prefix=settings.API_V1_STR)

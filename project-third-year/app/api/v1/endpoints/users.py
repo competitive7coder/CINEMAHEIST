@@ -47,9 +47,9 @@ async def add_to_watchlist(
 
     await current_user.save()
 
-    # Invalidate recommendations cache — watchlist changed so recs are stale
-    # We delete by prefix pattern — any key starting with user:recs:{user_id}
-    await delete_cache(f"user:recs:{str(current_user.id)}:*")
+    # Invalidate ALL recommendation cache keys for this user
+    from app.cache.redis import delete_pattern
+    await delete_pattern(f"user:recs:{str(current_user.id)}:*")
 
     return {
         "msg": "Movie added to watchlist",
@@ -81,11 +81,9 @@ async def remove_from_watchlist(
     await current_user.save()
 
     # Invalidate ALL recommendation cache keys for this user
-    # including the empty watchlist key hash(()) 
+    from app.cache.redis import delete_pattern
     user_id = str(current_user.id)
-    await delete_cache(f"user:recs:{user_id}:*")
-    # Also explicitly delete empty watchlist cache
-    await delete_cache(f"user:recs:{user_id}:{hash(())}")
+    await delete_pattern(f"user:recs:{user_id}:*")
 
     return {
         "msg": "Movie removed from watchlist",

@@ -1,10 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List
 from datetime import datetime
+import asyncio
+import httpx
 from app.models.user import User
 from app.security import get_current_user
 from app.schemas.user import UserOut
-from app.cache.redis import delete_cache
+from app.config import settings
+from app.cache.redis import get_cache, set_cache, MOVIE_DETAIL_TTL
 
 router = APIRouter()
 
@@ -47,9 +50,7 @@ async def add_to_watchlist(
 
     await current_user.save()
 
-    # Invalidate ALL recommendation cache keys for this user
-    from app.cache.redis import delete_pattern
-    await delete_pattern(f"user:recs:{str(current_user.id)}:*")
+    # No recommendation cache to invalidate — recs are never cached
 
     return {
         "msg": "Movie added to watchlist",
@@ -80,10 +81,7 @@ async def remove_from_watchlist(
 
     await current_user.save()
 
-    # Invalidate ALL recommendation cache keys for this user
-    from app.cache.redis import delete_pattern
-    user_id = str(current_user.id)
-    await delete_pattern(f"user:recs:{user_id}:*")
+    # No recommendation cache to invalidate — recs are never cached
 
     return {
         "msg": "Movie removed from watchlist",
@@ -92,7 +90,7 @@ async def remove_from_watchlist(
 
 
 # ---------------------------------------------------
-# GET WATCHLIST WITH FULL MOVIE DATA 
+# GET WATCHLIST WITH FULL MOVIE DATA (Dashboard optimized)
 # ---------------------------------------------------
 @router.get("/watchlist/full")
 async def get_watchlist_full(current_user: User = Depends(get_current_user)):
@@ -104,6 +102,9 @@ async def get_watchlist_full(current_user: User = Depends(get_current_user)):
     ids = current_user.watchlist or []
     if not ids:
         return []
+
+    # Cap at 20 — prevents 500 parallel TMDB calls on huge watchlists
+    ids = ids[:20]
 
     TMDB_BASE = "https://api.themoviedb.org/3"
 
@@ -158,10 +159,11 @@ async def check_watchlist(
 
 @router.get("/me", response_model=UserOut)
 async def get_current_user_info(current_user: User = Depends(get_current_user)):
-
     return {
-        "id": str(current_user.id),
-        "email": current_user.email,
-        "username": current_user.username,
-        "watchlist": current_user.watchlist
+        "id":              str(current_user.id),
+        "email":           current_user.email,
+        "username":        current_user.username,
+        "watchlist":       current_user.watchlist or [],
+        "bio":             getattr(current_user, "bio", "") or "",
+        "profile_picture": getattr(current_user, "profile_picture", "") or "",
     }

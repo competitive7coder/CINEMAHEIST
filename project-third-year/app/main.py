@@ -6,7 +6,6 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
-from starlette.middleware.base import BaseHTTPMiddleware
 from contextlib import asynccontextmanager
 from app.socket_manager import sio
 from app.config import settings
@@ -35,7 +34,6 @@ async def lifespan(app: FastAPI):
     )
 
     # Pre-warm homepage cache + train ML model in background
-    import asyncio
     from app.api.v1.endpoints.movies import get_homepage_sections
     from app.ml.engine import build_collaborative_model
 
@@ -193,10 +191,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── Step 2: Wrap sio in ASGIApp exactly once, then mount ─────────────────────
-# IMPORTANT: Mounted ASGI sub-apps bypass FastAPI's middleware stack (including
-# CORSMiddleware). Passing `other_asgi_app=app` routes non-socket requests back
-# through the full FastAPI app so CORS headers are correctly applied everywhere.
+# ── Request timeout — registered before routes ───────────────────────────────
+@app.middleware("http")
+async def timeout_middleware(request: Request, call_next):
+    if any(request.url.path.endswith(p) for p in SKIP_TIMEOUT_PATHS):
+        return await call_next(request)
+    try:
+        return await asyncio.wait_for(call_next(request), timeout=25.0)
+    except asyncio.TimeoutError:
+        return JSONResponse(
+            {"error": "Request timeout — please try again"},
+            status_code=504
+        )
+
+# ── Socket.IO mount ───────────────────────────────────────────────────────────
 socket_app = socketio.ASGIApp(sio, socketio_path="")
 app.mount("/socket.io", socket_app)
 
@@ -209,18 +217,5 @@ async def root():
         "docs": "/docs"
     }
 
-
-# ── Request timeout via @app.middleware — avoids BaseHTTPMiddleware race condition
-@app.middleware("http")
-async def timeout_middleware(request: Request, call_next):
-    if any(request.url.path.endswith(p) for p in SKIP_TIMEOUT_PATHS):
-        return await call_next(request)
-    try:
-        return await asyncio.wait_for(call_next(request), timeout=25.0)
-    except asyncio.TimeoutError:
-        return JSONResponse(
-            {"error": "Request timeout — please try again"},
-            status_code=504
-        )
 
 app.include_router(api_router, prefix=settings.API_V1_STR)

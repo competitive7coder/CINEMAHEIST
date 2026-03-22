@@ -304,14 +304,9 @@ async def get_user_recommendations(
         if not watchlist_ids:
             return []
 
-        # ✅ Check Redis cache BEFORE running ML engine
-        user_id_str   = str(current_user.id)
-        rec_cache_key = f"user:recs:{user_id_str}:{hash(tuple(sorted(watchlist_ids)))}"
-        cached_recs   = await get_cache(rec_cache_key)
-        if cached_recs:
-            return cached_recs
-
-        # Cache miss — run ML engine
+        # No Redis cache for recommendations — ML engine is fast enough
+        # and caching causes stale results when watchlist changes
+        user_id_str = str(current_user.id)
         raw_ts = current_user.watchlist_timestamps or {}
         watchlist_timestamps = {
             int(k): v for k, v in raw_ts.items()
@@ -328,16 +323,9 @@ async def get_user_recommendations(
             return []
 
         async def fetch_details(movie_id: int):
-            # Check movie detail cache first — avoids TMDB call
-            detail_key    = f"movie:details:{movie_id}"
-            cached_movie  = await get_cache(detail_key)
-            if cached_movie:
-                return cached_movie
+            # Always fetch fresh from TMDB for recommendations
             try:
-                data = await fetch_tmdb(f"/movie/{movie_id}")
-                if data:
-                    await set_cache(detail_key, data, MOVIE_DETAIL_TTL)
-                return data
+                return await fetch_tmdb(f"/movie/{movie_id}")
             except Exception:
                 return None
 
@@ -347,8 +335,6 @@ async def get_user_recommendations(
         )
         final = [r for r in results if isinstance(r, dict)]
 
-        # Cache result for 1 hour
-        await set_cache(rec_cache_key, final, RECOMMENDATIONS_TTL)
         return final
 
     except Exception as e:

@@ -2,7 +2,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
 
-
 const glow = keyframes`
   0%, 100% { text-shadow: 0 0 10px rgba(229, 9, 20, 0.5); }
   50% { text-shadow: 0 0 20px rgba(229, 9, 20, 0.8), 0 0 30px rgba(229, 9, 20, 0.4); }
@@ -13,11 +12,9 @@ const FooterWrapper = styled.footer`
   border-top: 1px solid rgba(255, 255, 255, 0.03);
   font-family: 'Inter', 'Poppins', sans-serif;
   color: rgba(255, 255, 255, 0.5);
-  padding: 100px 0 40px;
+  padding: 80px 0 36px;
   margin-top: auto;
   position: relative;
-  
-  /* Top accent line */
   &::before {
     content: '';
     position: absolute;
@@ -35,175 +32,168 @@ const Inner = styled.div`
 
 const MainGrid = styled.div`
   display: grid;
-  grid-template-columns: 2fr 1fr 1fr 1fr;
+  grid-template-columns: 1.8fr 1fr 1fr;
   gap: 40px;
-  margin-bottom: 80px;
+  margin-bottom: 60px;
   align-items: start;
-
-  @media (max-width: 992px) {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 30px;
-  }
-
-  @media (max-width: 480px) {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-  }
+  @media (max-width: 768px) { grid-template-columns: 1fr 1fr; gap: 30px; }
+  @media (max-width: 480px) { grid-template-columns: 1fr; gap: 24px; }
 `;
 
 const BrandSection = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 20px;
-
-  @media (max-width: 992px) {
-    grid-column: 1 / -1; 
-    text-align: center;
-    align-items: center;
-    margin-bottom: 40px;
-  }
+  gap: 16px;
 `;
 
 const BrandName = styled(Link)`
   text-decoration: none;
-  font-size: 2.2rem;
+  font-size: 2rem;
   font-weight: 900;
   letter-spacing: -1.5px;
   color: #fff;
   white-space: nowrap;
   transition: all 0.3s ease;
-
-  span { 
-    color: #e50914; 
-    animation: ${glow} 3s ease-in-out infinite;
-  }
-
-  &:hover {
-    transform: scale(1.02);
-  }
+  span { color: #e50914; animation: ${glow} 3s ease-in-out infinite; }
+  &:hover { transform: scale(1.02); }
 `;
 
-const Tagline = styled.p`
-  font-size: 0.95rem;
-  color: rgba(255, 255, 255, 0.35);
-  line-height: 1.7;
-  max-width: 320px;
+const Disclaimer = styled.p`
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.22);
+  line-height: 1.75;
+  max-width: 340px;
   margin: 0;
-  font-weight: 400;
+  font-weight: 300;
+`;
+
+const DisclaimerHighlight = styled.span`
+  color: rgba(255, 255, 255, 0.42);
+  font-weight: 500;
 `;
 
 const SocialLinks = styled.div`
   display: flex;
-  gap: 12px;
-  margin-top: 10px;
+  gap: 10px;
+  margin-top: 4px;
 `;
 
 const SocialIcon = styled.a`
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
+  width: 38px; height: 38px;
+  border-radius: 10px;
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid rgba(255, 255, 255, 0.07);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: rgba(255, 255, 255, 0.4);
-  font-size: 1.1rem;
+  display: flex; align-items: center; justify-content: center;
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 1rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  
   &:hover {
     background: rgba(229, 9, 20, 0.1);
     border-color: rgba(229, 9, 20, 0.4);
     color: #e50914;
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
   }
 `;
 
 const LinkGroup = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
 `;
 
 const GroupTitle = styled.h6`
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 2px;
   color: #fff;
-  margin-bottom: 10px;
-  white-space: nowrap;
+  margin-bottom: 8px;
   position: relative;
-  
   &::after {
     content: '';
     position: absolute;
-    left: 0; bottom: -8px;
-    width: 20px; height: 2px;
+    left: 0; bottom: -6px;
+    width: 18px; height: 2px;
     background: #e50914;
-    @media (max-width: 992px) { left: 50%; transform: translateX(-50%); }
   }
-
-  @media (max-width: 992px) { text-align: center; }
 `;
 
 const FooterLink = styled(Link)`
-  font-size: 0.9rem;
-  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.35);
   text-decoration: none;
-  transition: all 0.3s ease;
+  transition: all 0.25s ease;
   width: fit-content;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  &:hover { color: #fff; padding-left: 6px; }
+`;
 
-  &:hover {
-    color: #fff;
-    padding-left: 8px;
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-  }
-  
-  @media (max-width: 992px) { 
-    width: auto; 
-    text-align: center;
-    &:hover { padding-left: 0; transform: translateY(-2px); }
-  }
+const LegalBadge = styled.span`
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  background: rgba(229, 9, 20, 0.12);
+  border: 1px solid rgba(229, 9, 20, 0.2);
+  color: #e50914;
+  border-radius: 4px;
+  padding: 1px 5px;
+`;
+
+const Divider = styled.div`
+  height: 1px;
+  background: rgba(255,255,255,0.04);
+  margin-bottom: 28px;
 `;
 
 const BottomBar = styled.div`
-  padding-top: 40px;
-  border-top: 1px solid rgba(255, 255, 255, 0.04);
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 20px;
-
-  @media (max-width: 768px) {
-    flex-direction: column-reverse;
-    text-align: center;
-  }
+  gap: 16px;
+  @media (max-width: 768px) { flex-direction: column; text-align: center; }
 `;
 
 const Copyright = styled.p`
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.25);
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.18);
   margin: 0;
   font-weight: 300;
+  line-height: 1.6;
 `;
 
 const LegalNav = styled.nav`
   display: flex;
-  gap: 30px;
-  
-  @media (max-width: 480px) { gap: 15px; }
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+  @media (max-width: 480px) { gap: 12px; }
 `;
 
 const LegalLink = styled(Link)`
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.25);
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.22);
   text-decoration: none;
-  transition: color 0.3s ease;
-  
-  &:hover { color: #fff; }
+  transition: color 0.25s ease;
+  &:hover { color: rgba(255,255,255,0.7); }
+`;
+
+const LegalLinkExternal = styled.a`
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.22);
+  text-decoration: none;
+  transition: color 0.25s ease;
+  &:hover { color: rgba(255,255,255,0.7); }
+`;
+
+const Dot = styled.span`
+  color: rgba(255,255,255,0.1);
+  font-size: 0.6rem;
 `;
 
 const Footer = () => {
@@ -211,49 +201,73 @@ const Footer = () => {
     <FooterWrapper>
       <Inner>
         <MainGrid>
+
+          {/* Brand + Legal Disclaimer */}
           <BrandSection>
             <BrandName to="/">🎬 Stream<span>Hub</span></BrandName>
-            <Tagline>
-              The ultimate destination for cinematic explorers. Track, discover, and enjoy your next favorite story in stunning detail.
-            </Tagline>
+            <Disclaimer>
+              StreamHub does not host, upload, or store any video content.
+              All streams are served by{" "}
+              <DisclaimerHighlight>independent third-party embed providers</DisclaimerHighlight>.
+              StreamHub is a search and discovery platform using the TMDB API for metadata only.
+              For copyright concerns:{" "}
+              <DisclaimerHighlight>dmca.streamhub@proton.me</DisclaimerHighlight>
+            </Disclaimer>
             <SocialLinks>
-              <SocialIcon href="#"><i className="bi bi-facebook" /></SocialIcon>
-              <SocialIcon href="#"><i className="bi bi-instagram" /></SocialIcon>
-              <SocialIcon href="#"><i className="bi bi-twitter-x" /></SocialIcon>
-              <SocialIcon href="#"><i className="bi bi-youtube" /></SocialIcon>
+              <SocialIcon href="#" aria-label="Facebook"><i className="bi bi-facebook" /></SocialIcon>
+              <SocialIcon href="#" aria-label="Instagram"><i className="bi bi-instagram" /></SocialIcon>
+              <SocialIcon href="#" aria-label="Twitter"><i className="bi bi-twitter-x" /></SocialIcon>
+              <SocialIcon href="#" aria-label="YouTube"><i className="bi bi-youtube" /></SocialIcon>
             </SocialLinks>
           </BrandSection>
 
+          {/* Browse */}
           <LinkGroup>
-            <GroupTitle>Explore</GroupTitle>
-            <FooterLink to="/movies">All Movies</FooterLink>
+            <GroupTitle>Browse</GroupTitle>
+            <FooterLink to="/">Home</FooterLink>
             <FooterLink to="/popular">Trending</FooterLink>
-            <FooterLink to="/new-releases">New Releases</FooterLink>
-          </LinkGroup>
-
-          <LinkGroup>
-            <GroupTitle>Account</GroupTitle>
-            <FooterLink to="/profile">My Profile</FooterLink>
-            <FooterLink to="/watchlist">Watchlist</FooterLink>
-            <FooterLink to="/settings">Settings</FooterLink>
-          </LinkGroup>
-
-          <LinkGroup>
-            <GroupTitle>Company</GroupTitle>
-            <FooterLink to="/about">Our Story</FooterLink>
+            <FooterLink to="/watchlist">My Watchlist</FooterLink>
+            <FooterLink to="/profile">Profile</FooterLink>
+            <FooterLink to="/faq">FAQ</FooterLink>
             <FooterLink to="/contact">Contact Us</FooterLink>
-            <FooterLink to="/faq">Help Center</FooterLink>
           </LinkGroup>
+
+          {/* Legal */}
+          <LinkGroup>
+            <GroupTitle>Legal</GroupTitle>
+            <FooterLink to="/dmca">
+              DMCA Policy <LegalBadge>Important</LegalBadge>
+            </FooterLink>
+            <FooterLink to="/privacy">Privacy Policy</FooterLink>
+            <FooterLink to="/terms">Terms of Use</FooterLink>
+            <FooterLink to="/disclaimer">Disclaimer</FooterLink>
+          </LinkGroup>
+
         </MainGrid>
 
+        <Divider />
+
         <BottomBar>
-          <Copyright>© {new Date().getFullYear()} StreamHub. Designed for the big screen.</Copyright>
+          <Copyright>
+            © {new Date().getFullYear()} StreamHub. Metadata provided by{" "}
+            <DisclaimerHighlight>TMDB</DisclaimerHighlight>.
+            Not affiliated with TMDB, Netflix, or any content provider.
+          </Copyright>
           <LegalNav>
-            <LegalLink to="/PrivacyPolicy">Privacy</LegalLink>
-            <LegalLink to="/TermsOfService">Terms</LegalLink>
-            <LegalLink to="/cookies">Cookies</LegalLink>
+            <LegalLink to="/dmca">DMCA</LegalLink>
+            <Dot>•</Dot>
+            <LegalLink to="/privacy">Privacy</LegalLink>
+            <Dot>•</Dot>
+            <LegalLink to="/terms">Terms</LegalLink>
+            <Dot>•</Dot>
+            <LegalLink to="/disclaimer">Disclaimer</LegalLink>
+            <Dot>•</Dot>
+            <LegalLinkExternal href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">
+              Powered by TMDB
+            </LegalLinkExternal>
           </LegalNav>
         </BottomBar>
+
       </Inner>
     </FooterWrapper>
   );

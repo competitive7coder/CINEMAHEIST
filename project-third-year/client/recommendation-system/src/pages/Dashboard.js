@@ -34,26 +34,17 @@ const Dashboard = ({ setIsLoggedIn }) => {
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [currentVideoKey, setCurrentVideoKey] = useState(null);
   const [showAllRecommendations, setShowAllRecommendations] = useState(false);
+  const [recsLoaded, setRecsLoaded]   = useState(false);
+  const [recsLoading, setRecsLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [triggerDelete, setTriggerDelete] = useState(false);
 
   // ── Fetch helpers ────────────────────────────────────────────────────────────
   const fetchWatchlist = useCallback(async () => {
     try {
-      // /users/watchlist returns movie IDs — fetch full TMDB details for each
-      const idsRes = await api.get("/users/watchlist");
-      const ids = idsRes.data || [];
-      if (ids.length === 0) {
-        setWatchlistMovies([]);
-        return;
-      }
-      const results = await Promise.allSettled(
-        ids.map((id) => api.get(`/movies/details/${id}`)),
-      );
-      const movies = results
-        .filter((r) => r.status === "fulfilled")
-        .map((r) => r.value.data);
-      setWatchlistMovies(movies);
+      // ✅ Single call — returns full movie objects, no N individual calls
+      const res = await api.get("/users/watchlist/full");
+      setWatchlistMovies(res.data || []);
     } catch (error) {
       console.error("Watchlist fetch failed:", error);
     }
@@ -70,6 +61,24 @@ const Dashboard = ({ setIsLoggedIn }) => {
       setHistoryLoading(false);
     }
   }, []);
+
+  // ── Lazy load recommendations only when tab clicked ─────────────────────────
+  const fetchRecommendations = useCallback(async () => {
+    if (recsLoaded || recsLoading) return;
+    setRecsLoading(true);
+    try {
+      const res = await api.get("/movies/recommendations/user");
+      const unique = res.data.filter(
+        (m, i, self) => i === self.findIndex((x) => x.id === m.id),
+      );
+      setRecommendations(unique);
+      setRecsLoaded(true);
+    } catch (err) {
+      console.error("Recommendations fetch failed:", err);
+    } finally {
+      setRecsLoading(false);
+    }
+  }, [recsLoaded, recsLoading]);
 
   // ── Socket setup ─────────────────────────────────────────────────────────────
   // IMPORTANT: only connect AFTER the dashboard has finished loading.
@@ -162,7 +171,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
       try {
         const [userRes, watchlistRes] = await Promise.all([
           api.get("/users/me"),
-          api.get("/users/watchlist"),
+          api.get("/users/watchlist/full"),  // ✅ full movie objects in 1 call
         ]);
 
         setUserName(userRes.data.name || userRes.data.username || "");
@@ -171,25 +180,11 @@ const Dashboard = ({ setIsLoggedIn }) => {
         );
         setUserBio(userRes.data.bio || "");
 
-        const ids = watchlistRes.data || [];
-        if (ids.length > 0) {
-          const results = await Promise.allSettled(
-            ids.map((id) => api.get(`/movies/details/${id}`)),
-          );
-          const movies = results
-            .filter((r) => r.status === "fulfilled")
-            .map((r) => r.value.data);
-          setWatchlistMovies(movies);
-        }
+        // ✅ Full movie objects returned directly — no N individual calls
+        setWatchlistMovies(watchlistRes.data || []);
 
-        const recRes = await api.get("/movies/recommendations/user");
-        const unique = recRes.data.filter(
-          (movie, index, self) =>
-            index === self.findIndex((m) => m.id === movie.id),
-        );
-        setRecommendations(unique);
-
-        fetchHistory();
+        fetchHistory(); // background — doesn't block
+        // Recommendations load lazily when user clicks Discovery tab
       } catch (err) {
         console.error(err);
         toast.error("Failed loading dashboard");
@@ -322,6 +317,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
                 onClick={() => {
                   setActiveTab(item.id);
                   setSidebarOpen(false);
+                  if (item.id === "recommendations") fetchRecommendations();
                 }}
                 className={`nav-btn ${activeTab === item.id ? "active" : ""}`}
               >
@@ -426,39 +422,48 @@ const Dashboard = ({ setIsLoggedIn }) => {
             {/* ── RECOMMENDATIONS TAB ── */}
             {activeTab === "recommendations" && (
               <div className="fade-in-section">
-                {!showAllRecommendations ? (
-                  <MovieRow
-                    title="Tailored Discovery"
-                    movies={recommendations}
-                    onWatchTrailerClick={handleWatchTrailerClick}
-                    onSeeAllClick={() => setShowAllRecommendations(true)}
-                    onWatchlistClick={(m) =>
-                      watchlistMovies.some((w) => w.id === m.id)
-                        ? handleRemoveFromWatchlist(m)
-                        : handleAddToWatchlist(m)
-                    }
-                  />
-                ) : (
-                  <div className="movie-grid-refined">
-                    {recommendations.map((movie) => (
-                      <div key={movie.id} className="grid-item-refined">
-                        <MovieCard
-                          movie={movie}
-                          onWatchTrailerClick={() =>
-                            handleWatchTrailerClick(movie)
-                          }
-                          onWatchlistClick={() =>
-                            watchlistMovies.some((m) => m.id === movie.id)
-                              ? handleRemoveFromWatchlist(movie)
-                              : handleAddToWatchlist(movie)
-                          }
-                          isInWatchlist={watchlistMovies.some(
-                            (m) => m.id === movie.id,
-                          )}
-                        />
-                      </div>
-                    ))}
+                {recsLoading && (
+                  <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"5rem 0", gap:16 }}>
+                    <div style={{ width:42, height:42, border:"3px solid rgba(255,255,255,0.06)", borderTopColor:"#e50914", borderRadius:"50%", animation:"rec-spin 0.8s linear infinite" }} />
+                    <p style={{ color:"rgba(255,255,255,0.3)", fontFamily:"Poppins", fontSize:"0.82rem", margin:0 }}>Finding your perfect movies...</p>
+                    <style>{`@keyframes rec-spin { to { transform: rotate(360deg); } }`}</style>
                   </div>
+                )}
+                {recsLoaded && !recsLoading && (
+                  !showAllRecommendations ? (
+                    <MovieRow
+                      title="Tailored Discovery"
+                      movies={recommendations}
+                      onWatchTrailerClick={handleWatchTrailerClick}
+                      onSeeAllClick={() => setShowAllRecommendations(true)}
+                      onWatchlistClick={(m) =>
+                        watchlistMovies.some((w) => w.id === m.id)
+                          ? handleRemoveFromWatchlist(m)
+                          : handleAddToWatchlist(m)
+                      }
+                    />
+                  ) : (
+                    <div className="movie-grid-refined">
+                      {recommendations.map((movie) => (
+                        <div key={movie.id} className="grid-item-refined">
+                          <MovieCard
+                            movie={movie}
+                            onWatchTrailerClick={() =>
+                              handleWatchTrailerClick(movie)
+                            }
+                            onWatchlistClick={() =>
+                              watchlistMovies.some((m) => m.id === movie.id)
+                                ? handleRemoveFromWatchlist(movie)
+                                : handleAddToWatchlist(movie)
+                            }
+                            isInWatchlist={watchlistMovies.some(
+                              (m) => m.id === movie.id,
+                            )}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )
                 )}
               </div>
             )}

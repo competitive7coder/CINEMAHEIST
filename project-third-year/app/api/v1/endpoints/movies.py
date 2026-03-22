@@ -231,25 +231,50 @@ async def top_rated_movies(page: int = 1):
 
 
 # ---------------------------------------------------
-# MOVIE TRAILER
+# MOVIE TRAILER  (language-aware with fallback chain)
 # ---------------------------------------------------
 @router.get("/{movie_id}/videos")
-async def get_movie_videos(movie_id: int):
-
+async def get_movie_videos(
+    movie_id: int,
+    language: str = Query("en", description="Preferred trailer language, e.g. en, hi, ta, te"),
+):
     data = await fetch_tmdb(f"/movie/{movie_id}/videos")
+    videos = data.get("results", [])
 
-    trailer = next(
-        (
-            v for v in data.get("results", [])
-            if v.get("type") == "Trailer" and v.get("site") == "YouTube"
-        ),
-        None,
-    )
+    def pick_trailer(lang: str):
+        """Return best YouTube trailer for a given iso_639_1 language."""
+        return next(
+            (
+                v for v in videos
+                if v.get("type") == "Trailer"
+                and v.get("site") == "YouTube"
+                and v.get("iso_639_1") == lang
+            ),
+            None,
+        )
+
+    # 1️⃣  Try user-requested language first
+    trailer = pick_trailer(language)
+
+    # 2️⃣  Fallback → English trailer
+    if not trailer and language != "en":
+        trailer = pick_trailer("en")
+
+    # 3️⃣  Last resort → any YouTube trailer regardless of language
+    if not trailer:
+        trailer = next(
+            (v for v in videos if v.get("site") == "YouTube"),
+            None,
+        )
 
     if not trailer:
-        return {"key": None}
+        return {"key": None, "language": None}
 
-    return {"key": trailer["key"]}
+    return {
+        "key": trailer["key"],
+        "language": trailer.get("iso_639_1"),   # lets frontend know which lang was served
+        "name": trailer.get("name"),
+    }
 
 
 # ---------------------------------------------------

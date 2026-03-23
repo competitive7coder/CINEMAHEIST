@@ -178,7 +178,7 @@ const CSS = `
 `;
 
 const TICKER = [
-  "5-STAGE HYBRID ML ENGINE","21M INTERACTION LOGS","8,695 MOVIES",
+  "5-STAGE HYBRID ML ENGINE","21M INTERACTION LOGS","38,695 MOVIES",
  "ZERO SUBSCRIPTION","UNLOCK CINEMA'S HIDDEN GEMS",
   "STREAM FREE","AI-POWERED DISCOVERY",
 ];
@@ -272,7 +272,7 @@ export default function AboutUs() {
           <div className="ab-stats-g">
             {[
               { n:"21M+",  l:"Interaction Logs" },
-              { n:"8,695", l:"Movie Catalog"    },
+              { n:"38,695", l:"Movie Catalog"    },
               { n:"162K+", l:"Training Users"   },
               { n:"5",     l:"ML Stages"        },
             ].map((s, i) => (

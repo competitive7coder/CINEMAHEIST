@@ -13,9 +13,17 @@ project-third-year/client/recommendation-system/build/
 # Environment variables
 .env
 .env.local
+.env.development
+.env.production
+.env.development.local
+.env.production.local
 *.env
 app/.env
 project-third-year/app/.env
+
+# Auto-generated files
+public/sitemap.xml
+client/recommendation-system/public/sitemap.xml
 
 # Logs
 npm-debug.log*

@@ -8,6 +8,7 @@ from typing import Optional, AsyncGenerator
 from app.config import settings
 from app.models.user import User
 from app.security import get_current_user
+import datetime
 from app.ml.engine import get_recommendations
 from app.cache.redis import (
     get_cache, set_cache, delete_cache,
@@ -310,7 +311,7 @@ async def get_user_recommendations(
         raw_ts = current_user.watchlist_timestamps or {}
         watchlist_timestamps = {
             int(k): v for k, v in raw_ts.items()
-            if isinstance(v, __import__('datetime').datetime)
+            if isinstance(v, datetime.datetime)
         }
 
         recommendations = get_recommendations(
@@ -318,6 +319,8 @@ async def get_user_recommendations(
             user_id=user_id_str,
             watchlist_timestamps=watchlist_timestamps or None,
         )
+        print(f"[DEBUG] watchlist_ids sent to ML: {watchlist_ids}")
+        print(f"[DEBUG] ML returned: {[r['title'] for r in recommendations[:20]]}")
 
         if not recommendations:
             return []

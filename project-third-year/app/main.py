@@ -18,7 +18,8 @@ from dotenv import load_dotenv
 # Skip timeout for SSE + slow endpoints
 SKIP_TIMEOUT_PATHS = [
     "/homepage-sections/stream",   # SSE — streams forever by design
-    "/recommendations/user",        # ML engine — can take 15-20s on cold cache
+    "/recommendations/user",        # ML engine — slow on first run
+    "/watchlist/full",              # parallel TMDB calls — can be slow
 ]
 
 
@@ -183,9 +184,8 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://streamhub-research.vercel.app",
-        "http://localhost:3000",
-        "https://stream1hub.pages.dev",
+        "https://stream1hub.pages.dev",   # Cloudflare Pages deployment
+        "http://localhost:3000",           # local dev
     ],
     allow_credentials=True,
     allow_methods=["*"],
@@ -195,7 +195,7 @@ app.add_middleware(
 # ── Request timeout — registered before routes ───────────────────────────────
 @app.middleware("http")
 async def timeout_middleware(request: Request, call_next):
-    if any(request.url.path.endswith(p) for p in SKIP_TIMEOUT_PATHS):
+    if any(p in request.url.path for p in SKIP_TIMEOUT_PATHS):
         return await call_next(request)
     try:
         return await asyncio.wait_for(call_next(request), timeout=25.0)
@@ -204,6 +204,9 @@ async def timeout_middleware(request: Request, call_next):
             {"error": "Request timeout — please try again"},
             status_code=504
         )
+    except RuntimeError:
+        # Starlette middleware race condition — pass through safely
+        return await call_next(request)
 
 # ── Socket.IO mount ───────────────────────────────────────────────────────────
 socket_app = socketio.ASGIApp(sio, socketio_path="")

@@ -7,7 +7,7 @@ from app.models.user import User
 from app.security import get_current_user
 from app.schemas.user import UserOut
 from app.config import settings
-from app.cache.redis import get_cache, set_cache, MOVIE_DETAIL_TTL
+# Redis not used in users.py — watchlist/full always fetches fresh
 
 router = APIRouter()
 
@@ -94,25 +94,17 @@ async def remove_from_watchlist(
 # ---------------------------------------------------
 @router.get("/watchlist/full")
 async def get_watchlist_full(current_user: User = Depends(get_current_user)):
-    import asyncio
-    import httpx
-    from app.config import settings
-    from app.cache.redis import get_cache, set_cache, MOVIE_DETAIL_TTL
-
     ids = current_user.watchlist or []
     if not ids:
         return []
 
-    # Cap at 20 — prevents 500 parallel TMDB calls on huge watchlists
-    ids = ids[:20]
+    # Cap at 50 — prevents runaway parallel TMDB calls
+    ids = ids[:50]
 
     TMDB_BASE = "https://api.themoviedb.org/3"
 
     async def fetch_one(movie_id: int, client: httpx.AsyncClient):
-        cache_key = f"movie:details:{movie_id}"
-        cached = await get_cache(cache_key)
-        if cached:
-            return cached
+        # Always fetch fresh — no Redis cache to avoid stale data
         try:
             res = await client.get(
                 f"{TMDB_BASE}/movie/{movie_id}",
@@ -123,14 +115,13 @@ async def get_watchlist_full(current_user: User = Depends(get_current_user)):
                 return None
             data = res.json()
             if data.get("title") and data.get("poster_path"):
-                await set_cache(cache_key, data, MOVIE_DETAIL_TTL)
                 return data
             return None
         except Exception:
             return None
 
     # Fetch ALL in parallel with one shared httpx client
-    async with httpx.AsyncClient(timeout=15.0) as client:
+    async with httpx.AsyncClient(timeout=20.0) as client:
         results = await asyncio.gather(
             *[fetch_one(mid, client) for mid in ids],
             return_exceptions=True

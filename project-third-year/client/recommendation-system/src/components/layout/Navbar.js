@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import styled, { keyframes, css } from 'styled-components';
+
 import {
     FaSearch, FaUser, FaFistRaised, FaCompass, FaSmile,
     FaLaugh, FaUserSecret, FaTheaterMasks, FaGhost,
     FaHeart, FaRocket, FaEye, FaTimes, FaBars,
     FaSignOutAlt, FaTachometerAlt, FaChevronDown,
 } from "react-icons/fa";
+
+const NAV_FONTS = `@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400&display=swap');`;
 
 const fadeSlideDown = keyframes`
   from { opacity: 0; transform: translateY(-8px); }
@@ -18,62 +21,49 @@ const fadeIn = keyframes`
   to   { opacity: 1; }
 `;
 
-const glowPulse = keyframes`
-  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 0, 0, 0); }
-  50%       { box-shadow: 0 0 12px 2px rgba(255, 0, 0, 0.15); }
-`;
-
 const Nav = styled.nav`
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 1000;
-  height: 68px;
+  height: 64px;
   display: flex;
   align-items: center;
-  padding: 0 40px;
-  font-family: 'Poppins', sans-serif;
+  padding: 0 48px;
   transform: translateY(${({ $visible }) => $visible ? '0' : '-100%'});
   transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
               background 0.4s ease,
               box-shadow 0.4s ease;
 
   ${({ $scrolled }) => $scrolled ? css`
-    background: rgba(5, 5, 5, 0.97);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    box-shadow: 0 1px 0 rgba(255,255,255,0.04), 0 4px 30px rgba(0,0,0,0.6);
+    background: rgba(4, 4, 4, 0.96);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
   ` : css`
-    background: linear-gradient(to bottom, rgba(0,0,0,0.75) 0%, transparent 100%);
+    background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
     box-shadow: none;
   `}
 
-  @media (max-width: 768px) { padding: 0 18px; }
+  @media (max-width: 768px) { padding: 0 20px; }
 `;
 
 const Brand = styled(Link)`
   display: flex;
   align-items: center;
-  gap: 8px;
   text-decoration: none;
   flex-shrink: 0;
 
-  .brand-icon {
-    width: 32px; height: 32px;
-    background: #ff0000;
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px;
-    animation: ${glowPulse} 4s infinite;
-  }
-
   .brand-name {
-    font-size: 1.25rem;
-    font-weight: 900;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.65rem;
+    font-weight: 400;
     color: #fff;
-    letter-spacing: -0.5px;
-    span { color: #ff0000; }
+    letter-spacing: 0.08em;
+    line-height: 1;
+    span { color: #e50914; }
   }
 `;
 
@@ -93,23 +83,40 @@ const NavItem = styled.li`position: relative;`;
 const navLinkStyle = css`
   display: flex;
   align-items: center;
-  gap: 5px;
-  padding: 8px 14px;
-  color: rgba(255,255,255,0.7);
+  gap: 6px;
+  padding: 6px 12px;
+  color: rgba(255,255,255,0.6);
   text-decoration: none;
-  font-size: 0.82rem;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  border-radius: 10px;
-  transition: all 0.2s ease;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-radius: 0;
+  transition: color 0.2s ease;
   cursor: pointer;
   background: none;
   border: none;
-  font-family: 'Poppins', sans-serif;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; left: 12px; right: 12px;
+    height: 1px;
+    background: #e50914;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.25s ease;
+  }
 
   &:hover, &.active {
     color: #fff;
-    background: rgba(255,255,255,0.07);
+    background: none;
+  }
+
+  &:hover::after, &.active::after {
+    transform: scaleX(1);
   }
 `;
 
@@ -118,13 +125,13 @@ const NavButton = styled.button`${navLinkStyle}`;
 
 const MegaDropdown = styled.div`
   position: fixed;
-  top: 68px; left: 0; right: 0;
-  background: rgba(8, 8, 8, 0.98);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(255,255,255,0.05);
+  top: 64px; left: 0; right: 0;
+  background: rgba(4, 4, 4, 0.98);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 1px solid rgba(229,9,20,0.3);
   border-bottom: 1px solid rgba(255,255,255,0.05);
-  padding: 28px 60px;
+  padding: 32px 60px;
   z-index: 999;
   animation: ${fadeSlideDown} 0.22s ease;
   display: ${({ $open }) => $open ? 'block' : 'none'};
@@ -141,9 +148,10 @@ const GenreGrid = styled.div`
 `;
 
 const GenreLabel = styled.p`
+  font-family: 'JetBrains Mono', monospace;
   font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 2px;
+  font-weight: 400;
+  letter-spacing: 0.3em;
   color: #ff0000;
   text-transform: uppercase;
   margin-bottom: 16px;
@@ -155,21 +163,20 @@ const GenreLink = styled(Link)`
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
-  border-radius: 10px;
   text-decoration: none;
-  color: rgba(255,255,255,0.65);
-  font-size: 0.82rem;
-  font-weight: 500;
+  color: rgba(255,255,255,0.5);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   transition: all 0.2s ease;
-  border: 1px solid transparent;
+  border-bottom: 1px solid transparent;
 
-  .icon { font-size: 14px; opacity: 0.8; }
+  .icon { font-size: 13px; opacity: 0.8; }
 
   &:hover {
     color: #fff;
-    background: rgba(255,255,255,0.06);
-    border-color: rgba(255,255,255,0.08);
-    transform: translateY(-1px);
+    border-bottom-color: #e50914;
   }
 `;
 
@@ -189,23 +196,23 @@ const SearchWrapper = styled.form`
 `;
 
 const SearchInput = styled.input`
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 10px;
-  padding: 8px 40px 8px 14px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+  border-radius: 0;
+  padding: 6px 36px 6px 4px;
   color: #fff;
-  font-size: 0.82rem;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
   outline: none;
   transition: all 0.3s ease;
-  width: 160px;
+  width: 140px;
 
-  &::placeholder { color: rgba(255,255,255,0.3); }
+  &::placeholder { color: rgba(255,255,255,0.25); }
   &:focus {
-    border-color: rgba(255,0,0,0.4);
-    background: rgba(255,255,255,0.09);
-    box-shadow: 0 0 0 3px rgba(255,0,0,0.06);
-    width: 240px;
+    border-bottom-color: #e50914;
+    width: 200px;
   }
 `;
 
@@ -225,38 +232,41 @@ const SearchBtn = styled.button`
 `;
 
 const LoginBtn = styled(Link)`
-  padding: 8px 18px;
-  border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 10px;
-  color: rgba(255,255,255,0.8);
+  padding: 7px 16px;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 2px;
+  color: rgba(255,255,255,0.65);
   text-decoration: none;
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 400;
   transition: all 0.2s ease;
 
   &:hover {
-    border-color: rgba(255,255,255,0.5);
+    border-color: rgba(255,255,255,0.4);
     color: #fff;
-    background: rgba(255,255,255,0.06);
   }
 
   @media (max-width: 992px) { display: none; }
 `;
 
 const SignupBtn = styled(Link)`
-  padding: 8px 18px;
-  background: #ff0000;
-  border-radius: 10px;
+  padding: 7px 16px;
+  background: #e50914;
+  border-radius: 2px;
   color: #fff;
   text-decoration: none;
-  font-size: 0.82rem;
-  font-weight: 700;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 400;
   transition: all 0.2s ease;
 
   &:hover {
-    background: #e00;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 15px rgba(255,0,0,0.3);
+    background: #bf0710;
   }
 
   @media (max-width: 992px) { display: none; }
@@ -273,29 +283,30 @@ const UserBtn = styled.button`
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 7px 14px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 10px;
-  color: #fff;
+  padding: 6px 12px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.7);
   cursor: pointer;
-  font-size: 0.82rem;
-  font-weight: 600;
-  font-family: 'Poppins', sans-serif;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
   transition: all 0.2s ease;
 
   .avatar {
-    width: 26px; height: 26px;
-    background: #ff0000;
-    border-radius: 6px;
+    width: 22px; height: 22px;
+    background: #e50914;
+    border-radius: 2px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 12px;
+    font-size: 10px;
     flex-shrink: 0;
   }
 
   &:hover {
-    background: rgba(255,255,255,0.1);
-    border-color: rgba(255,255,255,0.2);
+    color: #fff;
+    border-bottom-color: #e50914;
   }
 `;
 
@@ -484,10 +495,10 @@ const MobileSearchForm = styled.form`
 `;
 
 const MobileSectionLabel = styled.p`
-  font-family: 'Poppins', sans-serif;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 2px;
+  font-weight: 400;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
   color: rgba(255,255,255,0.25);
   padding: 16px 24px 8px;
@@ -715,11 +726,11 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
 
   return (
     <>
+      <style>{NAV_FONTS}</style>
       <Nav $scrolled={scrolled} $visible={visible}>
 
         <Brand to={isLoggedIn ? "/home" : "/"}>
-          <div className="brand-icon">🎬</div>
-          <span className="brand-name">Stream<span>Hub</span></span>
+          <span className="brand-name">STREAM<span>HUB</span></span>
         </Brand>
 
         <DesktopLinks>
@@ -782,9 +793,6 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
                   <DropdownItem to="/dashboard" onClick={() => setUserOpen(false)}>
                     <FaTachometerAlt /> Dashboard
                   </DropdownItem>
-                  <DropdownItem to="/profile" onClick={() => setUserOpen(false)}>
-                    <FaUser /> Profile
-                  </DropdownItem>
                   <DropdownDivider />
                   <LogoutItem onClick={handleLogout}>
                     <FaSignOutAlt /> Sign Out
@@ -813,8 +821,7 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
           {/* Header */}
           <MobileMenuHeader>
             <Brand to={isLoggedIn ? "/home" : "/"} onClick={closeMobile}>
-              <div className="brand-icon">🎬</div>
-              <span className="brand-name">Stream<span>Hub</span></span>
+              <span className="brand-name">STREAM<span>HUB</span></span>
             </Brand>
             <MobileMenuClose onClick={closeMobile}>
               <FaTimes />
@@ -881,9 +888,7 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
                 <MobileActionLink to="/dashboard" onClick={closeMobile}>
                   <FaTachometerAlt /> Dashboard
                 </MobileActionLink>
-                <MobileActionLink to="/profile" onClick={closeMobile}>
-                  <FaUser /> Profile
-                </MobileActionLink>
+
                 <MobileLogoutBtn onClick={handleLogout}>
                   <FaSignOutAlt /> Sign Out
                 </MobileLogoutBtn>

@@ -1,11 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import styled, { keyframes } from "styled-components";
+import styled from "styled-components";
 
-const glow = keyframes`
-  0%, 100% { text-shadow: 0 0 10px rgba(229, 9, 20, 0.5); }
-  50% { text-shadow: 0 0 20px rgba(229, 9, 20, 0.8), 0 0 30px rgba(229, 9, 20, 0.4); }
-`;
+const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400&family=Libre+Baskerville:ital,wght@0,400;1,400&display=swap');`;
+
 
 const FooterWrapper = styled.footer`
   background: linear-gradient(to top, #000000, #080808);
@@ -48,23 +46,25 @@ const BrandSection = styled.div`
 
 const BrandName = styled(Link)`
   text-decoration: none;
-  font-size: 2rem;
-  font-weight: 900;
-  letter-spacing: -1.5px;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
   color: #fff;
   white-space: nowrap;
   transition: all 0.3s ease;
-  span { color: #e50914; animation: ${glow} 3s ease-in-out infinite; }
-  &:hover { transform: scale(1.02); }
+  span { color: #e50914; }
+  &:hover { opacity: 0.85; }
 `;
 
 const Disclaimer = styled.p`
+  font-family: 'Libre Baskerville', serif;
   font-size: 0.78rem;
-  color: rgba(255, 255, 255, 0.22);
+  color: rgba(242, 237, 228, 0.3);
   line-height: 1.75;
   max-width: 340px;
   margin: 0;
-  font-weight: 300;
+  font-weight: 400;
 `;
 
 const DisclaimerHighlight = styled.span`
@@ -103,32 +103,35 @@ const LinkGroup = styled.div`
 `;
 
 const GroupTitle = styled.h6`
-  font-size: 0.72rem;
-  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 400;
   text-transform: uppercase;
-  letter-spacing: 2px;
+  letter-spacing: 0.3em;
   color: #fff;
   margin-bottom: 8px;
   position: relative;
+  padding-bottom: 1rem;
   &::after {
     content: '';
     position: absolute;
-    left: 0; bottom: -6px;
-    width: 18px; height: 2px;
+    left: 0; bottom: 0;
+    width: 20px; height: 1px;
     background: #e50914;
   }
 `;
 
 const FooterLink = styled(Link)`
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.35);
+  font-family: 'Libre Baskerville', serif;
+  font-size: 0.82rem;
+  color: rgba(242, 237, 228, 0.4);
   text-decoration: none;
   transition: all 0.25s ease;
   width: fit-content;
   display: flex;
   align-items: center;
   gap: 6px;
-  &:hover { color: #fff; padding-left: 6px; }
+  &:hover { color: rgba(242,237,228,0.9); padding-left: 6px; }
 `;
 
 const LegalBadge = styled.span`
@@ -159,8 +162,10 @@ const BottomBar = styled.div`
 `;
 
 const Copyright = styled.p`
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.18);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  color: rgba(242, 237, 228, 0.18);
   margin: 0;
   font-weight: 300;
   line-height: 1.6;
@@ -176,19 +181,23 @@ const LegalNav = styled.nav`
 `;
 
 const LegalLink = styled(Link)`
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.22);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  color: rgba(242, 237, 228, 0.2);
   text-decoration: none;
   transition: color 0.25s ease;
-  &:hover { color: rgba(255,255,255,0.7); }
+  &:hover { color: #e50914; }
 `;
 
 const LegalLinkExternal = styled.a`
-  font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.22);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  color: rgba(242, 237, 228, 0.2);
   text-decoration: none;
   transition: color 0.25s ease;
-  &:hover { color: rgba(255,255,255,0.7); }
+  &:hover { color: #e50914; }
 `;
 
 const Dot = styled.span`
@@ -198,13 +207,15 @@ const Dot = styled.span`
 
 const Footer = () => {
   return (
+    <>
+      <style>{FONTS}</style>
     <FooterWrapper>
       <Inner>
         <MainGrid>
 
           {/* Brand + Legal Disclaimer */}
           <BrandSection>
-            <BrandName to="/">🎬 Stream<span>Hub</span></BrandName>
+            <BrandName to="/">STREAM<span>HUB</span></BrandName>
             <Disclaimer>
               StreamHub does not host, upload, or store any video content.
               All streams are served by{" "}
@@ -224,10 +235,10 @@ const Footer = () => {
           {/* Browse */}
           <LinkGroup>
             <GroupTitle>Browse</GroupTitle>
-            <FooterLink to="/home">Home</FooterLink>
-            <FooterLink to="/home">Trending</FooterLink>
-            <FooterLink to="/dashboard">My Recommendations</FooterLink>
-            <FooterLink to="/search">Search Movies</FooterLink>
+            <FooterLink to="/">Home</FooterLink>
+            <FooterLink to="/popular">Trending</FooterLink>
+            <FooterLink to="/watchlist">My Watchlist</FooterLink>
+            <FooterLink to="/profile">Profile</FooterLink>
             <FooterLink to="/faq">FAQ</FooterLink>
             <FooterLink to="/contact">Contact Us</FooterLink>
           </LinkGroup>
@@ -270,6 +281,7 @@ const Footer = () => {
 
       </Inner>
     </FooterWrapper>
+    </>
   );
 };
 

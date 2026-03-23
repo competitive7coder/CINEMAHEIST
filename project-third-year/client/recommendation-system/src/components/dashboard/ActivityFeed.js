@@ -21,12 +21,12 @@ const ActivityFeed = ({ history, loading, onClearHistory }) => {
     let icon = "";
 
     switch (activity.action_type) {
-      case "watchlist_add":
+      case "added_to_watchlist":
         actionText = `Added "${activity.movie_title}" to watchlist`;
         icon = "bi-bookmark-plus-fill text-success";
         break;
 
-      case "watchlist_remove":
+      case "removed_from_watchlist":
         actionText = `Removed "${activity.movie_title}" from watchlist`;
         icon = "bi-bookmark-dash-fill text-danger";
         break;
@@ -34,6 +34,11 @@ const ActivityFeed = ({ history, loading, onClearHistory }) => {
       case "trailer_watch":
         actionText = `Watched trailer for "${activity.movie_title}"`;
         icon = "bi-play-circle-fill text-primary";
+        break;
+
+      case "search_click":
+        actionText = `Viewed "${activity.movie_title}"`;
+        icon = "bi-eye-fill text-info";
         break;
 
       default:

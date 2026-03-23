@@ -224,7 +224,7 @@ export default function AboutUs() {
         {/* HERO */}
         <section className="ab-hero">
           <div className="ab-hero-l">
-            <span className="ab-issue">EST. 2025 · STREAMHUB · VOL. I</span>
+            <span className="ab-issue">EST. 2026· STREAMHUB · VOL. I</span>
             <h1 className="ab-hero-h1">
               CINEMA<br /><span className="r">RE</span>DEFINED
             </h1>

@@ -185,6 +185,7 @@ app.add_middleware(
     allow_origins=[
         "https://streamhub-research.vercel.app",
         "http://localhost:3000",
+        "https://stream1hub.pages.dev",
     ],
     allow_credentials=True,
     allow_methods=["*"],

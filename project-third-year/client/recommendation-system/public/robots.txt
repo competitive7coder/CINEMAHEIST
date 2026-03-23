@@ -11,11 +11,14 @@ Allow: /disclaimer
 Allow: /contact
 Allow: /about
 
-# Block private pages
+# Block private/user pages
 Disallow: /dashboard
 Disallow: /watchlist
 Disallow: /profile
 Disallow: /settings
 Disallow: /api/
 
-Sitemap: https://streamhub-research.vercel.app/sitemap.xml
+# Block query strings (prevent duplicate content)
+Disallow: /*?*
+
+Sitemap: https://stream1hub.pages.dev/sitemap.xml

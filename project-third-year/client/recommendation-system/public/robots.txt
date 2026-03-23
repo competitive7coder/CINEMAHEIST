@@ -2,7 +2,10 @@ User-agent: *
 Allow: /
 Allow: /movie/
 Allow: /search
+Allow: /search?q=
 Allow: /popular
+Allow: /genre/
+Allow: /home
 Allow: /faq
 Allow: /dmca
 Allow: /privacy
@@ -17,8 +20,5 @@ Disallow: /watchlist
 Disallow: /profile
 Disallow: /settings
 Disallow: /api/
-
-# Block query strings (prevent duplicate content)
-Disallow: /*?*
 
 Sitemap: https://stream1hub.pages.dev/sitemap.xml

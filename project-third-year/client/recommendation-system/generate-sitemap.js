@@ -50,16 +50,27 @@ const BATCH_SIZE   = 20;  // fetch 20 pages at a time (safe rate limit)
 
 // Static pages
 const STATIC_URLS = [
-  { loc: "/",           changefreq: "daily",   priority: "1.0" },
-  { loc: "/popular",    changefreq: "daily",   priority: "0.9" },
-  { loc: "/search",     changefreq: "weekly",  priority: "0.8" },
-  { loc: "/faq",        changefreq: "monthly", priority: "0.6" },
-  { loc: "/contact",    changefreq: "monthly", priority: "0.5" },
-  { loc: "/about",      changefreq: "monthly", priority: "0.5" },
-  { loc: "/dmca",       changefreq: "yearly",  priority: "0.4" },
-  { loc: "/privacy",    changefreq: "yearly",  priority: "0.4" },
-  { loc: "/terms",      changefreq: "yearly",  priority: "0.4" },
-  { loc: "/disclaimer", changefreq: "yearly",  priority: "0.4" },
+  { loc: "/",             changefreq: "daily",   priority: "1.0" },
+  { loc: "/popular",      changefreq: "daily",   priority: "0.9" },
+  { loc: "/search",       changefreq: "weekly",  priority: "0.8" },
+  // Genre pages — high value for SEO
+  { loc: "/genre/28",     changefreq: "daily",   priority: "0.85" }, // Action
+  { loc: "/genre/12",     changefreq: "daily",   priority: "0.85" }, // Adventure
+  { loc: "/genre/16",     changefreq: "daily",   priority: "0.85" }, // Animation
+  { loc: "/genre/35",     changefreq: "daily",   priority: "0.85" }, // Comedy
+  { loc: "/genre/80",     changefreq: "daily",   priority: "0.85" }, // Crime
+  { loc: "/genre/18",     changefreq: "daily",   priority: "0.85" }, // Drama
+  { loc: "/genre/27",     changefreq: "daily",   priority: "0.85" }, // Horror
+  { loc: "/genre/10749",  changefreq: "daily",   priority: "0.85" }, // Romance
+  { loc: "/genre/878",    changefreq: "daily",   priority: "0.85" }, // Sci-Fi
+  { loc: "/genre/53",     changefreq: "daily",   priority: "0.85" }, // Thriller
+  { loc: "/faq",          changefreq: "monthly", priority: "0.6" },
+  { loc: "/contact",      changefreq: "monthly", priority: "0.5" },
+  { loc: "/about",        changefreq: "monthly", priority: "0.5" },
+  { loc: "/dmca",         changefreq: "yearly",  priority: "0.4" },
+  { loc: "/privacy",      changefreq: "yearly",  priority: "0.4" },
+  { loc: "/terms",        changefreq: "yearly",  priority: "0.4" },
+  { loc: "/disclaimer",   changefreq: "yearly",  priority: "0.4" },
 ];
 
 // ─── Helpers ───────────────────────────────────

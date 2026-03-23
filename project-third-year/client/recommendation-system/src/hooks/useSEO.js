@@ -123,12 +123,15 @@ const useSEO = ({
     setCanonical(fullUrl);
 
     // Open Graph
-    setMeta('meta[property="og:title"]',       fullTitle);
-    setMeta('meta[property="og:description"]', fullDescription);
-    setMeta('meta[property="og:image"]',       fullImage);
-    setMeta('meta[property="og:url"]',         fullUrl);
-    setMeta('meta[property="og:type"]',        type);
-    setMeta('meta[property="og:site_name"]',   SITE_NAME);
+    setMeta('meta[property="og:title"]',        fullTitle);
+    setMeta('meta[property="og:description"]',  fullDescription);
+    setMeta('meta[property="og:image"]',        fullImage);
+    setMeta('meta[property="og:image:alt"]',    title || SITE_NAME);
+    setMeta('meta[property="og:image:width"]',  "1200");
+    setMeta('meta[property="og:image:height"]', "630");
+    setMeta('meta[property="og:url"]',          fullUrl);
+    setMeta('meta[property="og:type"]',         type);
+    setMeta('meta[property="og:site_name"]',    SITE_NAME);
 
     // Twitter
     setMeta('meta[name="twitter:title"]',       fullTitle);
@@ -162,11 +165,14 @@ const useSEO = ({
       document.title = `${SITE_NAME} — Watch Movies Online Free`;
       setMeta('meta[name="description"]', "Watch movies online free with AI-powered recommendations.");
       setCanonical(BASE_URL);
-      setMeta('meta[property="og:title"]',       `${SITE_NAME} — Watch Movies Online Free`);
-      setMeta('meta[property="og:description"]', "Watch movies online free with AI-powered recommendations.");
-      setMeta('meta[property="og:image"]',       DEFAULT_IMAGE);
-      setMeta('meta[property="og:url"]',         BASE_URL);
-      setMeta('meta[property="og:type"]',        "website");
+      setMeta('meta[property="og:title"]',        `${SITE_NAME} — Watch Movies Online Free`);
+      setMeta('meta[property="og:description"]',  "Watch movies online free with AI-powered recommendations.");
+      setMeta('meta[property="og:image"]',        DEFAULT_IMAGE);
+      setMeta('meta[property="og:image:alt"]',    SITE_NAME);
+      setMeta('meta[property="og:image:width"]',  "1200");
+      setMeta('meta[property="og:image:height"]', "630");
+      setMeta('meta[property="og:url"]',          BASE_URL);
+      setMeta('meta[property="og:type"]',         "website");
     };
 }, [title, description, image, url, type, movie]);
 };

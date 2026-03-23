@@ -98,7 +98,7 @@ const SearchPage = () => {
   const handleWatchlistClick = async (movie) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("Please log in.");
+      toast.error("Please log in to manage your watchlist.");
       return;
     }
     const alreadyAdded = watchlistIds.includes(movie.id);
@@ -106,12 +106,14 @@ const SearchPage = () => {
       if (alreadyAdded) {
         await api.delete(`/users/watchlist/${movie.id}`);
         setWatchlistIds(prev => prev.filter(id => id !== movie.id));
+        toast.info(`Removed "${movie.title}" from watchlist`);
       } else {
         await api.post(`/users/watchlist/${movie.id}`, {});
         setWatchlistIds(prev => [...prev, movie.id]);
+        toast.success(`Added "${movie.title}" to watchlist`);
       }
     } catch (err) {
-      toast.error("Update failed.");
+      toast.error("Update failed. Please try again.");
     }
   };
 

@@ -27,9 +27,25 @@ const ContactUs = () => {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     let animId;
-    const resize = () => { canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight; };
-    resize();
-    window.addEventListener("resize", resize);
+
+    // ✅ FIX: Use ResizeObserver instead of window resize + offsetWidth/offsetHeight.
+    // ResizeObserver gives us the size via its callback entry (no layout read = no forced reflow).
+    // Debounced so rapid resize events don't thrash the canvas.
+    let resizeTimer;
+    const ro = new ResizeObserver((entries) => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        const entry = entries[0];
+        canvas.width = entry.contentRect.width;
+        canvas.height = entry.contentRect.height;
+      }, 100);
+    });
+    ro.observe(canvas);
+
+    // Set initial size from ResizeObserver's first entry synchronously
+    canvas.width = canvas.getBoundingClientRect().width;
+    canvas.height = canvas.getBoundingClientRect().height;
+
     const particles = Array.from({ length: 40 }, () => ({
       x: Math.random() * canvas.width, y: Math.random() * canvas.height,
       r: Math.random() * 1.5 + 0.3,
@@ -50,7 +66,11 @@ const ContactUs = () => {
       animId = requestAnimationFrame(draw);
     };
     draw();
-    return () => { cancelAnimationFrame(animId); window.removeEventListener("resize", resize); };
+    return () => {
+      cancelAnimationFrame(animId);
+      clearTimeout(resizeTimer);
+      ro.disconnect();
+    };
   }, []);
 
   const handleChange = (e) => {
@@ -62,7 +82,6 @@ const ContactUs = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      // ✅ Fixed: was /feedback, now /feedback/send
       const response = await api.post("/feedback/send", formData);
       toast.success(response.data.msg || "Message sent successfully!");
       setSent(true);

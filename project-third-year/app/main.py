@@ -7,6 +7,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 from app.socket_manager import sio
 from app.config import settings
 from app.db.base import init_db
@@ -176,6 +179,11 @@ app = FastAPI(
 )
 
 print("FRONTEND_URL:", FRONTEND_URL)
+
+# ── Rate Limiting — blocks abuse & bot scraping ───────────────────────────────
+limiter = Limiter(key_func=get_remote_address, default_limits=["500/minute", "2000/hour"])
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # ── Step 1: GZip compression — shrinks responses by 60-80% ──────────────────
 app.add_middleware(GZipMiddleware, minimum_size=1000)

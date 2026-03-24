@@ -5,6 +5,7 @@ import socketio
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 from slowapi import Limiter, _rate_limit_exceeded_handler
@@ -188,6 +189,17 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 # ── Step 1: GZip compression — shrinks responses by 60-80% ──────────────────
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
+# ── Step 2: Trusted Host — blocks fake/spoofed Host header attacks ────────────
+app.add_middleware(
+    TrustedHostMiddleware,
+    allowed_hosts=[
+        "streamhub-research.onrender.com",  # production
+        "*.onrender.com",                    # Render internal health checks
+        "localhost",                         # local dev
+        "127.0.0.1",                         # local dev
+    ]
+)
+
 # ── Step 3: Register CORS middleware ─────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
@@ -199,6 +211,39 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# ── Request size limit — blocks oversized payloads (max 1MB) ─────────────────
+@app.middleware("http")
+async def limit_request_size(request: Request, call_next):
+    content_length = request.headers.get("content-length")
+    if content_length:
+        size = int(content_length)
+        # Allow 5MB for profile picture uploads
+        if "/profile" in request.url.path or "/upload" in request.url.path:
+            if size > 5_000_000:  # 5MB
+                return JSONResponse(
+                    {"error": "Image too large — max 5MB allowed"},
+                    status_code=413
+                )
+        # Everything else max 1MB
+        elif size > 1_000_000:
+            return JSONResponse(
+                {"error": "Request too large — max 1MB allowed"},
+                status_code=413
+            )
+    return await call_next(request)
+
+
+
+# ── Security headers — hides server info, hardens API responses ──────────────
+@app.middleware("http")
+async def security_headers_middleware(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    response.headers["server"] = ""  # hide server info
+    return response
 
 # ── Request timeout — registered before routes ───────────────────────────────
 @app.middleware("http")

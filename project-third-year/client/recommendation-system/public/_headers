@@ -1,0 +1,39 @@
+# Cache static assets for 1 year
+/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Cache images for 1 year
+/*.jpg
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.png
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.ico
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.webp
+  Cache-Control: public, max-age=31536000, immutable
+
+# Cache fonts for 1 year
+/*.woff2
+  Cache-Control: public, max-age=31536000, immutable
+
+/*.woff
+  Cache-Control: public, max-age=31536000, immutable
+
+# Cache sitemap for 1 day
+/sitemap.xml
+  Cache-Control: public, max-age=86400
+
+# Cache robots.txt for 1 week
+/robots.txt
+  Cache-Control: public, max-age=604800
+
+# Never cache HTML (so updates show immediately)
+/*.html
+  Cache-Control: no-cache, no-store, must-revalidate
+
+# Never cache service worker
+/service-worker.js
+  Cache-Control: no-cache, no-store, must-revalidate

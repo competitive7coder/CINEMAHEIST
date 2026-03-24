@@ -14,7 +14,7 @@ const MovieCard = ({
   const [showWatchModal, setShowWatchModal] = useState(false);
 
   const posterUrl = movie.poster_path
-    ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+    ? `https://image.tmdb.org/t/p/w342${movie.poster_path}`
     : "https://placehold.co/200x300?text=No+Image";
 
   const year = movie.release_date

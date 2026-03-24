@@ -11,46 +11,54 @@ import useSEO from "../hooks/useSEO";
 const MovieDetailPage = () => {
   const { movieId } = useParams();
 
-  const [movie, setMovie]                             = useState(null);
-  const [relatedMovies, setRelatedMovies]             = useState([]);
-  const [loading, setLoading]                         = useState(true);
-  const [showVideoModal, setShowVideoModal]           = useState(false);
-  const [videoKey, setVideoKey]                       = useState(null);
-  const [showWatchModal, setShowWatchModal]           = useState(false);
-const [visibleRelatedCount, setVisibleRelatedCount] = useState(20);
-  const [isInWatchlist, setIsInWatchlist]             = useState(false);
-  const [watchlistIds, setWatchlistIds]               = useState([]);
+  const [movie, setMovie] = useState(null);
+  const [relatedMovies, setRelatedMovies] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showVideoModal, setShowVideoModal] = useState(false);
+  const [videoKey, setVideoKey] = useState(null);
+  const [showWatchModal, setShowWatchModal] = useState(false);
+  const [visibleRelatedCount, setVisibleRelatedCount] = useState(20);
+  const [isInWatchlist, setIsInWatchlist] = useState(false);
+  const [watchlistIds, setWatchlistIds] = useState([]);
 
   // ── Dynamic SEO per movie ──
   useSEO({
-    title: movie ? `${movie.title} (${movie.release_date?.split("-")[0] || ""})` : "Watch Movie",
+    title: movie
+      ? `${movie.title} (${movie.release_date?.split("-")[0] || ""})`
+      : "Watch Movie",
     description: movie
       ? `Watch ${movie.title} online free on StreamHub. ${movie.overview?.slice(0, 120)}...`
       : "Watch movies online free on StreamHub.",
     image: movie?.backdrop_path
       ? `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`
       : movie?.poster_path
-      ? `https://image.tmdb.org/t/p/w780${movie.poster_path}`
-      : null,
+        ? `https://image.tmdb.org/t/p/w780${movie.poster_path}`
+        : null,
     url: movie ? `/movie/${movie.id}` : null,
     type: "video.movie",
-    structuredData: movie ? {
-      "@context": "https://schema.org",
-      "@type": "Movie",
-      "name": movie.title,
-      "description": movie.overview,
-      "datePublished": movie.release_date,
-      "image": movie.poster_path ? `https://image.tmdb.org/t/p/w780${movie.poster_path}` : null,
-      "aggregateRating": movie.vote_average ? {
-        "@type": "AggregateRating",
-        "ratingValue": movie.vote_average.toFixed(1),
-        "ratingCount": movie.vote_count,
-        "bestRating": "10",
-        "worstRating": "1"
-      } : undefined,
-      "genre": movie.genres?.map(g => g.name),
-      "url": `https://streamhub-research.vercel.app/movie/${movie.id}`
-    } : null,
+    structuredData: movie
+      ? {
+          "@context": "https://schema.org",
+          "@type": "Movie",
+          name: movie.title,
+          description: movie.overview,
+          datePublished: movie.release_date,
+          image: movie.poster_path
+            ? `https://image.tmdb.org/t/p/w780${movie.poster_path}`
+            : null,
+          aggregateRating: movie.vote_average
+            ? {
+                "@type": "AggregateRating",
+                ratingValue: movie.vote_average.toFixed(1),
+                ratingCount: movie.vote_count,
+                bestRating: "10",
+                worstRating: "1",
+              }
+            : undefined,
+          genre: movie.genres?.map((g) => g.name),
+          url: `https://streamhub-research.vercel.app/movie/${movie.id}`,
+        }
+      : null,
   });
 
   const logActivity = async (movieData, actionType) => {
@@ -58,12 +66,14 @@ const [visibleRelatedCount, setVisibleRelatedCount] = useState(20);
     if (!token) return;
     try {
       await api.post("/activity/log", {
-        movie_id:          movieData.id,
-        action_type:       actionType,
-        movie_title:       movieData.title       || "Unknown",
+        movie_id: movieData.id,
+        action_type: actionType,
+        movie_title: movieData.title || "Unknown",
         movie_poster_path: movieData.poster_path || "",
       });
-    } catch (err) { console.error("Failed to log activity:", err); }
+    } catch (err) {
+      console.error("Failed to log activity:", err);
+    }
   };
 
   useEffect(() => {
@@ -84,22 +94,29 @@ const [visibleRelatedCount, setVisibleRelatedCount] = useState(20);
             setIsInWatchlist(check.data.isInWatchlist);
             const wlRes = await api.get("/users/watchlist");
             setWatchlistIds(Array.isArray(wlRes.data) ? wlRes.data : []);
-          } catch (err) { console.error("Watchlist check failed:", err); }
+          } catch (err) {
+            console.error("Watchlist check failed:", err);
+          }
           try {
             await api.post("/activity/log", {
-              movie_id: movieData.id, action_type: "search_click",
+              movie_id: movieData.id,
+              action_type: "search_click",
               movie_title: movieData.title || "Unknown",
               movie_poster_path: movieData.poster_path || "",
             });
           } catch (_) {}
         }
         setRelatedMovies(
-          recRes.data.filter((m, i, self) => i === self.findIndex((x) => x.id === m.id))
+          recRes.data.filter(
+            (m, i, self) => i === self.findIndex((x) => x.id === m.id),
+          ),
         );
       } catch (err) {
         toast.error("Failed to load movie details.");
         setMovie(null);
-      } finally { setLoading(false); }
+      } finally {
+        setLoading(false);
+      }
     };
     fetchMovieData();
   }, [movieId]);
@@ -115,9 +132,13 @@ const [visibleRelatedCount, setVisibleRelatedCount] = useState(20);
     try {
       if (movie) logActivity(movie, "trailer_watch");
       const res = await api.get(`/movies/${movieId}/videos`);
-      if (res.data?.key) { setVideoKey(res.data.key); setShowVideoModal(true); }
-      else toast.info("No trailer available.");
-    } catch { toast.error("Could not load trailer."); }
+      if (res.data?.key) {
+        setVideoKey(res.data.key);
+        setShowVideoModal(true);
+      } else toast.info("No trailer available.");
+    } catch {
+      toast.error("Could not load trailer.");
+    }
   };
 
   const handleWatchRelatedTrailerClick = async (relatedMovie) => {
@@ -125,14 +146,21 @@ const [visibleRelatedCount, setVisibleRelatedCount] = useState(20);
     if (!id) return;
     try {
       const res = await api.get(`/movies/${id}/videos`);
-      if (res.data?.key) { setVideoKey(res.data.key); setShowVideoModal(true); }
-      else toast.info("No trailer available.");
-    } catch { toast.error("Could not load trailer."); }
+      if (res.data?.key) {
+        setVideoKey(res.data.key);
+        setShowVideoModal(true);
+      } else toast.info("No trailer available.");
+    } catch {
+      toast.error("Could not load trailer.");
+    }
   };
 
   const handleWatchlistToggle = async (movieToToggle) => {
     const token = localStorage.getItem("token");
-    if (!token) { toast.error("Please log in first."); return; }
+    if (!token) {
+      toast.error("Please log in first.");
+      return;
+    }
     try {
       const check = await api.get(`/users/watchlist/check/${movieToToggle.id}`);
       if (check.data.isInWatchlist) {
@@ -148,15 +176,17 @@ const [visibleRelatedCount, setVisibleRelatedCount] = useState(20);
         setIsInWatchlist(true);
         setWatchlistIds((prev) => [...prev, movieToToggle.id]);
       }
-    } catch { toast.error("Could not update watchlist."); }
+    } catch {
+      toast.error("Could not update watchlist.");
+    }
   };
 
   const handleLoadMore = () => {
-const increment = 6;
+    const increment = 6;
     setVisibleRelatedCount((prev) => prev + increment);
   };
 
-  const formatRuntime = (m) => m ? `${Math.floor(m / 60)}h ${m % 60}m` : null;
+  const formatRuntime = (m) => (m ? `${Math.floor(m / 60)}h ${m % 60}m` : null);
 
   const css = `
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
@@ -435,20 +465,32 @@ const increment = 6;
   `;
 
   if (loading) return <LoadingSpinner />;
-  if (!movie) return (
-    <div className="container text-light pt-5 mt-5 text-center">
-      <h2>Movie Not Found</h2>
-      <p>The requested movie details could not be loaded.</p>
-    </div>
-  );
+  if (!movie)
+    return (
+      <div className="container text-light pt-5 mt-5 text-center">
+        <h2>Movie Not Found</h2>
+        <p>The requested movie details could not be loaded.</p>
+      </div>
+    );
 
-  const backdropUrl = movie.backdrop_path ? `https://image.tmdb.org/t/p/original${movie.backdrop_path}` : null;
-  const posterUrl   = movie.poster_path   ? `https://image.tmdb.org/t/p/w500${movie.poster_path}` : "https://placehold.co/200x300?text=No+Poster";
-  const year        = movie.release_date  ? new Date(movie.release_date).getFullYear() : null;
-  const rating      = typeof movie.vote_average === "number" && movie.vote_average > 0 ? movie.vote_average.toFixed(1) : null;
-  const director    = movie.credits?.crew?.find((p) => p.job === "Director");
-  const writers     = movie.credits?.crew?.filter((p) => ["Writer","Screenplay","Story"].includes(p.job)).slice(0, 2);
-  const mainCast    = movie.credits?.cast?.slice(0, 10) || [];
+  const backdropUrl = movie.backdrop_path
+    ? `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`
+    : null;
+  const posterUrl = movie.poster_path
+    ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+    : "https://placehold.co/200x300?text=No+Poster";
+  const year = movie.release_date
+    ? new Date(movie.release_date).getFullYear()
+    : null;
+  const rating =
+    typeof movie.vote_average === "number" && movie.vote_average > 0
+      ? movie.vote_average.toFixed(1)
+      : null;
+  const director = movie.credits?.crew?.find((p) => p.job === "Director");
+  const writers = movie.credits?.crew
+    ?.filter((p) => ["Writer", "Screenplay", "Story"].includes(p.job))
+    .slice(0, 2);
+  const mainCast = movie.credits?.cast?.slice(0, 10) || [];
 
   return (
     <div className="mdp">
@@ -457,7 +499,10 @@ const increment = 6;
       {/* ── Backdrop ── */}
       <div
         className="mdp-backdrop"
-        style={{ backgroundImage: backdropUrl ? `url(${backdropUrl})` : "none", backgroundColor: "#0c0c0f" }}
+        style={{
+          backgroundImage: backdropUrl ? `url(${backdropUrl})` : "none",
+          backgroundColor: "#0c0c0f",
+        }}
         data-poster={posterUrl}
       >
         {/* Mobile uses poster via inline style override below */}
@@ -466,41 +511,75 @@ const increment = 6;
 
         <div className="mdp-hero-wrap">
           <div className="mdp-hero">
-
             <img src={posterUrl} alt={movie.title} className="mdp-poster" />
 
             <div>
               <h1 className="mdp-title">{movie.title}</h1>
-              {movie.tagline && <p className="mdp-tagline">"{movie.tagline}"</p>}
+              {movie.tagline && (
+                <p className="mdp-tagline">"{movie.tagline}"</p>
+              )}
 
               <div className="mdp-meta">
                 {year && <span>{year}</span>}
-                {movie.runtime > 0 && <><span className="mdp-meta-sep">·</span><span>{formatRuntime(movie.runtime)}</span></>}
+                {movie.runtime > 0 && (
+                  <>
+                    <span className="mdp-meta-sep">·</span>
+                    <span>{formatRuntime(movie.runtime)}</span>
+                  </>
+                )}
                 {rating && (
-                  <><span className="mdp-meta-sep">·</span>
-                  <span className="mdp-rating"><i className="bi bi-star-fill" style={{fontSize:"0.6rem"}}></i> {rating}</span></>
+                  <>
+                    <span className="mdp-meta-sep">·</span>
+                    <span className="mdp-rating">
+                      <i
+                        className="bi bi-star-fill"
+                        style={{ fontSize: "0.6rem" }}
+                      ></i>{" "}
+                      {rating}
+                    </span>
+                  </>
                 )}
               </div>
 
               <div className="mdp-genres">
-                {movie.genres?.map((g) => <span key={g.id} className="mdp-genre">{g.name}</span>)}
+                {movie.genres?.map((g) => (
+                  <span key={g.id} className="mdp-genre">
+                    {g.name}
+                  </span>
+                ))}
               </div>
 
               {(director || writers?.length > 0) && (
                 <div className="mdp-crew">
-                  {director && <span className="mdp-crew-item">DIR<b>{director.name}</b></span>}
-                  {writers?.length > 0 && <span className="mdp-crew-item">WRT<b>{writers.map(w => w.name).join(", ")}</b></span>}
+                  {director && (
+                    <span className="mdp-crew-item">
+                      DIR<b>{director.name}</b>
+                    </span>
+                  )}
+                  {writers?.length > 0 && (
+                    <span className="mdp-crew-item">
+                      WRT<b>{writers.map((w) => w.name).join(", ")}</b>
+                    </span>
+                  )}
                 </div>
               )}
 
-              <p className="mdp-overview">{movie.overview || "No overview available."}</p>
+              <p className="mdp-overview">
+                {movie.overview || "No overview available."}
+              </p>
 
               <div className="mdp-actions">
                 <div className="mdp-actions-top-row">
-                  <button className="mdp-btn-watch" onClick={() => setShowWatchModal(true)}>
+                  <button
+                    className="mdp-btn-watch"
+                    onClick={() => setShowWatchModal(true)}
+                  >
                     <i className="bi bi-play-fill"></i> Watch Now
                   </button>
-                  <button className="mdp-btn-trailer" onClick={handleWatchMainTrailerClick}>
+                  <button
+                    className="mdp-btn-trailer"
+                    onClick={handleWatchMainTrailerClick}
+                  >
                     <i className="bi bi-film"></i> Trailer
                   </button>
                 </div>
@@ -508,11 +587,18 @@ const increment = 6;
                   className={`mdp-btn-wl${isInWatchlist ? " on" : ""}`}
                   onClick={() => handleWatchlistToggle(movie)}
                 >
-                  {isInWatchlist ? <><i className="bi bi-check2"></i> Saved</> : <><i className="bi bi-bookmark"></i> Watchlist</>}
+                  {isInWatchlist ? (
+                    <>
+                      <i className="bi bi-check2"></i> Saved
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-bookmark"></i> Watchlist
+                    </>
+                  )}
                 </button>
               </div>
             </div>
-
           </div>
         </div>
       </div>
@@ -526,13 +612,19 @@ const increment = 6;
               {mainCast.map((actor) => (
                 <div key={actor.cast_id || actor.id} className="mdp-cast-item">
                   <img
-                    src={actor.profile_path ? `https://image.tmdb.org/t/p/w185${actor.profile_path}` : "https://placehold.co/110x165/13131a/333?text=?"}
+                    src={
+                      actor.profile_path
+                        ? `https://image.tmdb.org/t/p/w185${actor.profile_path}`
+                        : "https://placehold.co/110x165/13131a/333?text=?"
+                    }
                     alt={actor.name}
                     className="mdp-cast-photo"
                   />
                   <div className="mdp-cast-info">
                     <p className="mdp-cast-name">{actor.name}</p>
-                    <p className="mdp-cast-char">{actor.character || actor.job}</p>
+                    <p className="mdp-cast-char">
+                      {actor.character || actor.job}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -548,7 +640,9 @@ const increment = 6;
           <div className="mdp-related-grid">
             {relatedMovies.slice(0, visibleRelatedCount).map((m) => (
               <MovieCard
-                key={m.id} movie={m} watchlist={watchlistIds}
+                key={m.id}
+                movie={m}
+                watchlist={watchlistIds}
                 onWatchlistClick={handleWatchlistToggle}
                 onWatchTrailerClick={handleWatchRelatedTrailerClick}
               />
@@ -556,14 +650,28 @@ const increment = 6;
           </div>
           {visibleRelatedCount < relatedMovies.length && (
             <div className="mdp-load-more-wrap">
-              <button className="mdp-load-more" onClick={handleLoadMore}>Load More</button>
+              <button className="mdp-load-more" onClick={handleLoadMore}>
+                Load More
+              </button>
             </div>
           )}
         </div>
       )}
 
-      <VideoModal show={showVideoModal} handleClose={() => { setShowVideoModal(false); setVideoKey(null); }} videoKey={videoKey} />
-      <WatchMovieModal show={showWatchModal} handleClose={() => setShowWatchModal(false)} tmdbId={movie?.id} movieTitle={movie?.title} />
+      <VideoModal
+        show={showVideoModal}
+        handleClose={() => {
+          setShowVideoModal(false);
+          setVideoKey(null);
+        }}
+        videoKey={videoKey}
+      />
+      <WatchMovieModal
+        show={showWatchModal}
+        handleClose={() => setShowWatchModal(false)}
+        tmdbId={movie?.id}
+        movieTitle={movie?.title}
+      />
     </div>
   );
 };

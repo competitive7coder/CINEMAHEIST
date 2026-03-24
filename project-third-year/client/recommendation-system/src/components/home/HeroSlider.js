@@ -12,11 +12,15 @@ const HeroSlider = ({
   movies,
   watchlist = [],
   onWatchTrailerClick,
-  onAddToWatchlist
+  onAddToWatchlist,
 }) => {
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
-  const [watchModal, setWatchModal]   = useState({ show: false, tmdbId: null, title: "" });
+  const [watchModal, setWatchModal] = useState({
+    show: false,
+    tmdbId: null,
+    title: "",
+  });
   const sliderMovies = movies.slice(0, 10);
 
   const handleSlideChange = useCallback((swiper) => {
@@ -502,27 +506,41 @@ const HeroSlider = ({
       >
         {sliderMovies.map((movie) => {
           const isInWatchlist = watchlist.includes(movie.id);
-          const rating = movie.vote_average ? movie.vote_average.toFixed(1) : null;
-          const year   = movie.release_date ? movie.release_date.slice(0, 4) : null;
+          const rating = movie.vote_average
+            ? movie.vote_average.toFixed(1)
+            : null;
+          const year = movie.release_date
+            ? movie.release_date.slice(0, 4)
+            : null;
 
           return (
-            <SwiperSlide key={movie.id} style={{ height: "100%", position: "relative" }}>
+            <SwiperSlide
+              key={movie.id}
+              style={{ height: "100%", position: "relative" }}
+            >
               <div
                 className="hero-slide-inner"
                 style={{
-                  backgroundImage: `url(https://image.tmdb.org/t/p/original${movie.backdrop_path})`
+                  backgroundImage: `url(https://image.tmdb.org/t/p/w1280${movie.backdrop_path})`,
                 }}
               >
                 <div className="hero-overlay-main" />
                 <div className="hero-overlay-accent" />
 
                 <div className="hero-content">
-
                   {/* Meta */}
                   <div className="hero-meta">
-                    <span className="hero-badge hero-badge-new">✦ Trending</span>
-                    {rating && <span className="hero-badge hero-badge-rating">★ {rating}</span>}
-                    {year   && <span className="hero-badge hero-badge-year">{year}</span>}
+                    <span className="hero-badge hero-badge-new">
+                      ✦ Trending
+                    </span>
+                    {rating && (
+                      <span className="hero-badge hero-badge-rating">
+                        ★ {rating}
+                      </span>
+                    )}
+                    {year && (
+                      <span className="hero-badge hero-badge-year">{year}</span>
+                    )}
                   </div>
 
                   {/* Title */}
@@ -536,11 +554,16 @@ const HeroSlider = ({
 
                   {/* Buttons */}
                   <div className="hero-buttons">
-
                     {/* Watch Now */}
                     <button
                       className="hero-btn hero-btn-watchnow"
-                      onClick={() => setWatchModal({ show: true, tmdbId: movie.id, title: movie.title })}
+                      onClick={() =>
+                        setWatchModal({
+                          show: true,
+                          tmdbId: movie.id,
+                          title: movie.title,
+                        })
+                      }
                     >
                       <span className="play-icon">▶</span>
                       Watch Now
@@ -588,7 +611,6 @@ const HeroSlider = ({
                     >
                       More Info ›
                     </button>
-
                   </div>
                 </div>
 
@@ -600,14 +622,16 @@ const HeroSlider = ({
       </Swiper>
 
       <div className="hero-counter">
-        <strong>{String(activeIndex + 1).padStart(2, '0')}</strong>
+        <strong>{String(activeIndex + 1).padStart(2, "0")}</strong>
         <span>/</span>
-        <span>{String(sliderMovies.length).padStart(2, '0')}</span>
+        <span>{String(sliderMovies.length).padStart(2, "0")}</span>
       </div>
 
       <WatchMovieModal
         show={watchModal.show}
-        handleClose={() => setWatchModal({ show: false, tmdbId: null, title: "" })}
+        handleClose={() =>
+          setWatchModal({ show: false, tmdbId: null, title: "" })
+        }
         tmdbId={watchModal.tmdbId}
         movieTitle={watchModal.title}
       />

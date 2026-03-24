@@ -38,9 +38,11 @@ const MovieDetailModal = ({ show, handleClose, movieId, onWatchTrailer }) => {
     };
 
     const posterUrl = movieDetails?.backdrop_path
-        ? `https://image.tmdb.org/t/p/original${movieDetails.backdrop_path}`
+        ? `https://image.tmdb.org/t/p/w1280${movieDetails.backdrop_path}`
+
         : movieDetails?.poster_path
-        ? `https://image.tmdb.org/t/p/original${movieDetails.poster_path}`
+        ? `https://image.tmdb.org/t/p/w500${movieDetails.poster_path}`
+
         : 'https://via.placeholder.com/1280x720?text=No+Image';
 
     // ====== Inline Styles ======

@@ -2,8 +2,6 @@ import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 
-const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400&family=Libre+Baskerville:ital,wght@0,400;1,400&display=swap');`;
-
 
 const FooterWrapper = styled.footer`
   background: linear-gradient(to top, #000000, #080808);
@@ -11,6 +9,7 @@ const FooterWrapper = styled.footer`
   font-family: 'Inter', 'Poppins', sans-serif;
   color: rgba(255, 255, 255, 0.5);
   padding: 80px 0 36px;
+  min-height: 380px; /* CLS fix — reserves space before fonts/content paint */
   margin-top: auto;
   position: relative;
   &::before {
@@ -33,6 +32,7 @@ const MainGrid = styled.div`
   grid-template-columns: 1.8fr 1fr 1fr;
   gap: 40px;
   margin-bottom: 60px;
+  min-height: 240px; /* CLS fix — prevents grid collapse before content loads */
   align-items: start;
   @media (max-width: 768px) { grid-template-columns: 1fr 1fr; gap: 30px; }
   @media (max-width: 480px) { grid-template-columns: 1fr; gap: 24px; }
@@ -59,7 +59,7 @@ const BrandName = styled(Link)`
 
 const Disclaimer = styled.p`
   font-family: 'Libre Baskerville', serif;
-  font-size: 0.78rem;
+  font-size: 0.85rem;
   color: rgba(242, 237, 228, 0.3);
   line-height: 1.75;
   max-width: 340px;
@@ -208,7 +208,6 @@ const Dot = styled.span`
 const Footer = () => {
   return (
     <>
-      <style>{FONTS}</style>
     <FooterWrapper>
       <Inner>
         <MainGrid>

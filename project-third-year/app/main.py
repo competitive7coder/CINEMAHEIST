@@ -181,7 +181,7 @@ app = FastAPI(
 print("FRONTEND_URL:", FRONTEND_URL)
 
 # ── Rate Limiting — blocks abuse & bot scraping ───────────────────────────────
-limiter = Limiter(key_func=get_remote_address, default_limits=["500/minute", "2000/hour"])
+limiter = Limiter(key_func=get_remote_address, default_limits=["500/minute"])
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 

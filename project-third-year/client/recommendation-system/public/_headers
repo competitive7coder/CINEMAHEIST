@@ -1,8 +1,35 @@
-# Cache static assets for 1 year
+# ============================================
+# SECURITY HEADERS (applied to all pages)
+# ============================================
+/*
+  # Prevent clickjacking — stops your site being embedded in iframes
+  X-Frame-Options: SAMEORIGIN
+
+  # Stop browsers guessing file types (prevents MIME attacks)
+  X-Content-Type-Options: nosniff
+
+  # Block XSS attacks in older browsers
+  X-XSS-Protection: 1; mode=block
+
+  # Control what info is sent when clicking links (hides your URL from external sites)
+  Referrer-Policy: strict-origin-when-cross-origin
+
+  # Restrict browser features (camera, mic, etc — not needed on a movie site)
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+
+  # Force HTTPS for 1 year (never load over HTTP)
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+
+  # Content Security Policy — controls what can load on your site
+  # Allows: your domain, TMDB images, Google fonts, YouTube embeds
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: blob: https://image.tmdb.org https://www.google-analytics.com; frame-src 'self' https://www.youtube.com https://youtube.com https://vidsrc.to https://vidsrc.me https://2embed.org https://multiembed.mov; connect-src 'self' https://api.themoviedb.org https://www.google-analytics.com https://analytics.google.com; media-src 'self' blob:;
+
+# ============================================
+# CACHE STATIC ASSETS FOR 1 YEAR
+# ============================================
 /static/*
   Cache-Control: public, max-age=31536000, immutable
 
-# Cache images for 1 year
 /*.jpg
   Cache-Control: public, max-age=31536000, immutable
 
@@ -15,25 +42,26 @@
 /*.webp
   Cache-Control: public, max-age=31536000, immutable
 
-# Cache fonts for 1 year
 /*.woff2
   Cache-Control: public, max-age=31536000, immutable
 
 /*.woff
   Cache-Control: public, max-age=31536000, immutable
 
-# Cache sitemap for 1 day
+# ============================================
+# CACHE SITEMAP & ROBOTS
+# ============================================
 /sitemap.xml
   Cache-Control: public, max-age=86400
 
-# Cache robots.txt for 1 week
 /robots.txt
   Cache-Control: public, max-age=604800
 
-# Never cache HTML (so updates show immediately)
+# ============================================
+# NEVER CACHE HTML
+# ============================================
 /*.html
   Cache-Control: no-cache, no-store, must-revalidate
 
-# Never cache service worker
 /service-worker.js
   Cache-Control: no-cache, no-store, must-revalidate

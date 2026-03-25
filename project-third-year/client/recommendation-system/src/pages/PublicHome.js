@@ -157,11 +157,11 @@ const HeroSection = styled.section`
     transform: translate(-50%, -55%);
     width: 70vw;
     height: 60vh;
-    background: radial-gradient(
-      ellipse at center,
-      rgba(229, 9, 20, 0.18) 0%,
-      rgba(120, 0, 10, 0.10) 40%,
-      transparent 70%
+    // background: radial-gradient(
+    //   ellipse at center,
+    //   rgba(229, 9, 20, 0.18) 0%,
+    //   rgba(120, 0, 10, 0.10) 40%,
+    //   transparent 70%
     );
     pointer-events: none;
     z-index: 0;
@@ -424,12 +424,12 @@ const PublicHome = ({ setIsLoggedIn }) => {
       <SocialProof>
         <ProofPill>Free</ProofPill>
         <ProofDivider />
-        <ProofPill>No signup needed</ProofPill>
+        <ProofPill>Secure</ProofPill>
         <ProofDivider />
         <ProofPill>10,000+ titles</ProofPill>
       </SocialProof>
 
-      <ActionButton to="/signup">Initialize Access</ActionButton>
+      <ActionButton to="/home">Watch Now</ActionButton>
     </HeroSection>
   ), []);
 

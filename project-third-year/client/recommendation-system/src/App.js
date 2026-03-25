@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
 import MainLayout from './components/layout/MainLayout';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
@@ -14,10 +13,8 @@ import SearchPage from './pages/SearchPage';
 import MovieDetailPage from './pages/MovieDetailPage';
 import ContactUs from './pages/ContactUs';
 import AboutUs from './pages/AboutUs';
-
 import ResetPassword from './components/auth/ResetPassword';
 import FAQ from './footer/FAQ';
-
 import DMCA from './footer/Dmca';
 import PrivacyPolicy from './footer/PrivacyPolicy';
 import TermsOfUse from './footer/Termsofuse';

@@ -1,17 +1,31 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-import reportWebVitals from './reportWebVitals';
-import 'bootstrap/dist/css/bootstrap.min.css'; 
-import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 
+// Critical CSS only (no JS bloat)
+import 'bootstrap/dist/css/bootstrap.min.css';
 
+// 
+// Root initialization
+const container = document.getElementById('root');
+const root = ReactDOM.createRoot(container);
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>
-);
+// StrictMode only in development
+const AppRoot =
+  process.env.NODE_ENV === 'production'
+    ? <App />
+    : (
+        <React.StrictMode>
+          <App />
+        </React.StrictMode>
+      );
 
-reportWebVitals();
+// Render (non-blocking friendly)
+root.render(AppRoot);
+
+// Optional: web vitals (dev only)
+if (process.env.NODE_ENV !== 'production') {
+  import('./reportWebVitals').then(({ default: reportWebVitals }) => {
+    reportWebVitals(console.log);
+  });
+}

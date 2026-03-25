@@ -1,117 +1,87 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>StreamHub — Watch Movies Online Free | Stream Latest Films</title>
-    <meta name="title" content="StreamHub — Watch Movies Online Free | Stream Latest Films" />
-    <meta name="description" content="StreamHub lets you watch movies online free. Stream the latest Hollywood films and world cinema with AI-powered recommendations. No subscription needed." />
-    <meta name="keywords" content="watch movies online free, stream movies free, free movie streaming, latest movies 2025, hollywood movies online, bollywood movies free, streamhub" />
-    <meta name="author" content="StreamHub" />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-    <link rel="canonical" href="https://stream1hub.pages.dev/home" />
+  <!--  SEO -->
+  <title>StreamHub — Watch Movies Online Free | Stream Latest Films</title>
+  <meta name="description" content="StreamHub lets you watch movies online free. Stream the latest Hollywood films and world cinema with AI-powered recommendations." />
+  <meta name="keywords" content="watch movies online free, stream movies free, latest movies 2025" />
+  <meta name="author" content="StreamHub" />
+  <link rel="canonical" href="https://stream1hub.pages.dev/home" />
 
-    <!-- Open Graph -->
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="StreamHub" />
-    <meta property="og:url" content="https://stream1hub.pages.dev/" />
-    <meta property="og:title" content="StreamHub — Watch Movies Online Free | Stream Latest Films" />
-    <meta property="og:description" content="StreamHub lets you watch movies online free. Stream the latest Hollywood films and world cinema with AI-powered recommendations. No subscription needed." />
-    <meta property="og:image" content="https://stream1hub.pages.dev/og-image.jpg" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="StreamHub — Watch Movies Online Free" />
-    <meta property="og:locale" content="en_US" />
+  <!--  Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="StreamHub — Watch Movies Online Free" />
+  <meta property="og:description" content="Watch latest movies online free." />
+  <meta property="og:image" content="https://stream1hub.pages.dev/og-image.jpg" />
+  <meta property="og:url" content="https://stream1hub.pages.dev/" />
 
-    <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:url" content="https://stream1hub.pages.dev/" />
-    <meta name="twitter:title" content="StreamHub — Watch Movies Online Free | Stream Latest Films" />
-    <meta name="twitter:description" content="StreamHub lets you watch movies online free. Stream the latest Hollywood films and world cinema with AI-powered recommendations. No subscription needed." />
-    <meta name="twitter:image" content="https://stream1hub.pages.dev/og-image.jpg" />
+  <!--  Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="StreamHub — Watch Movies Online Free" />
+  <meta name="twitter:description" content="Stream movies online free." />
+  <meta name="twitter:image" content="https://stream1hub.pages.dev/og-image.jpg" />
 
-    <!-- Favicon -->
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <link rel="apple-touch-icon" href="https://stream1hub.pages.dev/logo192.png" />
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+  <!--  JSON-LD (SEO structured data) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "StreamHub",
+    "url": "https://stream1hub.pages.dev"
+  }
+  </script>
 
-    <!-- JSON-LD -->
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        "name": "StreamHub",
-        "url": "https://stream1hub.pages.dev",
-        "description": "Watch movies online free with AI-powered recommendations.",
-        "potentialAction": {
-          "@type": "SearchAction",
-          "target": {
-            "@type": "EntryPoint",
-            "urlTemplate": "https://stream1hub.pages.dev/search?q={search_term_string}"
-          },
-          "query-input": "required name=search_term_string"
-        }
-      }
-    </script>
+  <!--  Critical CSS -->
+  <style>
+    *,*::before,*::after{box-sizing:border-box}
+    body{margin:0;background:#000;color:#fff;font-family:Inter,system-ui,sans-serif}
+    #root{min-height:100vh;background:#000}
+  </style>
 
-    <!-- Critical inline CSS — unblocks first paint before main.css loads -->
-    <style>
-      *,*::before,*::after{box-sizing:border-box}
-      body{margin:0;background:#000;color:#fff;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overflow-x:hidden}
-      #root{min-height:100vh;background:#000}
-    </style>
+  <!--  Preconnect -->
+  <link rel="preconnect" href="https://image.tmdb.org">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <!-- Fonts — single combined request -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preload" as="style"
-      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500&family=JetBrains+Mono:wght@300;400&family=Libre+Baskerville:ital,wght@0,400;1,400&family=Poppins:wght@400;500;600;700&display=swap"
-      onload="this.onload=null;this.rel='stylesheet'" />
-    <noscript>
-      <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500&family=JetBrains+Mono:wght@300;400&family=Libre+Baskerville:ital,wght@0,400;1,400&family=Poppins:wght@400;500;600;700&display=swap" />
-    </noscript>
+  <!--  Fonts (optimized) -->
+  <link rel="preload" as="style"
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap"
+    onload="this.onload=null;this.rel='stylesheet'">
+  <noscript>
+    <link rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+  </noscript>
 
-    <!-- Bootstrap Icons  -->
-    <link rel="preload" as="style"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
-      onload="this.onload=null;this.rel='stylesheet'" />
-    <noscript>
-      <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
-    </noscript>
+  <!--  Icons async -->
+  <link rel="preload" as="style"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css"
+    onload="this.onload=null;this.rel='stylesheet'">
 
-    <!-- GTM -->
-    <script>
-      (function(w,d,s,l,i){
-        w[l]=w[l]||[];
-        w[l].push({'gtm.start': new Date().getTime(), event:'gtm.js'});
-        var f=d.getElementsByTagName(s)[0],
-            j=d.createElement(s),
-            dl=l!='dataLayer'?'&l='+l:'';
-        j.async=true;
-        j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
-        f.parentNode.insertBefore(j,f);
-      })(window,document,'script','dataLayer','GTM-TRKN2KNM');
-    </script>
-  </head>
-  <body>
-    <!-- GTM noscript -->
-    <noscript>
-      <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TRKN2KNM"
-        height="0" width="0" style="display:none;visibility:hidden"></iframe>
-    </noscript>
+</head>
 
-    <noscript>You need to enable JavaScript to run StreamHub.</noscript>
+<body>
 
-    <div id="root"></div>
+  <div id="root"></div>
 
-    <!-- Cloudflare Web Analytics -->
-    <script defer
-      src="https://static.cloudflareinsights.com/beacon.min.js"
-      data-cf-beacon='{"token": "a53ff023fe3c4a49b77ee6dd02d4b8ef"}'
-    ></script>
-  </body>
+  <!--  GTM (deferred, non-blocking) -->
+  <script>
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const s = document.createElement('script');
+        s.src = 'https://www.googletagmanager.com/gtm.js?id=GTM-TRKN2KNM';
+        s.async = true;
+        document.body.appendChild(s);
+      }, 3000);
+    });
+  </script>
+
+  <!--  Cloudflare -->
+  <script defer
+    src="https://static.cloudflareinsights.com/beacon.min.js"
+    data-cf-beacon='{"token": "a53ff023fe3c4a49b77ee6dd02d4b8ef"}'>
+  </script>
+
+</body>
 </html>

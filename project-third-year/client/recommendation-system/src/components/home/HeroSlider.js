@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay, EffectFade } from "swiper/modules";
@@ -22,6 +22,29 @@ const HeroSlider = ({
     title: "",
   });
   const sliderMovies = movies.slice(0, 10);
+
+  // ── Preload first slide image so browser fetches it ASAP (fixes LCP) ──
+  const firstBackdrop = sliderMovies[0]?.backdrop_path;
+
+  useEffect(() => {
+    if (!firstBackdrop) return;
+    const url = `https://image.tmdb.org/t/p/w1280${firstBackdrop}`;
+
+    const existing = document.getElementById("hero-lcp-preload");
+    if (existing) {
+      existing.href = url;
+      return;
+    }
+
+    const link = document.createElement("link");
+    link.id = "hero-lcp-preload";
+    link.rel = "preload";
+    link.as = "image";
+    link.fetchPriority = "high";
+    link.setAttribute("fetchpriority", "high");
+    link.href = url;
+    document.head.appendChild(link);
+  }, [firstBackdrop]);
 
   const handleSlideChange = useCallback((swiper) => {
     setActiveIndex(swiper.realIndex);

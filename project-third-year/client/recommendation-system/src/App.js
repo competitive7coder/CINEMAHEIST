@@ -2,6 +2,10 @@ import React, { useState, Suspense, lazy, useEffect, memo } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import MainLayout from './components/layout/MainLayout';
 
+// Toast 
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 // ===============================
 // Lazy-loaded routes (grouped)
 // ===============================
@@ -45,7 +49,7 @@ const PageFallback = memo(() => (
 ));
 
 // ===============================
-// Error Boundary (required in prod)
+// Error Boundary
 // ===============================
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -58,7 +62,6 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, info) {
-    // Optional: send to logging service
     console.error(error, info);
   }
 
@@ -75,16 +78,11 @@ class ErrorBoundary extends React.Component {
 }
 
 function App() {
-  // Synchronous init avoids extra render
   const [isLoggedIn, setIsLoggedIn] = useState(
     () => !!localStorage.getItem('token')
   );
 
-  // Load non-critical assets after mount
   useEffect(() => {
-    import('react-toastify/dist/ReactToastify.css');
-
-    // Preload most important route
     import('./pages/HomePage');
   }, []);
 
@@ -92,80 +90,94 @@ function App() {
     <Router>
       <ErrorBoundary>
         <Suspense fallback={<PageFallback />}>
-          <Routes>
 
-            {/* Auth routes */}
-            <Route
-              path="/"
-              element={
-                !isLoggedIn
-                  ? <PublicHome setIsLoggedIn={setIsLoggedIn} />
-                  : <Navigate to="/home" />
-              }
+          <>
+            <Routes>
+
+              {/* Auth routes */}
+              <Route
+                path="/"
+                element={
+                  !isLoggedIn
+                    ? <PublicHome setIsLoggedIn={setIsLoggedIn} />
+                    : <Navigate to="/home" />
+                }
+              />
+
+              <Route
+                path="/login"
+                element={
+                  !isLoggedIn
+                    ? <Login setIsLoggedIn={setIsLoggedIn} />
+                    : <Navigate to="/home" />
+                }
+              />
+
+              <Route
+                path="/signup"
+                element={
+                  !isLoggedIn ? <Signup /> : <Navigate to="/home" />
+                }
+              />
+
+              <Route
+                path="/reset-password/:token"
+                element={
+                  !isLoggedIn ? <ResetPassword /> : <Navigate to="/home" />
+                }
+              />
+
+              {/* Main layout routes */}
+              <Route
+                element={
+                  <MainLayout
+                    isLoggedIn={isLoggedIn}
+                    setIsLoggedIn={setIsLoggedIn}
+                  />
+                }
+              >
+                <Route path="/home" element={<HomePage />} />
+                <Route path="/genre/:genreId" element={<GenrePage />} />
+                <Route path="/movie/:movieId" element={<MovieDetailPage />} />
+                <Route path="/search" element={<SearchPage />} />
+                <Route path="/contact" element={<ContactUs />} />
+                <Route path="/about" element={<AboutUs />} />
+                <Route path="/faq" element={<FAQ />} />
+                <Route path="/dmca" element={<DMCA />} />
+                <Route path="/privacy" element={<PrivacyPolicy />} />
+                <Route path="/terms" element={<TermsOfUse />} />
+                <Route path="/disclaimer" element={<Disclaimer />} />
+              </Route>
+
+              {/* Protected route */}
+              <Route
+                path="/dashboard"
+                element={
+                  isLoggedIn
+                    ? <Dashboard setIsLoggedIn={setIsLoggedIn} />
+                    : <Navigate to="/login" state={{ from: '/dashboard' }} />
+                }
+              />
+
+              {/* Fallback */}
+              <Route
+                path="*"
+                element={<Navigate to={isLoggedIn ? "/home" : "/"} />}
+              />
+
+            </Routes>
+
+            {/*  Toast global */}
+            <ToastContainer
+              position="top-right"
+              autoClose={3000}
+              theme="dark"
+              newestOnTop
+              style={{ zIndex: 999999 }}
             />
 
-            <Route
-              path="/login"
-              element={
-                !isLoggedIn
-                  ? <Login setIsLoggedIn={setIsLoggedIn} />
-                  : <Navigate to="/home" />
-              }
-            />
+          </>
 
-            <Route
-              path="/signup"
-              element={
-                !isLoggedIn ? <Signup /> : <Navigate to="/home" />
-              }
-            />
-
-            <Route
-              path="/reset-password/:token"
-              element={
-                !isLoggedIn ? <ResetPassword /> : <Navigate to="/home" />
-              }
-            />
-
-            {/* Main layout routes */}
-            <Route
-              element={
-                <MainLayout
-                  isLoggedIn={isLoggedIn}
-                  setIsLoggedIn={setIsLoggedIn}
-                />
-              }
-            >
-              <Route path="/home" element={<HomePage />} />
-              <Route path="/genre/:genreId" element={<GenrePage />} />
-              <Route path="/movie/:movieId" element={<MovieDetailPage />} />
-              <Route path="/search" element={<SearchPage />} />
-              <Route path="/contact" element={<ContactUs />} />
-              <Route path="/about" element={<AboutUs />} />
-              <Route path="/faq" element={<FAQ />} />
-              <Route path="/dmca" element={<DMCA />} />
-              <Route path="/privacy" element={<PrivacyPolicy />} />
-              <Route path="/terms" element={<TermsOfUse />} />
-              <Route path="/disclaimer" element={<Disclaimer />} />
-            </Route>
-
-            {/* Protected route */}
-            <Route
-              path="/dashboard"
-              element={
-                isLoggedIn
-                  ? <Dashboard setIsLoggedIn={setIsLoggedIn} />
-                  : <Navigate to="/login" state={{ from: '/dashboard' }} />
-              }
-            />
-
-            {/* Fallback */}
-            <Route
-              path="*"
-              element={<Navigate to={isLoggedIn ? "/home" : "/"} />}
-            />
-
-          </Routes>
         </Suspense>
       </ErrorBoundary>
     </Router>

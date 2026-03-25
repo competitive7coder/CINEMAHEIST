@@ -2,10 +2,21 @@ import React, { useState, useEffect, useMemo } from "react";
 import useSEO from "../hooks/useSEO";
 import { Link } from "react-router-dom";
 import styled, { createGlobalStyle, keyframes } from "styled-components";
+import Navbar from "../components/layout/Navbar";
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
+`;
+
+const marqueeScroll = keyframes`
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+`;
+
+const pulse = keyframes`
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 `;
 
 const GlobalStyle = createGlobalStyle`
@@ -29,76 +40,103 @@ const PageWrapper = styled.div`
   animation: ${fadeIn} 0.8s ease-out;
 `;
 
-const NavContainer = styled.header`
+const TickerContainer = styled.div`
   position: fixed;
-  top: 25px;
+  top: 64px;
   left: 0;
   width: 100%;
+  z-index: 999;
   display: flex;
   justify-content: center;
-  z-index: 1000;
   padding: 0 20px;
   box-sizing: border-box;
+  pointer-events: none;
 `;
 
-const HUDNav = styled.nav`
+const TickerBar = styled.div`
   width: 100%;
-  max-width: 1100px;
-  background: rgba(10, 10, 10, 0.75);
-  backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 10px 25px;
-  border-radius: 100px;
+  max-width: 1400px;
+  background: rgba(4,4,4,0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(229,9,20,0.15);
+  padding: 7px 20px;
+  overflow: hidden;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-  @media (max-width: 600px) { padding: 10px 20px; }
+  gap: 16px;
+  pointer-events: all;
 `;
 
-const Brand = styled(Link)`
-  color: #fff;
-  text-decoration: none;
-  font-size: 0.8rem;
-  font-weight: 950;
-  letter-spacing: 5px;
-  text-transform: uppercase;
-  transition: opacity 0.3s;
-  &:hover { opacity: 0.8; }
-`;
-
-const NavLinks = styled.div`
-  display: flex;
-  align-items: center;
-  gap: clamp(15px, 3vw, 30px);
-`;
-
-const NavLinkStyled = styled(Link)`
-  color: #888;
-  text-decoration: none;
-  font-size: 0.6rem;
-  letter-spacing: 3px;
-  font-weight: 800;
-  text-transform: uppercase;
-  transition: color 0.3s ease;
-  &:hover { color: #fff; }
-  @media (max-width: 480px) { display: none; }
-`;
-
-const JoinButton = styled(Link)`
-  background: #2e62ff;
-  color: #fff;
-  text-decoration: none;
-  font-size: 0.6rem;
-  padding: 10px 24px;
-  border-radius: 50px;
-  font-weight: 900;
+const TickerLabel = styled.span`
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  font-weight: 700;
   letter-spacing: 2px;
+  color: #e50914;
   text-transform: uppercase;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  &:hover { background: #fff; color: #000; transform: scale(1.05); }
-  @media (max-width: 480px) { padding: 8px 16px; font-size: 0.55rem; }
+  white-space: nowrap;
+  flex-shrink: 0;
 `;
+
+const TickerTrack = styled.div`
+  display: flex;
+  overflow: hidden;
+  flex: 1;
+`;
+
+const TickerInner = styled.div`
+  display: flex;
+  gap: 0;
+  animation: ${marqueeScroll} 30s linear infinite;
+  white-space: nowrap;
+`;
+
+const TickerItem = styled.span`
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.7);
+  letter-spacing: 0.5px;
+  padding: 0 20px;
+  white-space: nowrap;
+  &::after {
+    content: '·';
+    margin-left: 20px;
+    color: #e50914;
+    font-size: 0.8rem;
+  }
+`;
+
+const LiveBadge = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(229,9,20,0.08);
+  border: 1px solid rgba(229,9,20,0.2);
+  border-radius: 50px;
+  padding: 5px 12px;
+  cursor: default;
+  flex-shrink: 0;
+`;
+
+const LiveDot = styled.div`
+  width: 5px;
+  height: 5px;
+  background: #e50914;
+  border-radius: 50%;
+  animation: ${pulse} 1.5s ease-in-out infinite;
+`;
+
+const LiveText = styled.span`
+  font-family: monospace;
+  font-size: 0.48rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #e50914;
+  white-space: nowrap;
+`;
+
+
+
 
 const HeroSection = styled.section`
   height: 100vh; 
@@ -106,7 +144,7 @@ const HeroSection = styled.section`
   flex-direction: column;
   justify-content: center; 
   align-items: center; 
-  padding: 0 5%;
+  padding: 96px 5% 0;
   text-align: center;
 `;
 
@@ -302,18 +340,13 @@ const PublicHome = () => {
     url: "/",
   });
 
-  const [time, setTime] = useState(new Date().toLocaleTimeString());
-  const [isMobile, setIsMobile] = useState(false);
+  const [liveCount, setLiveCount] = useState(11840);
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 600);
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    const timer = setInterval(() => setTime(new Date().toLocaleTimeString()), 1000);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      clearInterval(timer);
-    };
+    const liveTimer = setInterval(() => {
+      setLiveCount(prev => prev + Math.floor(Math.random() * 11) - 5);
+    }, 3000);
+    return () => clearInterval(liveTimer);
   }, []);
 
   const memoizedHero = useMemo(() => (
@@ -329,20 +362,27 @@ const PublicHome = () => {
   return (
     <PageWrapper>
       <GlobalStyle />
-      <NavContainer>
-        <HUDNav role="navigation" aria-label="Main Navigation">
-          <Brand to="/">STREAMHUB</Brand>
-          {!isMobile && (
-            <div style={{ fontFamily: 'monospace', fontSize: '0.5rem', color: '#444' }}>
-              CLOCK_{time}
-            </div>
-          )}
-          <NavLinks>
-            <NavLinkStyled to="/login">LOGIN</NavLinkStyled>
-            <JoinButton to="/signup">JOIN_HUB</JoinButton>
-          </NavLinks>
-        </HUDNav>
-      </NavContainer>
+
+      {/* Real Navbar — guests see Login + Sign Up */}
+      <Navbar isLoggedIn={false} setIsLoggedIn={() => {}} />
+
+      {/* Ticker + live counter — sits flush under the 64px navbar */}
+      <TickerContainer>
+        <TickerBar>
+          <TickerLabel>⚡ Trending</TickerLabel>
+          <TickerTrack>
+            <TickerInner>
+              {["Dune: Part Two", "Gladiator II", "Oppenheimer", "Poor Things", "The Substance", "Alien: Romulus", "Deadpool & Wolverine", "Inside Out 2", "Twisters", "Kingdom of the Planet of the Apes",
+                "Dune: Part Two", "Gladiator II", "Oppenheimer", "Poor Things", "The Substance", "Alien: Romulus", "Deadpool & Wolverine", "Inside Out 2", "Twisters", "Kingdom of the Planet of the Apes"
+              ].map((title, i) => <TickerItem key={i}>{title}</TickerItem>)}
+            </TickerInner>
+          </TickerTrack>
+          <LiveBadge title="Live viewers right now">
+            <LiveDot />
+            <LiveText>{liveCount.toLocaleString()} watching</LiveText>
+          </LiveBadge>
+        </TickerBar>
+      </TickerContainer>
 
       {memoizedHero}
 

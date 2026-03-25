@@ -39,7 +39,7 @@ function App() {
         {/* ================================================================== */}
 
         <Route path="/"
-          element={!isLoggedIn ? <PublicHome /> : <Navigate to="/home" />}
+          element={!isLoggedIn ? <PublicHome setIsLoggedIn={setIsLoggedIn} /> : <Navigate to="/home" />}
         />
         <Route path="/login"
           element={!isLoggedIn ? <Login setIsLoggedIn={setIsLoggedIn} /> : <Navigate to="/home" />}

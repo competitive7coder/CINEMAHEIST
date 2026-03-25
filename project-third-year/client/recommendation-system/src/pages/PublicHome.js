@@ -135,56 +135,117 @@ const LiveText = styled.span`
   white-space: nowrap;
 `;
 
-
-
+/* ── Hero ── */
 
 const HeroSection = styled.section`
-  height: 100vh; 
-  display: flex; 
+  height: 100vh;
+  display: flex;
   flex-direction: column;
-  justify-content: center; 
-  align-items: center; 
+  justify-content: center;
+  align-items: center;
   padding: 96px 5% 0;
   text-align: center;
+  position: relative;
+  overflow: hidden;
+
+  /* Red/dark radial glow behind title */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -55%);
+    width: 70vw;
+    height: 60vh;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(229, 9, 20, 0.18) 0%,
+      rgba(120, 0, 10, 0.10) 40%,
+      transparent 70%
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  > * { position: relative; z-index: 1; }
 `;
 
 const MassiveTitle = styled.h1`
   font-size: clamp(3.5rem, 12vw, 11rem);
-  font-weight: 900; 
-  line-height: 0.95; 
+  font-weight: 900;
+  line-height: 0.95;
   letter-spacing: -0.06em;
-  margin: 0; 
+  margin: 0;
   text-align: center;
   width: 100%;
   .top {
     display: block;
     background: linear-gradient(180deg, #fff 30%, rgba(255,255,255,0.1) 100%);
-    -webkit-background-clip: text; 
+    -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     margin-bottom: 5px;
   }
   .bottom {
-    display: block; 
+    display: block;
     -webkit-text-stroke: 1px rgba(255,255,255,0.2);
     color: transparent;
   }
 `;
 
+/* NEW: subtitle line */
+const HeroSubtitle = styled.p`
+  margin: 22px 0 0;
+  font-size: clamp(0.95rem, 2vw, 1.2rem);
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.45);
+  letter-spacing: 0.02em;
+  line-height: 1.5;
+`;
+
+/* NEW: social proof pill row */
+const SocialProof = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+`;
+
+const ProofPill = styled.span`
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  padding: 5px 14px;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 50px;
+`;
+
+const ProofDivider = styled.span`
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+`;
+
 const ActionButton = styled(Link)`
-  padding: 22px 50px; 
-  background: #fff; 
+  padding: 22px 50px;
+  background: #fff;
   color: #000;
-  text-decoration: none; 
-  font-weight: 800; 
+  text-decoration: none;
+  font-weight: 800;
   font-size: 0.75rem;
-  letter-spacing: 4px; 
+  letter-spacing: 4px;
   text-transform: uppercase;
   margin-top: 60px;
   transition: all 0.3s ease;
   box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  &:hover { 
-    background: #2e62ff; 
-    color: #fff; 
+  &:hover {
+    background: #2e62ff;
+    color: #fff;
     transform: translateY(-5px);
     box-shadow: 0 15px 40px rgba(46, 98, 255, 0.4);
   }
@@ -216,85 +277,85 @@ const ModernUIFrame = styled.div`
   box-shadow: 0 40px 100px rgba(0,0,0,0.5);
   direction: ltr;
   .inner-content { background: #000; border-radius: 10px; padding: 30px; }
-  .ui-label { 
-    font-family: 'SF Mono', monospace; 
-    font-size: 0.55rem; 
-    color: #444; 
-    letter-spacing: 3px; 
-    margin-bottom: 20px; 
-    display: flex; 
-    justify-content: space-between; 
-    span { color: #2e62ff; } 
+  .ui-label {
+    font-family: 'SF Mono', monospace;
+    font-size: 0.55rem;
+    color: #444;
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    span { color: #2e62ff; }
   }
   @media (max-width: 480px) { .inner-content { padding: 20px; } }
 `;
 
 const TrailerCard = styled.div`
-  width: 100%; 
+  width: 100%;
   aspect-ratio: 16/9;
   background: url('https://images.unsplash.com/photo-1536440136628-849c177e76a1?q=80&w=1000&auto=format&fit=crop') center/cover;
-  border-radius: 6px; 
+  border-radius: 6px;
   position: relative;
   border: 1px solid rgba(255,255,255,0.1);
   overflow: hidden;
-  &::after { 
-    content: ''; 
-    position: absolute; 
-    inset: 0; 
-    background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, transparent 60%); 
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, transparent 60%);
   }
-  .play-icon { 
-    position: absolute; 
-    top: 50%; 
-    left: 50%; 
-    transform: translate(-50%, -50%); 
-    width: 60px; 
-    height: 60px; 
-    background: rgba(46, 98, 255, 0.9); 
-    border-radius: 50%; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    font-size: 1.2rem; 
+  .play-icon {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 60px;
+    background: rgba(46, 98, 255, 0.9);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
     box-shadow: 0 0 30px rgba(46, 98, 255, 0.4);
     z-index: 2;
   }
 `;
 
 const IntelGrid = styled.div`
-  display: flex; 
-  flex-direction: column; 
+  display: flex;
+  flex-direction: column;
   gap: 12px;
-  .row { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    padding: 15px; 
-    background: rgba(255,255,255,0.03); 
-    border-radius: 6px; 
-    border-left: 2px solid transparent; 
+  .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 6px;
+    border-left: 2px solid transparent;
     transition: 0.3s;
-    &:hover { border-left: 2px solid #2e62ff; background: rgba(255,255,255,0.05); } 
-    span { font-size: 0.8rem; color: #888; } 
-    b { color: #2e62ff; font-family: monospace; font-size: 1rem; } 
+    &:hover { border-left: 2px solid #2e62ff; background: rgba(255,255,255,0.05); }
+    span { font-size: 0.8rem; color: #888; }
+    b { color: #2e62ff; font-family: monospace; font-size: 1rem; }
   }
 `;
 
 const WatchlistUI = styled.div`
-  display: grid; 
-  grid-template-columns: repeat(3, 1fr); 
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
-  .movie-thumb { 
-    aspect-ratio: 2/3; 
-    background: #111; 
-    border-radius: 4px; 
-    border: 1px solid rgba(255,255,255,0.05); 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    font-size: 0.5rem; 
-    color: #333; 
-    &:first-child { background: #1a1a1a; border-color: #2e62ff; color: #2e62ff; } 
+  .movie-thumb {
+    aspect-ratio: 2/3;
+    background: #111;
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.5rem;
+    color: #333;
+    &:first-child { background: #1a1a1a; border-color: #2e62ff; color: #2e62ff; }
   }
 `;
 
@@ -303,37 +364,37 @@ const TextBlock = styled.div`
   .tag { color: #2e62ff; font-family: monospace; font-size: 0.7rem; letter-spacing: 6px; text-transform: uppercase; margin-bottom: 25px; display: block; }
   h2 { font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 900; letter-spacing: -3px; line-height: 1; margin: 0 0 35px 0; }
   p { font-size: 1.1rem; color: #777; line-height: 1.8; margin-bottom: 45px; max-width: 500px; }
-  .stats { 
-    display: grid; 
-    grid-template-columns: 1fr 1fr; 
-    gap: 30px; 
-    .stat { 
-      border-left: 1px solid #222; 
-      padding-left: 20px; 
-      label { display: block; font-family: monospace; font-size: 0.6rem; color: #444; text-transform: uppercase; } 
-      b { display: block; color: #fff; font-size: 1.1rem; margin-top: 8px; } 
-    } 
+  .stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    .stat {
+      border-left: 1px solid #222;
+      padding-left: 20px;
+      label { display: block; font-family: monospace; font-size: 0.6rem; color: #444; text-transform: uppercase; }
+      b { display: block; color: #fff; font-size: 1.1rem; margin-top: 8px; }
+    }
   }
 `;
 
 const FooterBig = styled.footer`
-  padding: 180px 6% 100px; 
+  padding: 180px 6% 100px;
   text-align: center;
   border-top: 1px solid rgba(255, 255, 255, 0.04);
   background: radial-gradient(circle at 50% 100%, rgba(46, 98, 255, 0.05) 0%, transparent 70%);
-  h2 { 
-    font-size: clamp(3rem, 15vw, 12rem); 
-    font-weight: 950; 
-    margin: 0; 
-    line-height: 0.75; 
-    letter-spacing: -0.09em; 
-    background: linear-gradient(180deg, #fff 10%, rgba(255,255,255,0.1) 100%); 
-    -webkit-background-clip: text; 
-    -webkit-text-fill-color: transparent; 
+  h2 {
+    font-size: clamp(3rem, 15vw, 12rem);
+    font-weight: 950;
+    margin: 0;
+    line-height: 0.75;
+    letter-spacing: -0.09em;
+    background: linear-gradient(180deg, #fff 10%, rgba(255,255,255,0.1) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 `;
 
-const PublicHome = () => {
+const PublicHome = ({ setIsLoggedIn }) => {
   useSEO({
     title: "Watch Movies Online Free — Stream Latest Films",
     description: "StreamHub lets you discover and watch movies online free. AI-powered recommendations, trending films, and the latest releases. No subscription needed.",
@@ -355,6 +416,19 @@ const PublicHome = () => {
         <span className="top">CINEMA</span>
         <span className="bottom">DISCOVERY</span>
       </MassiveTitle>
+
+      {/* Subtitle */}
+      <HeroSubtitle>Watch movies free. No subscription.</HeroSubtitle>
+
+      {/* Social proof */}
+      <SocialProof>
+        <ProofPill>Free</ProofPill>
+        <ProofDivider />
+        <ProofPill>No signup needed</ProofPill>
+        <ProofDivider />
+        <ProofPill>10,000+ titles</ProofPill>
+      </SocialProof>
+
       <ActionButton to="/signup">Initialize Access</ActionButton>
     </HeroSection>
   ), []);
@@ -364,7 +438,7 @@ const PublicHome = () => {
       <GlobalStyle />
 
       {/* Real Navbar — guests see Login + Sign Up */}
-      <Navbar isLoggedIn={false} setIsLoggedIn={() => {}} />
+      <Navbar isLoggedIn={false} setIsLoggedIn={setIsLoggedIn} />
 
       {/* Ticker + live counter — sits flush under the 64px navbar */}
       <TickerContainer>
@@ -449,7 +523,7 @@ const PublicHome = () => {
                   <div key={i} className="movie-thumb" aria-label="Watchlist item">{i === 0 ? 'SAVED' : ''}</div>
                 ))}
               </WatchlistUI>
-              <button 
+              <button
                 type="button"
                 style={{ width: '100%', marginTop: '20px', padding: '12px', background: '#2e62ff', border: 'none', color: '#fff', fontSize: '0.6rem', fontWeight: '800', letterSpacing: '2px', borderRadius: '4px', cursor: 'pointer' }}
               >

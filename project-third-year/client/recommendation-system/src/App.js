@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -17,23 +17,26 @@ import AboutUs from './pages/AboutUs';
 
 import ResetPassword from './components/auth/ResetPassword';
 import FAQ from './footer/FAQ';
-// import CareersPage from './footer/CareersPage';      // kept — move to pages/footer/ if needed
 
-// Legal pages — public, no login required
 import DMCA from './footer/Dmca';
 import PrivacyPolicy from './footer/PrivacyPolicy';
 import TermsOfUse from './footer/Termsofuse';
 import Disclaimer from './footer/Disclaimer';
+import Footer from './footer/Footer';
 
+// Wrapper for public legal pages — adds Footer, sticks it to bottom
+const PublicPageWithFooter = ({ children }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#000' }}>
+    <div style={{ flex: 1 }}>{children}</div>
+    <Footer />
+  </div>
+);
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  useEffect(() => {
-    if (localStorage.getItem('token')) {
-      setIsLoggedIn(true);
-    }
-  }, []);
+  // ✅ FIX: synchronous init — no useEffect, no re-render, no CLS
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    () => !!localStorage.getItem('token')
+  );
 
   return (
     <Router>
@@ -46,59 +49,50 @@ function App() {
       <Routes>
 
         {/* ================================================================== */}
-        {/* === GROUP 1: PUBLIC ROUTES (No Navbar/Footer, Logged-Out) ======== */}
+        {/* === GROUP 1: PUBLIC ROUTES (No Navbar/Footer, Logged-Out only) === */}
         {/* ================================================================== */}
 
-        <Route
-          path="/"
+        <Route path="/"
           element={!isLoggedIn ? <PublicHome /> : <Navigate to="/home" />}
         />
-        <Route
-          path="/login"
+        <Route path="/login"
           element={!isLoggedIn ? <Login setIsLoggedIn={setIsLoggedIn} /> : <Navigate to="/home" />}
         />
-        <Route
-          path="/signup"
+        <Route path="/signup"
           element={!isLoggedIn ? <Signup /> : <Navigate to="/home" />}
         />
-        <Route
-          path="/reset-password/:token"
+        <Route path="/reset-password/:token"
           element={!isLoggedIn ? <ResetPassword /> : <Navigate to="/home" />}
         />
 
         {/* ================================================================== */}
         {/* === GROUP 2: LEGAL ROUTES (Public — no login required) =========== */}
-        {/* Legal pages must be public so DMCA bots/studios can always reach   */}
-        {/* them without needing an account.                                    */}
         {/* ================================================================== */}
 
-        <Route path="/dmca"       element={<DMCA />} />
-        <Route path="/privacy"    element={<PrivacyPolicy />} />
-        <Route path="/terms"      element={<TermsOfUse />} />
-        <Route path="/disclaimer" element={<Disclaimer />} />
-        <Route path="/faq"        element={<FAQ />} />
+        <Route path="/dmca"       element={<PublicPageWithFooter><DMCA /></PublicPageWithFooter>} />
+        <Route path="/privacy"    element={<PublicPageWithFooter><PrivacyPolicy /></PublicPageWithFooter>} />
+        <Route path="/terms"      element={<PublicPageWithFooter><TermsOfUse /></PublicPageWithFooter>} />
+        <Route path="/disclaimer" element={<PublicPageWithFooter><Disclaimer /></PublicPageWithFooter>} />
+        <Route path="/faq"        element={<PublicPageWithFooter><FAQ /></PublicPageWithFooter>} />
 
-        {/* Legacy footer routes — kept for backward compatibility */}
-        {/* <Route path="/PrivacyPolicy"   element={<PrivacyPolicy />} /> */}
-        {/* <Route path="/TermsOfService"  element={<TermsOfUse />} />   */}
-
-
-        {/* =================================================================== */}
-        {/* === GROUP 3: PROTECTED ROUTES (With Navbar/Footer, Logged-In) ==== */}
-        {/* =================================================================== */}
+        {/* ================================================================== */}
+        {/* === GROUP 3: PROTECTED ROUTES (Navbar + Footer, Login required) == */}
+        {/* ================================================================== */}
 
         <Route
-          element={isLoggedIn ? <MainLayout isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} /> : <Navigate to="/" />}
+          element={isLoggedIn
+            ? <MainLayout isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
+            : <Navigate to="/" />
+          }
         >
-          <Route path="/home"              element={<HomePage />} />
-          <Route path="/dashboard"         element={<Dashboard setIsLoggedIn={setIsLoggedIn} />} />
-          <Route path="/genre/:genreId"    element={<GenrePage />} />
-          <Route path="/movie/:movieId"    element={<MovieDetailPage />} />
-          <Route path="/search"            element={<SearchPage />} />
-          <Route path="/contact"           element={<ContactUs />} />
-          <Route path="/about"             element={<AboutUs />} />
+          <Route path="/home"           element={<HomePage />} />
+          <Route path="/dashboard"      element={<Dashboard setIsLoggedIn={setIsLoggedIn} />} />
+          <Route path="/genre/:genreId" element={<GenrePage />} />
+          <Route path="/movie/:movieId" element={<MovieDetailPage />} />
+          <Route path="/search"         element={<SearchPage />} />
+          <Route path="/contact"        element={<ContactUs />} />
+          <Route path="/about"          element={<AboutUs />} />
           <Route path="/FAQ"            element={<FAQ />} />
-          {/* <Route path="/careers"        element={<CareersPage />} /> */}
         </Route>
 
         {/* Catch-all */}

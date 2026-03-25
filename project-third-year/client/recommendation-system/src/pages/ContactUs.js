@@ -28,9 +28,6 @@ const ContactUs = () => {
     const ctx = canvas.getContext("2d");
     let animId;
 
-    // ✅ FIX: Use ResizeObserver instead of window resize + offsetWidth/offsetHeight.
-    // ResizeObserver gives us the size via its callback entry (no layout read = no forced reflow).
-    // Debounced so rapid resize events don't thrash the canvas.
     let resizeTimer;
     const ro = new ResizeObserver((entries) => {
       clearTimeout(resizeTimer);
@@ -42,9 +39,9 @@ const ContactUs = () => {
     });
     ro.observe(canvas);
 
-    // Set initial size from ResizeObserver's first entry synchronously
-    canvas.width = canvas.getBoundingClientRect().width;
-    canvas.height = canvas.getBoundingClientRect().height;
+    // Safe defaults — ResizeObserver fires immediately and corrects these
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
     const particles = Array.from({ length: 40 }, () => ({
       x: Math.random() * canvas.width, y: Math.random() * canvas.height,
@@ -52,6 +49,7 @@ const ContactUs = () => {
       dx: (Math.random() - 0.5) * 0.3, dy: (Math.random() - 0.5) * 0.3,
       o: Math.random() * 0.4 + 0.1,
     }));
+
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       particles.forEach(p => {
@@ -66,6 +64,7 @@ const ContactUs = () => {
       animId = requestAnimationFrame(draw);
     };
     draw();
+
     return () => {
       cancelAnimationFrame(animId);
       clearTimeout(resizeTimer);
@@ -95,15 +94,14 @@ const ContactUs = () => {
   };
 
   const infoItems = [
-    { icon: "bi-envelope-at",   label: "General Enquiries", value: "hello.streamhub@proton.me",    href: "mailto:hello.streamhub@proton.me" },
-    { icon: "bi-shield-check",  label: "DMCA / Copyright",  value: "dmca.streamhub@proton.me",     href: "mailto:dmca.streamhub@proton.me" },
-    { icon: "bi-bug",           label: "Bug Reports",       value: "bugs.streamhub@proton.me",     href: "mailto:bugs.streamhub@proton.me" },
+    { icon: "bi-envelope-at",  label: "General Enquiries", value: "hello.streamhub@proton.me", href: "mailto:hello.streamhub@proton.me" },
+    { icon: "bi-shield-check", label: "DMCA / Copyright",  value: "dmca.streamhub@proton.me",  href: "mailto:dmca.streamhub@proton.me" },
+    { icon: "bi-bug",          label: "Bug Reports",       value: "bugs.streamhub@proton.me",  href: "mailto:bugs.streamhub@proton.me" },
   ];
 
   return (
     <div style={{ minHeight: "100vh", background: "#000", fontFamily: "'Poppins', sans-serif", color: "#fff", position: "relative", overflow: "hidden" }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         .cu-page {
@@ -138,7 +136,6 @@ const ContactUs = () => {
         }
         @media (max-width: 900px) { .cu-grid { grid-template-columns: 1fr; max-width: 560px; } }
 
-        /* Info */
         .cu-info {
           background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07);
           border-radius: 20px; padding: 32px 28px;
@@ -166,7 +163,6 @@ const ContactUs = () => {
         .cu-clock-dot { width: 6px; height: 6px; background: #e50914; border-radius: 50%; animation: cu-blink 1.2s ease-in-out infinite; flex-shrink: 0; }
         @keyframes cu-blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
 
-        /* Form */
         .cu-form-panel {
           background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07);
           border-radius: 20px; padding: 34px 32px;
@@ -214,7 +210,6 @@ const ContactUs = () => {
         .cu-btn-spinner { width: 15px; height: 15px; border: 2px solid rgba(255,255,255,0.25); border-top-color: #fff; border-radius: 50%; animation: cu-spin 0.75s linear infinite; }
         @keyframes cu-spin { to { transform: rotate(360deg); } }
 
-        /* Success */
         .cu-success {
           display: flex; flex-direction: column; align-items: center;
           justify-content: center; text-align: center; padding: 50px 20px; gap: 14px;
@@ -236,7 +231,6 @@ const ContactUs = () => {
       <div style={{ position: "fixed", bottom: "-10%", left: "-5%", width: 350, height: 350, background: "radial-gradient(circle, rgba(229,9,20,0.04) 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 }} />
 
       <div className="cu-page">
-        {/* Header */}
         <div className="cu-header">
           <div className="cu-eyebrow"><i className="bi bi-chat-dots" /> Get in Touch</div>
           <h1>Contact <em>StreamHub</em></h1>

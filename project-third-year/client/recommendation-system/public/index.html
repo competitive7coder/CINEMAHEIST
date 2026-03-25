@@ -56,6 +56,13 @@
       }
     </script>
 
+    <!-- Critical inline CSS — unblocks first paint before main.css loads -->
+    <style>
+      *,*::before,*::after{box-sizing:border-box}
+      body{margin:0;background:#000;color:#fff;font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;overflow-x:hidden}
+      #root{min-height:100vh;background:#000}
+    </style>
+
     <!-- Fonts — single combined request -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

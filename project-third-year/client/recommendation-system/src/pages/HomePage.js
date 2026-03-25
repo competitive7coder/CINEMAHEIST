@@ -74,7 +74,7 @@ const HomePage = () => {
       api.get("/movies/trending"),
       api.get("/movies/top-rated-in"),
       api.get("/movies/now-playing"),
-      token ? api.get("/users/watchlist") : Promise.resolve({ data: [] }),
+      token ? api.get("/users/watchlist").catch(() => ({ data: [] })) : Promise.resolve({ data: [] }),
     ])
       .then(([trendRes, top10Res, newRelRes, wlRes]) => {
         if (cancelled) return; // StrictMode unmounted — discard result
@@ -155,7 +155,12 @@ const HomePage = () => {
   // ── WATCHLIST TOGGLE ───────────────────────────────────────────────────
   const handleWatchlistToggle = useCallback(async (movie) => {
     const token = localStorage.getItem("token");
-    if (!token) { toast.error("Please log in to add to your watchlist."); return; }
+    if (!token) {
+      toast.info("Sign in to save movies to your watchlist!", {
+        toastId: "watchlist-auth", // prevent duplicate toasts on rapid clicks
+      });
+      return;
+    }
 
     const inList = watchlist.includes(movie.id);
     // Optimistic update — button flips instantly

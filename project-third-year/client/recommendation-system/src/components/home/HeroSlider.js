@@ -23,36 +23,22 @@ const HeroSlider = ({
   });
   const sliderMovies = movies.slice(0, 10);
 
-  // ── Preload first slide image so browser fetches it ASAP (fixes LCP) ──
-  const firstBackdrop = sliderMovies[0]?.backdrop_path;
-
+  // ── Load Google Fonts non-blocking via <link> in <head> ──
   useEffect(() => {
-    if (!firstBackdrop) return;
-    const url = `https://image.tmdb.org/t/p/w1280${firstBackdrop}`;
-
-    const existing = document.getElementById("hero-lcp-preload");
-    if (existing) {
-      existing.href = url;
-      return;
-    }
-
+    if (document.getElementById("hero-gfonts")) return;
     const link = document.createElement("link");
-    link.id = "hero-lcp-preload";
-    link.rel = "preload";
-    link.as = "image";
-    link.fetchPriority = "high";
-    link.setAttribute("fetchpriority", "high");
-    link.href = url;
+    link.id = "hero-gfonts";
+    link.rel = "stylesheet";
+    link.href =
+      "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap";
     document.head.appendChild(link);
-  }, [firstBackdrop]);
+  }, []);
 
   const handleSlideChange = useCallback((swiper) => {
     setActiveIndex(swiper.realIndex);
   }, []);
 
   const componentStyles = `
-    @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
-
     /* ── Base ── */
     .hero-slider {
       height: 100vh;
@@ -74,24 +60,33 @@ const HeroSlider = ({
     .hero-slide-inner {
       position: absolute;
       inset: 0;
-      background-repeat: no-repeat;
-      background-size: cover;
-      background-position: top center;
+      overflow: hidden;
       display: flex;
       align-items: flex-end;
       justify-content: flex-start;
     }
 
-    /* Ken Burns desktop only */
+    /* ── LCP image fills the slide ── */
+    .hero-bg-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      z-index: 0;
+    }
+
+    /* Ken Burns desktop only — applied to the img */
     @media (min-width: 769px) {
-      .hero-slide-inner {
+      .hero-bg-img {
         animation: heroKenBurns 20s ease-in-out infinite alternate;
       }
     }
 
     @keyframes heroKenBurns {
-      from { background-size: 105%; background-position: center 20%; }
-      to   { background-size: 115%; background-position: center 30%; }
+      from { transform: scale(1.05) translateY(-2%); }
+      to   { transform: scale(1.15) translateY(-4%); }
     }
 
     /* ── Overlays ── */
@@ -383,13 +378,13 @@ const HeroSlider = ({
     }
 
     /* ════════════════════════════════
-       MOBILE 
+       MOBILE
     ════════════════════════════════ */
-   @media (max-width: 480px) {
-  .hero-slider {
-    height: 100svh;
-    min-height: 620px;
-  }
+    @media (max-width: 480px) {
+      .hero-slider {
+        height: 100svh;
+        min-height: 620px;
+      }
 
       /* Full viewport image */
       .hero-slide-inner {
@@ -397,8 +392,7 @@ const HeroSlider = ({
         inset: 0;
         background-size: cover;
         background-position: top center;
-            align-items: flex-end;
-
+        align-items: flex-end;
       }
 
       /* Stronger bottom gradient so text pops */
@@ -527,7 +521,7 @@ const HeroSlider = ({
         onSlideChange={handleSlideChange}
         autoplay={{ delay: 6000, disableOnInteraction: false }}
       >
-        {sliderMovies.map((movie) => {
+        {sliderMovies.map((movie, index) => {
           const isInWatchlist = watchlist.includes(movie.id);
           const rating = movie.vote_average
             ? movie.vote_average.toFixed(1)
@@ -536,17 +530,25 @@ const HeroSlider = ({
             ? movie.release_date.slice(0, 4)
             : null;
 
+          // Use high-res for slide 1 (LCP), smaller for rest
+          const imgSize = index === 0 ? "w1280" : "w780";
+
           return (
             <SwiperSlide
               key={movie.id}
               style={{ height: "100%", position: "relative" }}
             >
-              <div
-                className="hero-slide-inner"
-                style={{
-                  backgroundImage: `url(https://image.tmdb.org/t/p/w1280${movie.backdrop_path})`,
-                }}
-              >
+              <div className="hero-slide-inner">
+                {/* <img> tag — browser can detect & prioritize LCP */}
+                <img
+                  className="hero-bg-img"
+                  src={`https://image.tmdb.org/t/p/${imgSize}${movie.backdrop_path}`}
+                  alt={movie.title}
+                  fetchpriority={index === 0 ? "high" : "low"}
+                  loading={index === 0 ? "eager" : "lazy"}
+                  decoding={index === 0 ? "sync" : "async"}
+                />
+
                 <div className="hero-overlay-main" />
                 <div className="hero-overlay-accent" />
 

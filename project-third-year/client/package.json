@@ -6,6 +6,7 @@
     "react-scripts": "^5.0.1"
   },
   "devDependencies": {
-    "baseline-browser-mapping": "^2.10.10"
+    "baseline-browser-mapping": "^2.10.10",
+    "source-map-explorer": "^2.5.3"
   }
 }

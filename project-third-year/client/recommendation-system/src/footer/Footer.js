@@ -207,7 +207,7 @@ const Dot = styled.span`
 
 const Footer = () => {
   return (
-    <>
+  
     <FooterWrapper>
       <Inner>
         <MainGrid>
@@ -280,7 +280,7 @@ const Footer = () => {
 
       </Inner>
     </FooterWrapper>
-    </>
+
   );
 };
 

@@ -14,7 +14,7 @@ const MovieCard = ({
   const [showWatchModal, setShowWatchModal] = useState(false);
 
   const posterUrl = movie.poster_path
-    ? `https://image.tmdb.org/t/p/w342${movie.poster_path}`
+    ? `https://image.tmdb.org/t/p/w185${movie.poster_path}`
     : "https://placehold.co/200x300?text=No+Image";
 
   const year = movie.release_date
@@ -183,7 +183,7 @@ const MovieCard = ({
     <>
       <style>{styles}</style>
       <div className="mc-card" onClick={handleCardClick}>
-        <img src={posterUrl} alt={movie.title} className="mc-poster" />
+        <img src={posterUrl} alt={movie.title} className="mc-poster" loading="lazy" decoding="async" />
         <div className="mc-rating-badge">⭐ {rating}</div>
 
         {/* Mobile Info */}

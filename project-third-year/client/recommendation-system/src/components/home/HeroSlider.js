@@ -530,8 +530,11 @@ const HeroSlider = ({
             ? movie.release_date.slice(0, 4)
             : null;
 
-          // Use high-res for slide 1 (LCP), smaller for rest
-          const imgSize = index === 0 ? "w1280" : "w780";
+          // Responsive image size — smaller on mobile to save bandwidth
+          const isMobile = window.innerWidth <= 768;
+          const imgSize = index === 0
+            ? (isMobile ? "w780" : "w1280")
+            : "w500";
 
           return (
             <SwiperSlide

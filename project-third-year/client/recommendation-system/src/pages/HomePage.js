@@ -4,13 +4,12 @@ import api from "../services/api";
 import HeroSlider from "../components/home/HeroSlider";
 import MovieRow from "../components/movie/MovieRow";
 import { toast } from "react-toastify";
-const VideoModal = lazy(() => import("../components/common/VideoModal"));
-// import LoadingSpinner from "../components/common/LoadingSpinner";
 
-
-// Lazy-load Top10 + its Swiper so they don't block hero paint
+// Lazy-load below-fold components — don't block hero paint
+const VideoModal   = lazy(() => import("../components/common/VideoModal"));
 const Top10Section = lazy(() => import("../components/movie/Top10Section"));
 
+// ── Constants ────────────────────────────────────────────────────────────────
 const GENRE_ORDER = [
   { id: 28,    name: "Action Packed" },
   { id: 878,   name: "Science Fiction" },
@@ -24,7 +23,18 @@ const GENRE_ORDER = [
   { id: 27,    name: "Horror Flicks" },
 ];
 
-// Shimmer skeleton for a single MovieRow while it's loading
+const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || "http://localhost:8000";
+
+// ── Skeletons (defined outside component — stable references, no re-creation) ─
+const skeletonStyle = (w, h) => ({
+  width: w,
+  height: h,
+  borderRadius: 6,
+  background: "linear-gradient(90deg,#161616 25%,#242424 50%,#161616 75%)",
+  backgroundSize: "400% 100%",
+  animation: "shimmer 1.5s infinite",
+});
+
 const RowSkeleton = () => (
   <div style={{ marginBottom: "2.5rem" }}>
     <div style={{ display: "flex", alignItems: "center", marginBottom: 14, gap: 12 }}>
@@ -46,7 +56,7 @@ const RowSkeleton = () => (
   </div>
 );
 
-// Hero skeleton — shown instantly on mount, no spinner blocking render
+// Full-viewport shimmer shown before trending data arrives
 const HeroSkeleton = () => (
   <div
     style={{
@@ -59,72 +69,82 @@ const HeroSkeleton = () => (
   />
 );
 
-function skeletonStyle(w, h) {
-  return {
-    width: w,
-    height: h,
-    borderRadius: 6,
-    background: "linear-gradient(90deg,#161616 25%,#242424 50%,#161616 75%)",
-    backgroundSize: "400% 100%",
-    animation: "shimmer 1.5s infinite",
-  };
-}
-
+// ── Component ────────────────────────────────────────────────────────────────
 const HomePage = () => {
-  // Phase 1 — critical above-the-fold content
+  // Phase 1a — hero (fetched first, alone)
   const [trendingMovies, setTrendingMovies] = useState([]);
+  const [heroReady, setHeroReady]           = useState(false);
+
+  // Phase 1b — below-hero content (fetched in parallel after hero fires)
   const [top10Movies, setTop10Movies]       = useState([]);
   const [newReleases, setNewReleases]       = useState([]);
   const [watchlist, setWatchlist]           = useState([]);
-  const [heroReady, setHeroReady]           = useState(false);
 
-  // Phase 2 — genre rows stream in one by one
+  // Phase 2 — genre rows streamed via SSE
   const [moviesByGenre, setMoviesByGenre]   = useState({});
   const [streamDone, setStreamDone]         = useState(false);
   const [loadedCount, setLoadedCount]       = useState(0);
 
+  // Video modal
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [videoKey, setVideoKey]             = useState(null);
-  const esRef                               = useRef(null);
 
-  // ── PHASE 1: load hero + top10 + new releases in parallel ──────────────
+  const esRef = useRef(null);
+
+  // ── PHASE 1a: fetch trending FIRST so hero renders ASAP ──────────────────
+  useEffect(() => {
+    let cancelled = false;
+
+    api.get("/movies/trending")
+      .then((res) => {
+        if (cancelled) return;
+        setTrendingMovies(res.data?.results?.slice(0, 8) || []);
+        setHeroReady(true);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        console.error("Trending fetch error:", err);
+        setHeroReady(true); // unblock hero even on error
+      });
+
+    return () => { cancelled = true; };
+  }, []);
+
+  // ── PHASE 1b: fetch remaining above-fold data in parallel ────────────────
+  // Fires immediately — doesn't wait for trending to resolve
   useEffect(() => {
     let cancelled = false;
     const token = localStorage.getItem("token");
 
     Promise.all([
-      api.get("/movies/trending"),
       api.get("/movies/top-rated-in"),
       api.get("/movies/now-playing"),
       token
         ? api.get("/users/watchlist").catch(() => ({ data: [] }))
         : Promise.resolve({ data: [] }),
     ])
-      .then(([trendRes, top10Res, newRelRes, wlRes]) => {
+      .then(([top10Res, newRelRes, wlRes]) => {
         if (cancelled) return;
-        setTrendingMovies(trendRes.data?.results?.slice(0, 8) || []);
         setTop10Movies(top10Res.data.slice(0, 10));
         setNewReleases(newRelRes.data);
         setWatchlist(Array.isArray(wlRes.data) ? wlRes.data : []);
-        setHeroReady(true);
       })
       .catch((err) => {
         if (cancelled) return;
-        console.error("Homepage phase 1 error:", err);
-        toast.error("Failed to load movies.");
-        setHeroReady(true);
+        console.error("Homepage secondary fetch error:", err);
+        toast.error("Failed to load some content.");
       });
 
     return () => { cancelled = true; };
   }, []);
 
-  // ── PHASE 2: stream genre rows via SSE once hero is visible ────────────
+  // ── PHASE 2: SSE genre stream — starts once hero is visible ──────────────
   useEffect(() => {
     if (!heroReady) return;
 
+    // Guard against React StrictMode double-invoke
     if (esRef.current) { esRef.current.close(); esRef.current = null; }
 
-    const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || "http://localhost:8000";
     const es = new EventSource(
       `${SOCKET_URL}/api/v1/movies/homepage-sections/stream`
     );
@@ -136,7 +156,7 @@ const HomePage = () => {
         if (data.done) { setStreamDone(true); es.close(); return; }
         setMoviesByGenre((prev) => ({ ...prev, [data.name]: data.movies }));
         setLoadedCount((prev) => prev + 1);
-      } catch {}
+      } catch { /* ignore malformed frames */ }
     };
 
     es.onerror = () => { setStreamDone(true); es.close(); };
@@ -144,7 +164,7 @@ const HomePage = () => {
     return () => { es.close(); esRef.current = null; };
   }, [heroReady]);
 
-  // ── ACTIVITY LOG ───────────────────────────────────────────────────────
+  // ── ACTIVITY LOG ─────────────────────────────────────────────────────────
   const logActivity = useCallback(async (movie, actionType) => {
     if (!movie) return;
     try {
@@ -154,10 +174,10 @@ const HomePage = () => {
         movie_title:       movie.title || movie.name,
         movie_poster_path: movie.poster_path,
       });
-    } catch {}
+    } catch { /* non-critical, swallow silently */ }
   }, []);
 
-  // ── TRAILER ────────────────────────────────────────────────────────────
+  // ── TRAILER ──────────────────────────────────────────────────────────────
   const handleWatchTrailerClick = useCallback(async (movieOrId) => {
     const movie   = typeof movieOrId === "object" ? movieOrId : null;
     const movieId = movie ? movie.id : movieOrId;
@@ -175,20 +195,23 @@ const HomePage = () => {
     setShowVideoModal(true);
   }, [logActivity]);
 
-  // ── WATCHLIST TOGGLE ───────────────────────────────────────────────────
+  // ── WATCHLIST TOGGLE ─────────────────────────────────────────────────────
   const handleWatchlistToggle = useCallback(async (movie) => {
     const token = localStorage.getItem("token");
     if (!token) {
       toast.info("Sign in to save movies to your watchlist!", {
-        toastId: "watchlist-auth",
+        toastId: "watchlist-auth", // prevent duplicate toasts on rapid clicks
       });
       return;
     }
 
     const inList = watchlist.includes(movie.id);
+
+    // Optimistic update — button flips instantly
     setWatchlist((prev) =>
       inList ? prev.filter((id) => id !== movie.id) : [...prev, movie.id]
     );
+
     try {
       if (inList) {
         await api.delete(`/users/watchlist/${movie.id}`);
@@ -200,6 +223,7 @@ const HomePage = () => {
         toast.success("Added to watchlist");
       }
     } catch {
+      // Revert optimistic update on failure
       setWatchlist((prev) =>
         inList ? [...prev, movie.id] : prev.filter((id) => id !== movie.id)
       );
@@ -207,11 +231,12 @@ const HomePage = () => {
     }
   }, [watchlist, logActivity]);
 
-  // ── RENDER ─────────────────────────────────────────────────────────────
-  // No more blocking spinner — page paints skeleton immediately
-  const totalGenres = GENRE_ORDER.length;
-  const progressPct = streamDone ? 100 : Math.round((loadedCount / totalGenres) * 100);
+  // ── DERIVED ───────────────────────────────────────────────────────────────
+  const progressPct = streamDone
+    ? 100
+    : Math.round((loadedCount / GENRE_ORDER.length) * 100);
 
+  // ── RENDER ────────────────────────────────────────────────────────────────
   return (
     <div style={{ backgroundColor: "#000", minHeight: "100vh" }}>
       <style>{`
@@ -231,14 +256,14 @@ const HomePage = () => {
         }
       `}</style>
 
-      {/* Thin progress bar */}
+      {/* SSE progress bar — disappears when all genre rows are loaded */}
       {!streamDone && (
         <div className="stream-progress">
           <div className="stream-progress-bar" style={{ width: `${progressPct}%` }} />
         </div>
       )}
 
-      {/* ✅ Show HeroSkeleton instantly — swap to real slider when data arrives */}
+      {/* Hero — renders as soon as trending resolves (Phase 1a) */}
       {!heroReady ? (
         <HeroSkeleton />
       ) : trendingMovies.length > 0 ? (
@@ -252,7 +277,7 @@ const HomePage = () => {
 
       <div className="container-fluid pt-5">
 
-        {/*  Top10 is lazy + Suspense — doesn't block hero paint */}
+        {/* Top 10 — lazy loaded, doesn't block hero */}
         {top10Movies.length > 0 && (
           <Suspense fallback={<RowSkeleton />}>
             <Top10Section
@@ -296,11 +321,16 @@ const HomePage = () => {
 
       </div>
 
-      <VideoModal
-        show={showVideoModal}
-        handleClose={() => setShowVideoModal(false)}
-        videoKey={videoKey}
-      />
+      {/* Video modal — lazy loaded, only mounts when needed */}
+      {showVideoModal && (
+        <Suspense fallback={null}>
+          <VideoModal
+            show={showVideoModal}
+            handleClose={() => setShowVideoModal(false)}
+            videoKey={videoKey}
+          />
+        </Suspense>
+      )}
     </div>
   );
 };

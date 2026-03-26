@@ -22,9 +22,9 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "node generate-sitemap.js || true && react-scripts build",
-    "test": "react-scripts test",
+    "start": "craco start",
+    "build": "node generate-sitemap.js || true && craco build",
+    "test": "craco test",
     "eject": "react-scripts eject",
     "sitemap": "node generate-sitemap.js"
   },
@@ -47,6 +47,7 @@
     ]
   },
   "devDependencies": {
+    "@craco/craco": "^7.1.0",
     "@fullhuman/postcss-purgecss": "^8.0.0",
     "postcss": "^8.5.8"
   }

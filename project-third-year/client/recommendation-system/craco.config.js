@@ -1,13 +1,14 @@
-const purgecss = require('@fullhuman/postcss-purgecss')
-
 module.exports = {
+  webpack: {
+    plugins: []
+  },
   style: {
     postcss: {
+      mode: 'extends',
       plugins: [
-        purgecss({
+        require('@fullhuman/postcss-purgecss')({
           content: [
-            './src/**/*.js',
-            './src/**/*.jsx',
+            './src/**/*.{js,jsx,ts,tsx}',
             './public/index.html'
           ],
           defaultExtractor: content =>
@@ -33,6 +34,22 @@ module.exports = {
               /^form/,
               /^is-/,
               /^was-/,
+              /^d-/,
+              /^p-/,
+              /^m-/,
+              /^g-/,
+              /^col/,
+              /^row/,
+              /^flex/,
+              /^justify/,
+              /^align/,
+              /^text-/,
+              /^bg-/,
+              /^border/,
+              /^rounded/,
+              /^w-/,
+              /^h-/,
+              /^container/,
             ]
           }
         })

@@ -1,23 +1,30 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
-
+// import { BsFacebook, BsInstagram, BsTwitterX, BsYoutube } from 'react-icons/bs'
 
 const FooterWrapper = styled.footer`
   background: linear-gradient(to top, #000000, #080808);
   border-top: 1px solid rgba(255, 255, 255, 0.03);
-  font-family: 'Inter', 'Poppins', sans-serif;
+  font-family: "Inter", "Poppins", sans-serif;
   color: rgba(255, 255, 255, 0.5);
   padding: 80px 0 36px;
   min-height: 380px; /* CLS fix — reserves space before fonts/content paint */
   margin-top: auto;
   position: relative;
   &::before {
-    content: '';
+    content: "";
     position: absolute;
-    top: -1px; left: 0; right: 0;
+    top: -1px;
+    left: 0;
+    right: 0;
     height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(229, 9, 20, 0.5), transparent);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(229, 9, 20, 0.5),
+      transparent
+    );
   }
 `;
 
@@ -34,8 +41,14 @@ const MainGrid = styled.div`
   margin-bottom: 60px;
   min-height: 240px; /* CLS fix — prevents grid collapse before content loads */
   align-items: start;
-  @media (max-width: 768px) { grid-template-columns: 1fr 1fr; gap: 30px; }
-  @media (max-width: 480px) { grid-template-columns: 1fr; gap: 24px; }
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+  }
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
 `;
 
 const BrandSection = styled.div`
@@ -46,19 +59,23 @@ const BrandSection = styled.div`
 
 const BrandName = styled(Link)`
   text-decoration: none;
-  font-family: 'Bebas Neue', sans-serif;
+  font-family: "Bebas Neue", sans-serif;
   font-size: 2.2rem;
   font-weight: 400;
   letter-spacing: 0.06em;
   color: #fff;
   white-space: nowrap;
   transition: all 0.3s ease;
-  span { color: #e50914; }
-  &:hover { opacity: 0.85; }
+  span {
+    color: #e50914;
+  }
+  &:hover {
+    opacity: 0.85;
+  }
 `;
 
 const Disclaimer = styled.p`
-  font-family: 'Libre Baskerville', serif;
+  font-family: "Libre Baskerville", serif;
   font-size: 0.85rem;
   color: rgba(242, 237, 228, 0.3);
   line-height: 1.75;
@@ -103,7 +120,7 @@ const LinkGroup = styled.div`
 `;
 
 const GroupTitle = styled.h6`
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   font-size: 0.6rem;
   font-weight: 400;
   text-transform: uppercase;
@@ -113,16 +130,18 @@ const GroupTitle = styled.h6`
   position: relative;
   padding-bottom: 1rem;
   &::after {
-    content: '';
+    content: "";
     position: absolute;
-    left: 0; bottom: 0;
-    width: 20px; height: 1px;
+    left: 0;
+    bottom: 0;
+    width: 20px;
+    height: 1px;
     background: #e50914;
   }
 `;
 
 const FooterLink = styled(Link)`
-  font-family: 'Libre Baskerville', serif;
+  font-family: "Libre Baskerville", serif;
   font-size: 0.82rem;
   color: rgba(242, 237, 228, 0.4);
   text-decoration: none;
@@ -131,7 +150,10 @@ const FooterLink = styled(Link)`
   display: flex;
   align-items: center;
   gap: 6px;
-  &:hover { color: rgba(242,237,228,0.9); padding-left: 6px; }
+  &:hover {
+    color: rgba(242, 237, 228, 0.9);
+    padding-left: 6px;
+  }
 `;
 
 const LegalBadge = styled.span`
@@ -148,7 +170,7 @@ const LegalBadge = styled.span`
 
 const Divider = styled.div`
   height: 1px;
-  background: rgba(255,255,255,0.04);
+  background: rgba(255, 255, 255, 0.04);
   margin-bottom: 28px;
 `;
 
@@ -158,11 +180,14 @@ const BottomBar = styled.div`
   align-items: center;
   flex-wrap: wrap;
   gap: 16px;
-  @media (max-width: 768px) { flex-direction: column; text-align: center; }
+  @media (max-width: 768px) {
+    flex-direction: column;
+    text-align: center;
+  }
 `;
 
 const Copyright = styled.p`
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   font-size: 0.65rem;
   letter-spacing: 0.08em;
   color: rgba(242, 237, 228, 0.18);
@@ -177,57 +202,67 @@ const LegalNav = styled.nav`
   align-items: center;
   flex-wrap: wrap;
   justify-content: center;
-  @media (max-width: 480px) { gap: 12px; }
+  @media (max-width: 480px) {
+    gap: 12px;
+  }
 `;
 
 const LegalLink = styled(Link)`
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   font-size: 0.62rem;
   letter-spacing: 0.1em;
   color: rgba(242, 237, 228, 0.2);
   text-decoration: none;
   transition: color 0.25s ease;
-  &:hover { color: #e50914; }
+  &:hover {
+    color: #e50914;
+  }
 `;
 
 const LegalLinkExternal = styled.a`
-  font-family: 'JetBrains Mono', monospace;
+  font-family: "JetBrains Mono", monospace;
   font-size: 0.62rem;
   letter-spacing: 0.1em;
   color: rgba(242, 237, 228, 0.2);
   text-decoration: none;
   transition: color 0.25s ease;
-  &:hover { color: #e50914; }
+  &:hover {
+    color: #e50914;
+  }
 `;
 
 const Dot = styled.span`
-  color: rgba(255,255,255,0.1);
+  color: rgba(255, 255, 255, 0.1);
   font-size: 0.6rem;
 `;
 
 const Footer = () => {
   return (
-  
     <FooterWrapper>
       <Inner>
         <MainGrid>
-
           {/* Brand + Legal Disclaimer */}
           <BrandSection>
-            <BrandName to="/">STREAM<span>HUB</span></BrandName>
+            <BrandName to="/">
+              STREAM<span>HUB</span>
+            </BrandName>
             <Disclaimer>
-              StreamHub does not host, upload, or store any video content.
-              All streams are served by{" "}
-              <DisclaimerHighlight>independent third-party embed providers</DisclaimerHighlight>.
-              StreamHub is a search and discovery platform using the TMDB API for metadata only.
-              For copyright concerns:{" "}
-              <DisclaimerHighlight>dmca.streamhub@proton.me</DisclaimerHighlight>
+              StreamHub does not host, upload, or store any video content. All
+              streams are served by{" "}
+              <DisclaimerHighlight>
+                independent third-party embed providers
+              </DisclaimerHighlight>
+              . StreamHub is a search and discovery platform using the TMDB API
+              for metadata only. For copyright concerns:{" "}
+              <DisclaimerHighlight>
+                dmca.streamhub@proton.me
+              </DisclaimerHighlight>
             </Disclaimer>
             {/* <SocialLinks>
-              <SocialIcon href="#" aria-label="Facebook"><i className="bi bi-facebook" /></SocialIcon>
-              <SocialIcon href="#" aria-label="Instagram"><i className="bi bi-instagram" /></SocialIcon>
-              <SocialIcon href="#" aria-label="Twitter"><i className="bi bi-twitter-x" /></SocialIcon>
-              <SocialIcon href="#" aria-label="YouTube"><i className="bi bi-youtube" /></SocialIcon>
+              <SocialIcon href="#" aria-label="Facebook"><BsFacebook /></SocialIcon>
+              <SocialIcon href="#" aria-label="Instagram"><BsInstagram /></SocialIcon>
+              <SocialIcon href="#" aria-label="Twitter"><BsTwitterX /></SocialIcon>
+              <SocialIcon href="#" aria-label="YouTube"><BsYoutube /></SocialIcon>
             </SocialLinks> */}
           </BrandSection>
 
@@ -252,7 +287,6 @@ const Footer = () => {
             <FooterLink to="/terms">Terms of Use</FooterLink>
             <FooterLink to="/disclaimer">Disclaimer</FooterLink>
           </LinkGroup>
-
         </MainGrid>
 
         <Divider />
@@ -260,8 +294,8 @@ const Footer = () => {
         <BottomBar>
           <Copyright>
             © {new Date().getFullYear()} StreamHub. Metadata provided by{" "}
-            <DisclaimerHighlight>TMDB</DisclaimerHighlight>.
-            Not affiliated with TMDB, Netflix, or any content provider.
+            <DisclaimerHighlight>TMDB</DisclaimerHighlight>. Not affiliated with
+            TMDB, Netflix, or any content provider.
           </Copyright>
           <LegalNav>
             <LegalLink to="/dmca">DMCA</LegalLink>
@@ -272,15 +306,17 @@ const Footer = () => {
             <Dot>•</Dot>
             <LegalLink to="/disclaimer">Disclaimer</LegalLink>
             <Dot>•</Dot>
-            <LegalLinkExternal href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">
+            <LegalLinkExternal
+              href="https://www.themoviedb.org/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               Powered by TMDB
             </LegalLinkExternal>
           </LegalNav>
         </BottomBar>
-
       </Inner>
     </FooterWrapper>
-
   );
 };
 

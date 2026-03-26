@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { BsEnvelope } from "react-icons/bs";
 
 const faqs = [
   {
@@ -6,72 +7,72 @@ const faqs = [
     items: [
       {
         q: "Why does the wrong movie play sometimes?",
-        a: "Embed servers sometimes mis-map movie IDs. Simply switch to another server using the server tabs at the top of the player. Server 1 or Server 2 usually gives the best results."
+        a: "Embed servers sometimes mis-map movie IDs. Simply switch to another server using the server tabs at the top of the player. Server 1 or Server 2 usually gives the best results.",
       },
       {
         q: "Why is the video buffering a lot?",
-        a: "Buffering is caused by the third-party embed server, not StreamHub. Try switching to a different server — each one uses a different source. Server 3 (Videasy) is generally the most stable."
+        a: "Buffering is caused by the third-party embed server, not StreamHub. Try switching to a different server — each one uses a different source. Server 3 (Videasy) is generally the most stable.",
       },
       {
         q: "Can I download movies from StreamHub?",
-        a: "No. StreamHub does not provide downloads. We are a streaming discovery platform only. All content is served via embedded players from third-party providers."
+        a: "No. StreamHub does not provide downloads. We are a streaming discovery platform only. All content is served via embedded players from third-party providers.",
       },
       {
         q: "Why do some movies show a blank/black player?",
-        a: "The movie may not yet be available on that server. Try switching servers. Very new movies (still in theatres) may not be available on any server yet."
+        a: "The movie may not yet be available on that server. Try switching servers. Very new movies (still in theatres) may not be available on any server yet.",
       },
-    ]
+    ],
   },
   {
     category: "Account",
     items: [
       {
         q: "How do I reset my password?",
-        a: "Go to the Login page and click 'Forgot Password'. Enter your registered email and we'll send you a reset link. The link expires after 24 hours."
+        a: "Go to the Login page and click 'Forgot Password'. Enter your registered email and we'll send you a reset link. The link expires after 24 hours.",
       },
       {
         q: "How do I delete my account?",
-        a: "Go to Settings → Account → Delete Account. This permanently removes your profile, watchlist, and all associated data. This action cannot be undone."
+        a: "Go to Settings → Account → Delete Account. This permanently removes your profile, watchlist, and all associated data. This action cannot be undone.",
       },
       {
         q: "Why isn't my watchlist syncing?",
-        a: "Make sure you're logged in. Watchlist data syncs automatically to our servers. If you're seeing stale data, try refreshing the page or logging out and back in."
+        a: "Make sure you're logged in. Watchlist data syncs automatically to our servers. If you're seeing stale data, try refreshing the page or logging out and back in.",
       },
-    ]
+    ],
   },
   {
     category: "Recommendations",
     items: [
       {
         q: "How does StreamHub recommend movies?",
-        a: "StreamHub uses a 5-stage hybrid ML engine combining collaborative filtering (SVD), content-based filtering (TF-IDF), and a temporal watchlist decay algorithm. The more movies you add to your watchlist, the better your recommendations get."
+        a: "StreamHub uses a 5-stage hybrid ML engine combining collaborative filtering (SVD), content-based filtering (TF-IDF), and a temporal watchlist decay algorithm. The more movies you add to your watchlist, the better your recommendations get.",
       },
       {
         q: "Why are my recommendations not changing?",
-        a: "Recommendations update based on your watchlist activity. Add more movies to your watchlist to improve diversity. Our temporal decay algorithm also gives more weight to recently added movies."
+        a: "Recommendations update based on your watchlist activity. Add more movies to your watchlist to improve diversity. Our temporal decay algorithm also gives more weight to recently added movies.",
       },
       {
         q: "How many movies do I need in my watchlist for good recommendations?",
-        a: "We recommend at least 5 movies for basic recommendations. 10+ movies gives significantly better results as the ML engine has more signals to work with."
+        a: "We recommend at least 5 movies for basic recommendations. 10+ movies gives significantly better results as the ML engine has more signals to work with.",
       },
-    ]
+    ],
   },
   {
     category: "Legal & Copyright",
     items: [
       {
         q: "Does StreamHub host any movies?",
-        a: "No. StreamHub does not host, upload, or store any video content. All streams are served by independent third-party embed providers. StreamHub functions as a search and discovery index only."
+        a: "No. StreamHub does not host, upload, or store any video content. All streams are served by independent third-party embed providers. StreamHub functions as a search and discovery index only.",
       },
       {
         q: "How do I report a copyright violation?",
-        a: "Email our DMCA agent at dmca.streamhub@proton.me with the movie title, page URL, and proof of ownership. We respond within 48 hours and forward complaints to the relevant embed provider."
+        a: "Email our DMCA agent at dmca.streamhub@proton.me with the movie title, page URL, and proof of ownership. We respond within 48 hours and forward complaints to the relevant embed provider.",
       },
       {
         q: "Is StreamHub free to use?",
-        a: "Yes. StreamHub is completely free. We do not charge for any features, require a subscription, or store payment information."
+        a: "Yes. StreamHub is completely free. We do not charge for any features, require a subscription, or store payment information.",
       },
-    ]
+    ],
   },
 ];
 
@@ -79,16 +80,24 @@ const FAQ = () => {
   const [openIndex, setOpenIndex] = useState(null);
   const [activeCategory, setActiveCategory] = useState("All");
 
-  const categories = ["All", ...faqs.map(f => f.category)];
+  const categories = ["All", ...faqs.map((f) => f.category)];
 
-  const filteredFaqs = activeCategory === "All"
-    ? faqs
-    : faqs.filter(f => f.category === activeCategory);
+  const filteredFaqs =
+    activeCategory === "All"
+      ? faqs
+      : faqs.filter((f) => f.category === activeCategory);
 
   const toggle = (key) => setOpenIndex(openIndex === key ? null : key);
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0a0a0a", color: "#fff", fontFamily: "'Poppins', sans-serif" }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#0a0a0a",
+        color: "#fff",
+        fontFamily: "'Poppins', sans-serif",
+      }}
+    >
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -234,15 +243,19 @@ const FAQ = () => {
       {/* Hero */}
       <div className="faq-hero">
         <div className="faq-badge">❓ Help Center</div>
-        <h1>Frequently Asked <span>Questions</span></h1>
-        <p>Everything you need to know about StreamHub. Can't find your answer? Contact us directly.</p>
+        <h1>
+          Frequently Asked <span>Questions</span>
+        </h1>
+        <p>
+          Everything you need to know about StreamHub. Can't find your answer?
+          Contact us directly.
+        </p>
       </div>
 
       <div className="faq-container">
-
         {/* Category Filter */}
         <div className="faq-categories">
-          {categories.map(cat => (
+          {categories.map((cat) => (
             <button
               key={cat}
               className={`faq-cat-btn ${activeCategory === cat ? "active" : ""}`}
@@ -280,10 +293,10 @@ const FAQ = () => {
           <h3>Still have questions?</h3>
           <p>Can't find what you're looking for? Our team is happy to help.</p>
           <a href="/contact" className="faq-contact-btn">
-            <i className="bi bi-envelope" /> Contact Us
+            <BsEnvelope />
+            Contact Us
           </a>
         </div>
-
       </div>
     </div>
   );

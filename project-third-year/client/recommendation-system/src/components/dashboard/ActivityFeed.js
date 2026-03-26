@@ -1,5 +1,7 @@
 import React from "react";
 import LoadingSpinner from "../common/LoadingSpinner";
+import { BsFillTrashFill } from 'react-icons/bs'
+
 
 const ActivityFeed = ({ history, loading, onClearHistory }) => {
   const renderActivity = (activity) => {
@@ -89,7 +91,7 @@ const ActivityFeed = ({ history, loading, onClearHistory }) => {
             className="btn btn-outline-danger btn-sm"
             onClick={onClearHistory}
           >
-            <i className="bi bi-trash-fill me-2"></i>
+<BsFillTrashFill className="me-2" />
             Clear History
           </button>
         )}

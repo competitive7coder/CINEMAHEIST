@@ -1,9 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
 import api from "../services/api";
 import { toast } from "react-toastify";
+import { BsChatDots, BsSendFill } from "react-icons/bs";
 
 const ContactUs = () => {
-  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [currentTime, setCurrentTime] = useState("");
@@ -13,10 +18,15 @@ const ContactUs = () => {
   // Live IST clock
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentTime(new Date().toLocaleTimeString("en-IN", {
-        timeZone: "Asia/Kolkata",
-        hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true,
-      }));
+      setCurrentTime(
+        new Date().toLocaleTimeString("en-IN", {
+          timeZone: "Asia/Kolkata",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: true,
+        }),
+      );
     }, 1000);
     return () => clearInterval(timer);
   }, []);
@@ -44,16 +54,19 @@ const ContactUs = () => {
     canvas.height = window.innerHeight;
 
     const particles = Array.from({ length: 40 }, () => ({
-      x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
       r: Math.random() * 1.5 + 0.3,
-      dx: (Math.random() - 0.5) * 0.3, dy: (Math.random() - 0.5) * 0.3,
+      dx: (Math.random() - 0.5) * 0.3,
+      dy: (Math.random() - 0.5) * 0.3,
       o: Math.random() * 0.4 + 0.1,
     }));
 
     const draw = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach(p => {
-        p.x += p.dx; p.y += p.dy;
+      particles.forEach((p) => {
+        p.x += p.dx;
+        p.y += p.dy;
         if (p.x < 0 || p.x > canvas.width) p.dx *= -1;
         if (p.y < 0 || p.y > canvas.height) p.dy *= -1;
         ctx.beginPath();
@@ -74,7 +87,7 @@ const ContactUs = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -94,13 +107,37 @@ const ContactUs = () => {
   };
 
   const infoItems = [
-    { icon: "bi-envelope-at",  label: "General Enquiries", value: "hello.streamhub@proton.me", href: "mailto:hello.streamhub@proton.me" },
-    { icon: "bi-shield-check", label: "DMCA / Copyright",  value: "dmca.streamhub@proton.me",  href: "mailto:dmca.streamhub@proton.me" },
-    { icon: "bi-bug",          label: "Bug Reports",       value: "bugs.streamhub@proton.me",  href: "mailto:bugs.streamhub@proton.me" },
+    {
+      icon: "bi-envelope-at",
+      label: "General Enquiries",
+      value: "hello.streamhub@proton.me",
+      href: "mailto:hello.streamhub@proton.me",
+    },
+    {
+      icon: "bi-shield-check",
+      label: "DMCA / Copyright",
+      value: "dmca.streamhub@proton.me",
+      href: "mailto:dmca.streamhub@proton.me",
+    },
+    {
+      icon: "bi-bug",
+      label: "Bug Reports",
+      value: "bugs.streamhub@proton.me",
+      href: "mailto:bugs.streamhub@proton.me",
+    },
   ];
 
   return (
-    <div style={{ minHeight: "100vh", background: "#000", fontFamily: "'Poppins', sans-serif", color: "#fff", position: "relative", overflow: "hidden" }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "#000",
+        fontFamily: "'Poppins', sans-serif",
+        color: "#fff",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
       <style>{`
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -226,15 +263,57 @@ const ContactUs = () => {
       `}</style>
 
       {/* Canvas */}
-      <canvas ref={canvasRef} style={{ position: "fixed", inset: 0, width: "100%", height: "100%", pointerEvents: "none", zIndex: 0 }} />
-      <div style={{ position: "fixed", top: "-10%", right: "-5%", width: 400, height: 400, background: "radial-gradient(circle, rgba(229,9,20,0.07) 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 }} />
-      <div style={{ position: "fixed", bottom: "-10%", left: "-5%", width: 350, height: 350, background: "radial-gradient(circle, rgba(229,9,20,0.04) 0%, transparent 70%)", pointerEvents: "none", zIndex: 0 }} />
+      <canvas
+        ref={canvasRef}
+        style={{
+          position: "fixed",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
+      <div
+        style={{
+          position: "fixed",
+          top: "-10%",
+          right: "-5%",
+          width: 400,
+          height: 400,
+          background:
+            "radial-gradient(circle, rgba(229,9,20,0.07) 0%, transparent 70%)",
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
+      <div
+        style={{
+          position: "fixed",
+          bottom: "-10%",
+          left: "-5%",
+          width: 350,
+          height: 350,
+          background:
+            "radial-gradient(circle, rgba(229,9,20,0.04) 0%, transparent 70%)",
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
 
       <div className="cu-page">
         <div className="cu-header">
-          <div className="cu-eyebrow"><i className="bi bi-chat-dots" /> Get in Touch</div>
-          <h1>Contact <em>StreamHub</em></h1>
-          <p>Questions, bug reports, or copyright concerns — we read every message personally.</p>
+          <div className="cu-eyebrow">
+            <BsChatDots />
+            Get in Touch
+          </div>
+          <h1>
+            Contact <em>StreamHub</em>
+          </h1>
+          <p>
+            Questions, bug reports, or copyright concerns — we read every
+            message personally.
+          </p>
         </div>
 
         <div className="cu-grid">
@@ -245,8 +324,14 @@ const ContactUs = () => {
               {infoItems.map((item, i) => {
                 const Tag = item.href ? "a" : "div";
                 return (
-                  <Tag key={i} className="cu-info-item" {...(item.href ? { href: item.href } : {})}>
-                    <div className="cu-info-icon"><i className={`bi ${item.icon}`} /></div>
+                  <Tag
+                    key={i}
+                    className="cu-info-item"
+                    {...(item.href ? { href: item.href } : {})}
+                  >
+                    <div className="cu-info-icon">
+                      <i className={`bi ${item.icon}`} />
+                    </div>
                     <div style={{ minWidth: 0 }}>
                       <div className="cu-info-label">{item.label}</div>
                       <div className="cu-info-val">{item.value}</div>
@@ -269,43 +354,86 @@ const ContactUs = () => {
                 <div className="cu-success-icon">✅</div>
                 <h3>Message Received!</h3>
                 <p>Thanks for reaching out. We'll reply within 24–48 hours.</p>
-                <button className="cu-success-back" onClick={() => setSent(false)}>Send another</button>
+                <button
+                  className="cu-success-back"
+                  onClick={() => setSent(false)}
+                >
+                  Send another
+                </button>
               </div>
             ) : (
               <>
                 <div className="cu-form-heading">Send us a message</div>
-                <div className="cu-form-sub">We typically respond within 24–48 hours.</div>
+                <div className="cu-form-sub">
+                  We typically respond within 24–48 hours.
+                </div>
                 <form onSubmit={handleSubmit}>
                   <div className="cu-field-row">
                     <div className="cu-field">
-                      <label className={`cu-field-label ${focused === "name" ? "active" : ""}`}>
+                      <label
+                        className={`cu-field-label ${focused === "name" ? "active" : ""}`}
+                      >
                         Name <span className="cu-field-required">*</span>
                       </label>
-                      <input className="cu-input" type="text" name="name" placeholder="Your name"
-                        value={formData.name} onChange={handleChange}
-                        onFocus={() => setFocused("name")} onBlur={() => setFocused(null)} required />
+                      <input
+                        className="cu-input"
+                        type="text"
+                        name="name"
+                        placeholder="Your name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        onFocus={() => setFocused("name")}
+                        onBlur={() => setFocused(null)}
+                        required
+                      />
                     </div>
                     <div className="cu-field">
-                      <label className={`cu-field-label ${focused === "email" ? "active" : ""}`}>
+                      <label
+                        className={`cu-field-label ${focused === "email" ? "active" : ""}`}
+                      >
                         Email <span className="cu-field-required">*</span>
                       </label>
-                      <input className="cu-input" type="email" name="email" placeholder="you@example.com"
-                        value={formData.email} onChange={handleChange}
-                        onFocus={() => setFocused("email")} onBlur={() => setFocused(null)} required />
+                      <input
+                        className="cu-input"
+                        type="email"
+                        name="email"
+                        placeholder="you@example.com"
+                        value={formData.email}
+                        onChange={handleChange}
+                        onFocus={() => setFocused("email")}
+                        onBlur={() => setFocused(null)}
+                        required
+                      />
                     </div>
                   </div>
                   <div className="cu-field">
-                    <label className={`cu-field-label ${focused === "message" ? "active" : ""}`}>
+                    <label
+                      className={`cu-field-label ${focused === "message" ? "active" : ""}`}
+                    >
                       Message <span className="cu-field-required">*</span>
                     </label>
-                    <textarea className="cu-textarea" name="message" placeholder="Describe your question or issue..."
-                      value={formData.message} onChange={handleChange}
-                      onFocus={() => setFocused("message")} onBlur={() => setFocused(null)} required />
+                    <textarea
+                      className="cu-textarea"
+                      name="message"
+                      placeholder="Describe your question or issue..."
+                      value={formData.message}
+                      onChange={handleChange}
+                      onFocus={() => setFocused("message")}
+                      onBlur={() => setFocused(null)}
+                      required
+                    />
                   </div>
                   <button className="cu-btn" type="submit" disabled={loading}>
-                    {loading
-                      ? <><div className="cu-btn-spinner" /> Sending...</>
-                      : <><i className="bi bi-send-fill" /> Send Message</>}
+                    {loading ? (
+                      <>
+                        <div className="cu-btn-spinner" /> Sending...
+                      </>
+                    ) : (
+                      <>
+                        <BsSendFill />
+                        Send Message
+                      </>
+                    )}
                   </button>
                 </form>
               </>

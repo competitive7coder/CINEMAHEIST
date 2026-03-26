@@ -7,7 +7,12 @@ import VideoModal from "../components/common/VideoModal";
 import WatchMovieModal from "../components/movie/WatchMovieModal";
 import MovieCard from "../components/movie/MovieCard";
 import useSEO from "../hooks/useSEO";
-
+import { 
+  BsFillPlayFill, 
+  BsFilm, 
+  BsCheck2, 
+  BsBookmark 
+} from 'react-icons/bs'
 const MovieDetailPage = () => {
   const { movieId } = useParams();
 
@@ -574,13 +579,13 @@ const MovieDetailPage = () => {
                     className="mdp-btn-watch"
                     onClick={() => setShowWatchModal(true)}
                   >
-                    <i className="bi bi-play-fill"></i> Watch Now
+                    <BsFillPlayFill /> Watch Now
                   </button>
                   <button
                     className="mdp-btn-trailer"
                     onClick={handleWatchMainTrailerClick}
                   >
-                    <i className="bi bi-film"></i> Trailer
+                    <BsFilm /> Trailer
                   </button>
                 </div>
                 <button
@@ -589,11 +594,11 @@ const MovieDetailPage = () => {
                 >
                   {isInWatchlist ? (
                     <>
-                      <i className="bi bi-check2"></i> Saved
+                      <BsCheck2 /> Saved
                     </>
                   ) : (
                     <>
-                      <i className="bi bi-bookmark"></i> Watchlist
+                      <BsBookmark /> Watchlist
                     </>
                   )}
                 </button>

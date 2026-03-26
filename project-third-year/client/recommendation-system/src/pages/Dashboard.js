@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import { toast } from "react-toastify";
-
 import MovieCard from "../components/movie/MovieCard";
 import MovieRow from "../components/movie/MovieRow";
 import VideoModal from "../components/common/VideoModal";
@@ -10,6 +9,15 @@ import ActivityFeed from "../components/dashboard/ActivityFeed";
 import ProfileSettings from "./ProfileSettings";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import { io } from "socket.io-client";
+import {
+  BsXLg,
+  BsBoxArrowRight,
+  BsList,
+  BsFilm,
+  BsCameraFill,
+  BsPerson,
+  BsShieldLock,
+} from "react-icons/bs";
 
 const ACTION = {
   ADDED: "added_to_watchlist",
@@ -34,7 +42,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [currentVideoKey, setCurrentVideoKey] = useState(null);
   const [showAllRecommendations, setShowAllRecommendations] = useState(false);
-  const [recsLoaded, setRecsLoaded]   = useState(false);
+  const [recsLoaded, setRecsLoaded] = useState(false);
   const [recsLoading, setRecsLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [triggerDelete, setTriggerDelete] = useState(false);
@@ -171,7 +179,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
       try {
         const [userRes, watchlistRes] = await Promise.all([
           api.get("/users/me"),
-          api.get("/users/watchlist/full"),  // ✅ full movie objects in 1 call
+          api.get("/users/watchlist/full"), // ✅ full movie objects in 1 call
         ]);
 
         setUserName(userRes.data.name || userRes.data.username || "");
@@ -295,10 +303,13 @@ const Dashboard = ({ setIsLoggedIn }) => {
         {/* ── SIDEBAR ── */}
         <aside className={`sidebar-glass${sidebarOpen ? " sidebar-open" : ""}`}>
           <div className="brand-zone">
-  <button className="sidebar-close-btn" onClick={() => setSidebarOpen(false)}>
-    <i className="bi bi-x-lg"></i>
-  </button>
-</div>
+            <button
+              className="sidebar-close-btn"
+              onClick={() => setSidebarOpen(false)}
+            >
+              <BsXLg />
+            </button>
+          </div>
 
           <nav className="main-nav">
             <div className="nav-label">Main Menu</div>
@@ -340,29 +351,29 @@ const Dashboard = ({ setIsLoggedIn }) => {
               </div>
             </div>
             <button onClick={handleLogout} className="logout-btn-refined">
-              <i className="bi bi-box-arrow-right"></i>
+              <BsBoxArrowRight />
               <span>Sign Out</span>
             </button>
           </div>
         </aside>
 
         {/* ── MOBILE TOP BAR ── */}
-      <div className="mobile-topbar">
-  <button
-    className="hamburger-btn"
-    onClick={() => setSidebarOpen(true)}
-  >
-    <i className="bi bi-list"></i>
-  </button>
-  <h2 className="brand-text" style={{ margin: 0 }}>
-    STREAM<span>HUB</span>
-  </h2>
-  <img
-    src={userProfilePicture || "https://placehold.co/36"}
-    alt="user"
-    className="mobile-avatar"
-  />
-</div>
+        <div className="mobile-topbar">
+          <button
+            className="hamburger-btn"
+            onClick={() => setSidebarOpen(true)}
+          >
+            <BsList />
+          </button>
+          <h2 className="brand-text" style={{ margin: 0 }}>
+            STREAM<span>HUB</span>
+          </h2>
+          <img
+            src={userProfilePicture || "https://placehold.co/36"}
+            alt="user"
+            className="mobile-avatar"
+          />
+        </div>
 
         {/* ── MAIN CONTENT ── */}
         <main
@@ -404,7 +415,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
                 ) : (
                   <div className="empty-state-refined">
                     <div className="empty-icon">
-                      <i className="bi bi-film"></i>
+                      <BsFilm />
                     </div>
                     <h3>Your library is empty</h3>
                     <p>Start adding movies you want to watch later.</p>
@@ -423,14 +434,42 @@ const Dashboard = ({ setIsLoggedIn }) => {
             {activeTab === "recommendations" && (
               <div className="fade-in-section">
                 {recsLoading && (
-                  <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"5rem 0", gap:16 }}>
-                    <div style={{ width:42, height:42, border:"3px solid rgba(255,255,255,0.06)", borderTopColor:"#e50914", borderRadius:"50%", animation:"rec-spin 0.8s linear infinite" }} />
-                    <p style={{ color:"rgba(255,255,255,0.3)", fontFamily:"Poppins", fontSize:"0.82rem", margin:0 }}>Finding your perfect movies...</p>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      padding: "5rem 0",
+                      gap: 16,
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 42,
+                        height: 42,
+                        border: "3px solid rgba(255,255,255,0.06)",
+                        borderTopColor: "#e50914",
+                        borderRadius: "50%",
+                        animation: "rec-spin 0.8s linear infinite",
+                      }}
+                    />
+                    <p
+                      style={{
+                        color: "rgba(255,255,255,0.3)",
+                        fontFamily: "Poppins",
+                        fontSize: "0.82rem",
+                        margin: 0,
+                      }}
+                    >
+                      Finding your perfect movies...
+                    </p>
                     <style>{`@keyframes rec-spin { to { transform: rotate(360deg); } }`}</style>
                   </div>
                 )}
-                {recsLoaded && !recsLoading && (
-                  !showAllRecommendations ? (
+                {recsLoaded &&
+                  !recsLoading &&
+                  (!showAllRecommendations ? (
                     <MovieRow
                       title="Tailored Discovery"
                       movies={recommendations}
@@ -463,8 +502,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
                         </div>
                       ))}
                     </div>
-                  )
-                )}
+                  ))}
               </div>
             )}
 
@@ -491,7 +529,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
                         className="settings-avatar"
                       />
                       <button className="avatar-edit-btn">
-                        <i className="bi bi-camera-fill"></i>
+                        <BsCameraFill />
                       </button>
                     </div>
                     <h3 className="settings-username">{userName}</h3>
@@ -503,13 +541,14 @@ const Dashboard = ({ setIsLoggedIn }) => {
                       className={`s-nav-item ${settingsSubTab === "profile" ? "active" : ""}`}
                       onClick={() => setSettingsSubTab("profile")}
                     >
-                      <i className="bi bi-person"></i> Account Details
+                      <BsPerson /> Account Details
                     </div>
                     <div
                       className={`s-nav-item ${settingsSubTab === "security" ? "active" : ""}`}
                       onClick={() => setSettingsSubTab("security")}
                     >
-                      <i className="bi bi-shield-lock"></i> Security
+                      <BsShieldLock />
+                      Security
                     </div>
                   </div>
                 </div>

@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import WatchMovieModal from "../movie/WatchMovieModal";
+import { BsFillPlayFill, BsFilm, BsPlusLg } from "react-icons/bs";
 
 const HeroSection = ({ movie, onWatchTrailerClick, onAddToWatchlist }) => {
   const [showWatchModal, setShowWatchModal] = useState(false);
 
   if (!movie) return null;
 
-const backdropUrl = `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`;
+  const backdropUrl = `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`;
   const year = movie.release_date ? movie.release_date.slice(0, 4) : null;
   const rating = movie.vote_average ? movie.vote_average.toFixed(1) : null;
 
@@ -191,37 +192,38 @@ const backdropUrl = `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`;
         <div className="hs-content">
           <div className="hs-meta">
             <span className="hs-badge hs-badge-live">✦ Featured</span>
-            {rating && <span className="hs-badge hs-badge-rating">★ {rating}</span>}
-            {year   && <span className="hs-badge hs-badge-year">{year}</span>}
+            {rating && (
+              <span className="hs-badge hs-badge-rating">★ {rating}</span>
+            )}
+            {year && <span className="hs-badge hs-badge-year">{year}</span>}
           </div>
 
           <h1 className="hs-title">{movie.title}</h1>
           <div className="hs-accent" />
 
-          {movie.overview && (
-            <p className="hs-overview">{movie.overview}</p>
-          )}
+          {movie.overview && <p className="hs-overview">{movie.overview}</p>}
 
           <div className="hs-buttons">
             <button
               className="hs-btn hs-btn-watchnow"
               onClick={() => setShowWatchModal(true)}
             >
-              <i className="bi bi-play-fill"></i> Watch Now
+              <BsFillPlayFill /> Watch Now
             </button>
 
             <button
               className="hs-btn hs-btn-trailer"
               onClick={() => onWatchTrailerClick(movie.id)}
             >
-              <i className="bi bi-film"></i> Trailer
+              <BsFilm />
+              Trailer
             </button>
 
             <button
               className="hs-btn hs-btn-watchlist"
               onClick={() => onAddToWatchlist(movie.id)}
             >
-              <i className="bi bi-plus-lg"></i> My List
+              <BsPlusLg /> My List
             </button>
           </div>
         </div>

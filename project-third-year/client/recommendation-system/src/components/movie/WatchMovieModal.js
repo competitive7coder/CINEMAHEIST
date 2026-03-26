@@ -1,6 +1,14 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Modal } from "react-bootstrap";
 import api from "../../services/api";
+import {
+  BsTranslate,
+  BsBadgeCc,
+  BsBoxArrowUpRight,
+  BsKeyboard,
+  BsXLg,
+  BsFullscreenExit,
+} from "react-icons/bs";
 
 const modalStyles = `
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
@@ -291,63 +299,78 @@ const modalStyles = `
 
 const LANGUAGES = [
   { code: "en", label: "🇺🇸 English" },
-  { code: "hi", label: "🇮🇳 Hindi"   },
+  { code: "hi", label: "🇮🇳 Hindi" },
 ];
 
 const CAPTION_LANGS = [
-  "English","Hindi","Spanish","French","German",
-  "Arabic","Japanese","Korean","Portuguese","Chinese","Italian","Russian",
+  "English",
+  "Hindi",
+  "Spanish",
+  "French",
+  "German",
+  "Arabic",
+  "Japanese",
+  "Korean",
+  "Portuguese",
+  "Chinese",
+  "Italian",
+  "Russian",
 ];
 
 const KEYBOARD_SHORTCUTS = [
-  { key: "F",   label: "Fullscreen"    },
-  { key: "T",   label: "Theater mode"  },
-  { key: "M",   label: "Mini player"   },
-  { key: "C",   label: "Subtitles"     },
-  { key: "K",   label: "Shortcuts"     },
-  { key: "Esc", label: "Exit fullscreen"},
+  { key: "F", label: "Fullscreen" },
+  { key: "T", label: "Theater mode" },
+  { key: "M", label: "Mini player" },
+  { key: "C", label: "Subtitles" },
+  { key: "K", label: "Shortcuts" },
+  { key: "Esc", label: "Exit fullscreen" },
   { key: "← →", label: "Switch server" },
 ];
 
 const getQualityBadgeClass = (q) => {
   if (!q) return "";
-  if (q === "4K")    return "uhd";
+  if (q === "4K") return "uhd";
   if (q === "1080p") return "fhd";
-  if (q === "720p")  return "hd";
+  if (q === "720p") return "hd";
   return "";
 };
 
 const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
-  const [activeIndex,   setActiveIndex]   = useState(0);
-  const [sources,       setSources]       = useState(null);
-  const [loading,       setLoading]       = useState(false);
-  const [error,         setError]         = useState(false);
-  const [isFullscreen,  setIsFullscreen]  = useState(false);
-  const [isMinimized,   setIsMinimized]   = useState(false);
-  const [isTheater,     setIsTheater]     = useState(false);
-  const [showCaptions,  setShowCaptions]  = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [sources, setSources] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
+  const [isTheater, setIsTheater] = useState(false);
+  const [showCaptions, setShowCaptions] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [activeCaption, setActiveCaption] = useState(null);
-  const [language,      setLanguage]      = useState("en");
+  const [language, setLanguage] = useState("en");
   const playerRef = useRef(null);
 
   // ── Fetch sources from backend ──
-  const fetchSources = useCallback(async (lang) => {
-    if (!tmdbId) return;
-    const selectedLang = lang || language;
-    setLoading(true);
-    setError(false);
-    try {
-      const res = await api.get(`/stream/sources/${tmdbId}?language=${selectedLang}`);
-      setSources(res.data);
-      setActiveIndex(0);
-    } catch (err) {
-      console.error(err);
-      setError(true);
-    } finally {
-      setLoading(false);
-    }
-  }, [tmdbId, language]);
+  const fetchSources = useCallback(
+    async (lang) => {
+      if (!tmdbId) return;
+      const selectedLang = lang || language;
+      setLoading(true);
+      setError(false);
+      try {
+        const res = await api.get(
+          `/stream/sources/${tmdbId}?language=${selectedLang}`,
+        );
+        setSources(res.data);
+        setActiveIndex(0);
+      } catch (err) {
+        console.error(err);
+        setError(true);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [tmdbId, language],
+  );
 
   // Reset + fetch on open
   useEffect(() => {
@@ -380,15 +403,37 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
       const tag = document.activeElement?.tagName;
       if (tag === "INPUT" || tag === "SELECT" || tag === "TEXTAREA") return;
       switch (e.key.toLowerCase()) {
-        case "f":       setIsFullscreen(v => !v); setIsMinimized(false); break;
-        case "t":       setIsTheater(v => !v);    setIsMinimized(false); setIsFullscreen(false); break;
-        case "m":       setIsMinimized(v => !v);  setIsFullscreen(false); setIsTheater(false);   break;
-        case "c":       setShowCaptions(v => !v); break;
-        case "k":       setShowShortcuts(v => !v); break;
-        case "escape":  if (isFullscreen) setIsFullscreen(false); break;
-        case "arrowleft":  setActiveIndex(v => Math.max(0, v - 1)); break;
-        case "arrowright": setActiveIndex(v => Math.min((allServers.length || 1) - 1, v + 1)); break;
-        default: break;
+        case "f":
+          setIsFullscreen((v) => !v);
+          setIsMinimized(false);
+          break;
+        case "t":
+          setIsTheater((v) => !v);
+          setIsMinimized(false);
+          setIsFullscreen(false);
+          break;
+        case "m":
+          setIsMinimized((v) => !v);
+          setIsFullscreen(false);
+          setIsTheater(false);
+          break;
+        case "c":
+          setShowCaptions((v) => !v);
+          break;
+        case "k":
+          setShowShortcuts((v) => !v);
+          break;
+        case "escape":
+          if (isFullscreen) setIsFullscreen(false);
+          break;
+        case "arrowleft":
+          setActiveIndex((v) => Math.max(0, v - 1));
+          break;
+        case "arrowright":
+          setActiveIndex((v) => Math.min((allServers.length || 1) - 1, v + 1));
+          break;
+        default:
+          break;
       }
     };
     window.addEventListener("keydown", handler);
@@ -399,31 +444,48 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
   // Combine embed + direct streams into one server list
   const allServers = sources
     ? [
-        ...(sources.embed_sources  || []),
+        ...(sources.embed_sources || []),
         ...(sources.direct_streams || []).slice(0, 3).map((s, i) => ({
-          name:     `Direct ${i + 1}`,
-          label:    s.quality || "HD",
-          type:     "direct",
-          url:      s.url,
+          name: `Direct ${i + 1}`,
+          label: s.quality || "HD",
+          type: "direct",
+          url: s.url,
           verified: true,
           isDirect: true,
-          quality:  s.quality,
+          quality: s.quality,
         })),
       ]
     : [];
 
   const currentSource = allServers[activeIndex];
 
-  const handleFullscreen = () => { setIsFullscreen(v => !v); setIsMinimized(false); setIsTheater(false);  };
-  const handleTheater    = () => { setIsTheater(v => !v);    setIsMinimized(false); setIsFullscreen(false); };
-  const handleMinimize   = () => { setIsMinimized(v => !v);  setIsFullscreen(false); setIsTheater(false);  };
-  const handleOpenNewTab = () => { if (currentSource?.url) window.open(currentSource.url, "_blank", "noopener,noreferrer"); };
+  const handleFullscreen = () => {
+    setIsFullscreen((v) => !v);
+    setIsMinimized(false);
+    setIsTheater(false);
+  };
+  const handleTheater = () => {
+    setIsTheater((v) => !v);
+    setIsMinimized(false);
+    setIsFullscreen(false);
+  };
+  const handleMinimize = () => {
+    setIsMinimized((v) => !v);
+    setIsFullscreen(false);
+    setIsTheater(false);
+  };
+  const handleOpenNewTab = () => {
+    if (currentSource?.url)
+      window.open(currentSource.url, "_blank", "noopener,noreferrer");
+  };
 
   const modalClass = [
     "watch-modal",
     isMinimized ? "minimized" : "",
     isTheater && !isMinimized ? "theater-mode" : "",
-  ].filter(Boolean).join(" ");
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <>
@@ -462,7 +524,13 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
             )}
 
             {loading && (
-              <span style={{fontFamily:"Poppins", fontSize:"0.7rem", color:"rgba(255,255,255,0.3)"}}>
+              <span
+                style={{
+                  fontFamily: "Poppins",
+                  fontSize: "0.7rem",
+                  color: "rgba(255,255,255,0.3)",
+                }}
+              >
                 Finding sources...
               </span>
             )}
@@ -470,14 +538,17 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
             {/* Language selector */}
             {!loading && allServers.length > 0 && (
               <div className="wm-lang-wrap">
-                <i className="bi bi-translate wm-lang-icon" />
+                <BsTranslate className="wm-lang-icon" />
+
                 <select
                   className="wm-lang-select"
                   value={language}
                   onChange={(e) => setLanguage(e.target.value)}
                 >
                   {LANGUAGES.map((l) => (
-                    <option key={l.code} value={l.code}>{l.label}</option>
+                    <option key={l.code} value={l.code}>
+                      {l.label}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -485,44 +556,66 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
 
             {/* Subtitles */}
             {!loading && (
-              <button className={`wm-action-btn ${showCaptions ? "active" : ""}`} onClick={() => setShowCaptions(v => !v)}>
-                <i className="bi bi-badge-cc" /> CC
-                <span className="wm-tooltip">Subtitles <span className="wm-shortcut-badge">C</span></span>
+              <button
+                className={`wm-action-btn ${showCaptions ? "active" : ""}`}
+                onClick={() => setShowCaptions((v) => !v)}
+              >
+                <BsBadgeCc />
+                CC
+                <span className="wm-tooltip">
+                  Subtitles <span className="wm-shortcut-badge">C</span>
+                </span>
               </button>
             )}
 
             {/* Theater */}
             {!loading && !isMinimized && (
-              <button className={`wm-action-btn ${isTheater ? "theater-active" : ""}`} onClick={handleTheater}>
-                <i className={`bi ${isTheater ? "bi-layout-sidebar" : "bi-easel"}`} />
+              <button
+                className={`wm-action-btn ${isTheater ? "theater-active" : ""}`}
+                onClick={handleTheater}
+              >
+                <i
+                  className={`bi ${isTheater ? "bi-layout-sidebar" : "bi-easel"}`}
+                />
                 {isTheater ? "Exit" : "Theater"}
-                <span className="wm-tooltip">Theater <span className="wm-shortcut-badge">T</span></span>
+                <span className="wm-tooltip">
+                  Theater <span className="wm-shortcut-badge">T</span>
+                </span>
               </button>
             )}
 
             {/* New tab */}
             <button className="wm-action-btn" onClick={handleOpenNewTab}>
-              <i className="bi bi-box-arrow-up-right" />
+              <BsBoxArrowUpRight />
+
               <span className="wm-tooltip">Open in new tab</span>
             </button>
 
             {/* Mini player */}
             <button className="wm-action-btn" onClick={handleMinimize}>
               <i className={`bi ${isMinimized ? "bi-pip-fill" : "bi-pip"}`} />
-              <span className="wm-tooltip">Mini player <span className="wm-shortcut-badge">M</span></span>
+              <span className="wm-tooltip">
+                Mini player <span className="wm-shortcut-badge">M</span>
+              </span>
             </button>
 
             {/* Shortcuts */}
             {!loading && (
-              <button className={`wm-action-btn ${showShortcuts ? "active" : ""}`} onClick={() => setShowShortcuts(v => !v)}>
-                <i className="bi bi-keyboard" />
-                <span className="wm-tooltip">Shortcuts <span className="wm-shortcut-badge">K</span></span>
+              <button
+                className={`wm-action-btn ${showShortcuts ? "active" : ""}`}
+                onClick={() => setShowShortcuts((v) => !v)}
+              >
+                <BsKeyboard />
+
+                <span className="wm-tooltip">
+                  Shortcuts <span className="wm-shortcut-badge">K</span>
+                </span>
               </button>
             )}
           </div>
 
           <button className="wm-close" onClick={handleClose}>
-            <i className="bi bi-x-lg" />
+            <BsXLg />
           </button>
         </div>
 
@@ -536,15 +629,17 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
                 : currentSource.name === "AutoEmbed"
                   ? "🇮🇳 Dual audio — select Hindi track inside the player."
                   : currentSource.name === "LetsEmbed"
-                  ? "🇮🇳 Hindi dubbed server — availability varies by movie."
-                  : "Wrong movie or buffering? Switch server above."}
+                    ? "🇮🇳 Hindi dubbed server — availability varies by movie."
+                    : "Wrong movie or buffering? Switch server above."}
             </div>
             <div className="wm-notice-badges">
               {language === "hi" && (
                 <span className="wm-lang-badge">🇮🇳 Hindi</span>
               )}
               {currentSource.quality && (
-                <span className={`wm-quality-badge ${getQualityBadgeClass(currentSource.quality)}`}>
+                <span
+                  className={`wm-quality-badge ${getQualityBadgeClass(currentSource.quality)}`}
+                >
                   {currentSource.quality}
                 </span>
               )}
@@ -559,49 +654,70 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
               <div className="wm-spinner-ring" />
               <p>Finding best sources...</p>
               <small>
-                {language === "hi" ? "Searching Hindi dubbed servers..." : "Loading servers..."}
+                {language === "hi"
+                  ? "Searching Hindi dubbed servers..."
+                  : "Loading servers..."}
               </small>
             </div>
-
           ) : error ? (
             <div className="wm-error">
               <div className="wm-error-icon">⚠️</div>
               <p>Could not load sources for this movie.</p>
-              <button className="wm-retry-btn" onClick={() => fetchSources(language)}>Try Again</button>
+              <button
+                className="wm-retry-btn"
+                onClick={() => fetchSources(language)}
+              >
+                Try Again
+              </button>
             </div>
-
           ) : sources?.not_available ? (
             <div className="wm-not-available">
               <div className="wm-na-icon">🎬</div>
               <h4 className="wm-na-title">Not Available Yet</h4>
               <p className="wm-na-sub">
-                <strong style={{color:"#fff"}}>{movieTitle}</strong> hasn't been released on streaming servers yet.
+                <strong style={{ color: "#fff" }}>{movieTitle}</strong> hasn't
+                been released on streaming servers yet.
               </p>
               <p className="wm-na-hint">
-                Usually means the movie is still in theatres. Check back a few weeks after official release.
+                Usually means the movie is still in theatres. Check back a few
+                weeks after official release.
               </p>
               <div className="wm-na-actions">
-                <button className="wm-na-btn-try" onClick={() => setSources(p => ({...p, not_available: false}))}>
+                <button
+                  className="wm-na-btn-try"
+                  onClick={() =>
+                    setSources((p) => ({ ...p, not_available: false }))
+                  }
+                >
                   Try Anyway
                 </button>
-                <button className="wm-na-btn-close" onClick={handleClose}>Close</button>
+                <button className="wm-na-btn-close" onClick={handleClose}>
+                  Close
+                </button>
               </div>
             </div>
-
           ) : currentSource ? (
             <>
               {/* ── Hindi dubbed not available banner ── */}
               {language === "hi" && sources?.hindi_not_available && (
                 <div className="wm-hindi-na">
                   <div className="wm-hindi-na-icon">🇮🇳</div>
-                  <h4 className="wm-hindi-na-title">Hindi Dubbed Not Available</h4>
+                  <h4 className="wm-hindi-na-title">
+                    Hindi Dubbed Not Available
+                  </h4>
                   <p className="wm-hindi-na-sub">
-                    <strong style={{color:"#fff"}}>{movieTitle}</strong> does not have a Hindi dubbed
-                    version available right now. Servers above may play the English version only.
+                    <strong style={{ color: "#fff" }}>{movieTitle}</strong> does
+                    not have a Hindi dubbed version available right now. Servers
+                    above may play the English version only.
                   </p>
-                  <p className="wm-hindi-na-hint">Try switching to English for the best experience.</p>
+                  <p className="wm-hindi-na-hint">
+                    Try switching to English for the best experience.
+                  </p>
                   <div className="wm-hindi-na-actions">
-                    <button className="wm-hindi-na-eng-btn" onClick={() => setLanguage("en")}>
+                    <button
+                      className="wm-hindi-na-eng-btn"
+                      onClick={() => setLanguage("en")}
+                    >
                       Switch to English
                     </button>
                   </div>
@@ -615,23 +731,42 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
               >
                 <div className="wm-fs-controls">
                   {!isFullscreen && (
-                    <button className="wm-fs-btn" onClick={handleTheater} title="Theater (T)">
-                      <i className={`bi ${isTheater ? "bi-layout-sidebar" : "bi-easel"}`} />
+                    <button
+                      className="wm-fs-btn"
+                      onClick={handleTheater}
+                      title="Theater (T)"
+                    >
+                      <i
+                        className={`bi ${isTheater ? "bi-layout-sidebar" : "bi-easel"}`}
+                      />
                     </button>
                   )}
-                  <button className="wm-fs-btn" onClick={handleFullscreen} title="Fullscreen (F)">
-                    <i className={`bi ${isFullscreen ? "bi-fullscreen-exit" : "bi-fullscreen"}`} />
+                  <button
+                    className="wm-fs-btn"
+                    onClick={handleFullscreen}
+                    title="Fullscreen (F)"
+                  >
+                    <i
+                      className={`bi ${isFullscreen ? "bi-fullscreen-exit" : "bi-fullscreen"}`}
+                    />
                   </button>
                 </div>
 
                 {isFullscreen && (
                   <div className="wm-fs-bottom">
                     <span className="wm-fs-bottom-title">🎬 {movieTitle}</span>
-                    <button className="wm-fs-mini-btn" onClick={() => setShowCaptions(v => !v)}>
+                    <button
+                      className="wm-fs-mini-btn"
+                      onClick={() => setShowCaptions((v) => !v)}
+                    >
                       <i className="bi bi-badge-cc" /> CC
                     </button>
-                    <button className="wm-fs-mini-btn" onClick={handleFullscreen}>
-                      <i className="bi bi-fullscreen-exit" /> Exit
+                    <button
+                      className="wm-fs-mini-btn"
+                      onClick={handleFullscreen}
+                    >
+                      <BsFullscreenExit />
+                      Exit
                     </button>
                   </div>
                 )}
@@ -641,8 +776,9 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
                     key={`${tmdbId}-${activeIndex}-${language}`}
                     src={currentSource.url}
                     className="watch-frame"
-                    controls autoPlay
-                    style={{background:"#000"}}
+                    controls
+                    autoPlay
+                    style={{ background: "#000" }}
                   />
                 ) : (
                   <iframe
@@ -657,7 +793,6 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
                 )}
               </div>
             </>
-
           ) : null}
 
           {/* ── Subtitles Panel ── */}
@@ -665,16 +800,25 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
             <div className="wm-caption-panel">
               <p className="wm-caption-title">Subtitles / Captions</p>
               <div className="wm-caption-langs">
-                <button className={`wm-caption-btn ${activeCaption === null ? "active" : ""}`} onClick={() => setActiveCaption(null)}>Off</button>
+                <button
+                  className={`wm-caption-btn ${activeCaption === null ? "active" : ""}`}
+                  onClick={() => setActiveCaption(null)}
+                >
+                  Off
+                </button>
                 {CAPTION_LANGS.map((lang) => (
                   <button
                     key={lang}
                     className={`wm-caption-btn ${activeCaption === lang ? "active" : ""}`}
                     onClick={() => setActiveCaption(lang)}
-                  >{lang}</button>
+                  >
+                    {lang}
+                  </button>
                 ))}
               </div>
-              <p className="wm-caption-note">💡 Subtitles are provided by the embed player.</p>
+              <p className="wm-caption-note">
+                💡 Subtitles are provided by the embed player.
+              </p>
             </div>
           )}
 
@@ -683,7 +827,7 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
             <div className="wm-shortcuts-panel">
               <p className="wm-shortcuts-title">Keyboard Shortcuts</p>
               <div className="wm-shortcuts-grid">
-                {KEYBOARD_SHORTCUTS.map(({key, label}) => (
+                {KEYBOARD_SHORTCUTS.map(({ key, label }) => (
                   <div key={key} className="wm-shortcut-item">
                     <span className="wm-shortcut-key">{key}</span>
                     <span className="wm-shortcut-label">{label}</span>

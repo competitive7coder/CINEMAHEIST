@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { BsArrowRight } from "react-icons/bs";
 
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@300;400&display=swap');
@@ -178,27 +179,35 @@ const CSS = `
 `;
 
 const TICKER = [
-  "5-STAGE HYBRID ML ENGINE","21M INTERACTION LOGS","38,695 MOVIES",
- "ZERO SUBSCRIPTION","UNLOCK CINEMA'S HIDDEN GEMS",
-  "STREAM FREE","AI-POWERED DISCOVERY",
+  "5-STAGE HYBRID ML ENGINE",
+  "21M INTERACTION LOGS",
+  "38,695 MOVIES",
+  "ZERO SUBSCRIPTION",
+  "UNLOCK CINEMA'S HIDDEN GEMS",
+  "STREAM FREE",
+  "AI-POWERED DISCOVERY",
 ];
-
-
 
 export default function AboutUs() {
   const refs = useRef({});
   const [seen, setSeen] = useState({});
 
-  const setRef = (id) => (el) => { refs.current[id] = el; };
+  const setRef = (id) => (el) => {
+    refs.current[id] = el;
+  };
 
   useEffect(() => {
     const obs = new IntersectionObserver(
-      (entries) => entries.forEach(e => {
-        if (e.isIntersecting) setSeen(p => ({ ...p, [e.target.dataset.sr]: true }));
-      }),
-      { threshold: 0.12 }
+      (entries) =>
+        entries.forEach((e) => {
+          if (e.isIntersecting)
+            setSeen((p) => ({ ...p, [e.target.dataset.sr]: true }));
+        }),
+      { threshold: 0.12 },
     );
-    Object.values(refs.current).forEach(el => { if (el) obs.observe(el); });
+    Object.values(refs.current).forEach((el) => {
+      if (el) obs.observe(el);
+    });
     return () => obs.disconnect();
   }, []);
 
@@ -209,13 +218,13 @@ export default function AboutUs() {
     <>
       <style>{CSS}</style>
       <div className="ab">
-
         {/* TICKER */}
         <div className="ab-ticker" aria-hidden="true">
           <div className="ab-ticker-track">
             {[...TICKER, ...TICKER].map((t, i) => (
               <span key={i} className="ab-ticker-item">
-                {t}<span className="ab-ticker-dot"> ◆ </span>
+                {t}
+                <span className="ab-ticker-dot"> ◆ </span>
               </span>
             ))}
           </div>
@@ -226,10 +235,13 @@ export default function AboutUs() {
           <div className="ab-hero-l">
             <span className="ab-issue">EST. 2026· STREAMHUB · VOL. I</span>
             <h1 className="ab-hero-h1">
-              CINEMA<br /><span className="r">RE</span>DEFINED
+              CINEMA
+              <br />
+              <span className="r">RE</span>DEFINED
             </h1>
             <p className="ab-hero-q">
-              "We built StreamHub for people who believe watching a film is never just watching a film."
+              "We built StreamHub for people who believe watching a film is
+              never just watching a film."
             </p>
           </div>
           <div className="ab-hero-r">
@@ -251,18 +263,40 @@ export default function AboutUs() {
           </div>
           <div className="ab-story-g">
             <div className={`ab-story-t ${sr("story", 1)}`}>
-              <p>StreamHub was born from a simple, genuine frustration. Finding the right film to watch shouldn't require four subscriptions, five browser tabs, and twenty minutes of indecision.</p>
-              <p>So we built the alternative. A platform where a research-grade ML engine — trained on 21 million real interaction logs — does the work of understanding your taste, so you don't have to.</p>
+              <p>
+                StreamHub was born from a simple, genuine frustration. Finding
+                the right film to watch shouldn't require four subscriptions,
+                five browser tabs, and twenty minutes of indecision.
+              </p>
+              <p>
+                So we built the alternative. A platform where a research-grade
+                ML engine — trained on 21 million real interaction logs — does
+                the work of understanding your taste, so you don't have to.
+              </p>
               <blockquote className="ab-pullq">
                 "NOT WHAT'S POPULAR. WHAT'S RIGHT FOR YOU, RIGHT NOW."
               </blockquote>
-              <p>The engine combines content-based filtering, collaborative signals, and temporal decay — a novel approach submitted to IEEE Access — to surface films that match not just your genre preference, but the recency and weight of your taste signals.</p>
+              <p>
+                The engine combines content-based filtering, collaborative
+                signals, and temporal decay — a novel approach submitted to IEEE
+                Access — to surface films that match not just your genre
+                preference, but the recency and weight of your taste signals.
+              </p>
             </div>
             <div className={sr("story", 2)}>
               <span className="ab-mis-lbl">Our Mission</span>
-              <h3 className="ab-mis-ttl">RECONNECT VIEWERS WITH THE ART OF CINEMA</h3>
-              <p className="ab-mis-p">We believe the best films are still undiscovered by most people. Not because they don't exist — but because the tools for finding them are broken.</p>
-              <p className="ab-mis-p">StreamHub is the fix. Free to watch. Intelligent to browse. Honest about what it is and isn't.</p>
+              <h3 className="ab-mis-ttl">
+                RECONNECT VIEWERS WITH THE ART OF CINEMA
+              </h3>
+              <p className="ab-mis-p">
+                We believe the best films are still undiscovered by most people.
+                Not because they don't exist — but because the tools for finding
+                them are broken.
+              </p>
+              <p className="ab-mis-p">
+                StreamHub is the fix. Free to watch. Intelligent to browse.
+                Honest about what it is and isn't.
+              </p>
             </div>
           </div>
         </div>
@@ -271,12 +305,15 @@ export default function AboutUs() {
         <div className="ab-stats" ref={setRef("stats")} data-sr="stats">
           <div className="ab-stats-g">
             {[
-              { n:"21M+",  l:"Interaction Logs" },
-              { n:"38,695", l:"Movie Catalog"    },
-              { n:"162K+", l:"Training Users"   },
-              { n:"5",     l:"ML Stages"        },
+              { n: "21M+", l: "Interaction Logs" },
+              { n: "38,695", l: "Movie Catalog" },
+              { n: "162K+", l: "Training Users" },
+              { n: "5", l: "ML Stages" },
             ].map((s, i) => (
-              <div key={i} className={`ab-stat ${sr("stats", Math.min(i+1,3))}`}>
+              <div
+                key={i}
+                className={`ab-stat ${sr("stats", Math.min(i + 1, 3))}`}
+              >
                 <div className="ab-stat-n">{s.n}</div>
                 <div className="ab-stat-l">{s.l}</div>
               </div>
@@ -292,11 +329,23 @@ export default function AboutUs() {
           </div>
           <div className="ab-feat-g">
             {[
-              { idx:"01", ttl:"INTELLIGENT DISCOVERY", body:"A 5-stage hybrid ML engine blending TF-IDF content filtering, SVD collaborative signals, temporal decay weighting, and genre diversity — trained on 21 million interactions." },
-              { idx:"02", ttl:"PERSONAL LIBRARY",      body:"Your watchlist feeds the engine. Every addition, trailer watch, and removal is a signal. The more you use it, the sharper it gets." },
-              { idx:"03", ttl:"STREAM INSTANTLY",      body:"Six embed servers per title. Automatic fallback. No subscription, no sign-up wall. Press play." },
+              {
+                idx: "01",
+                ttl: "INTELLIGENT DISCOVERY",
+                body: "A 5-stage hybrid ML engine blending TF-IDF content filtering, SVD collaborative signals, temporal decay weighting, and genre diversity — trained on 21 million interactions.",
+              },
+              {
+                idx: "02",
+                ttl: "PERSONAL LIBRARY",
+                body: "Your watchlist feeds the engine. Every addition, trailer watch, and removal is a signal. The more you use it, the sharper it gets.",
+              },
+              {
+                idx: "03",
+                ttl: "STREAM INSTANTLY",
+                body: "Six embed servers per title. Automatic fallback. No subscription, no sign-up wall. Press play.",
+              },
             ].map((f, i) => (
-              <div key={i} className={`ab-feat ${sr("feat", i+1)}`}>
+              <div key={i} className={`ab-feat ${sr("feat", i + 1)}`}>
                 <span className="ab-feat-idx">{f.idx}</span>
                 <h3 className="ab-feat-ttl">{f.ttl}</h3>
                 <p className="ab-feat-body">{f.body}</p>
@@ -322,10 +371,17 @@ export default function AboutUs() {
             </div>
             <div>
               <span className="ab-team-bio-idx">Founder & Engineer</span>
-              <h3 className="ab-team-bio-name">PROTYUSH<br />GHORUI</h3>
+              <h3 className="ab-team-bio-name">
+                PROTYUSH
+                <br />
+                GHORUI
+              </h3>
               <div className="ab-team-divider" />
               <p className="ab-team-bio-text">
-                I'm a 3rd year B.Tech IT student at MCKV Institute of Engineering. I built StreamHub completely on my own the FastAPI backend, MongoDB data layer, React frontend, and the hybrid ML recommendation engine.
+                I'm a 3rd year B.Tech IT student at MCKV Institute of
+                Engineering. I built StreamHub completely on my own the FastAPI
+                backend, MongoDB data layer, React frontend, and the hybrid ML
+                recommendation engine.
               </p>
               <div className="ab-team-tags">
                 <span className="ab-team-tag">Full Stack Developer</span>
@@ -333,7 +389,6 @@ export default function AboutUs() {
                 <span className="ab-team-tag">B.Tech IT · 2027</span>
               </div>
             </div>
-
           </div>
         </div>
 
@@ -341,16 +396,17 @@ export default function AboutUs() {
         <div className="ab-cta-wrap" ref={setRef("cta")} data-sr="cta">
           <div className={`ab-cta ${sr("cta")}`}>
             <h2 className="ab-cta-ttl">
-              YOUR NEXT<br />FAVOURITE FILM<br /><span>IS WAITING.</span>
+              YOUR NEXT
+              <br />
+              FAVOURITE FILM
+              <br />
+              <span>IS WAITING.</span>
             </h2>
             <Link to="/home" className="ab-cta-btn">
-              Start Exploring <i className="bi bi-arrow-right" />
+              Start Exploring <BsArrowRight />
             </Link>
           </div>
         </div>
-
-       
-
       </div>
     </>
   );

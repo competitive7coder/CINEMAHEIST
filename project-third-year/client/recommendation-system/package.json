@@ -22,13 +22,13 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-  "start": "craco start",
-  "build": "node generate-sitemap.js || true && craco build && npm run purgecss",
-  "purgecss": "purgecss --css build/static/css/*.css --content src/**/*.{js,jsx} public/index.html --output build/static/css",
-  "test": "craco test",
-  "eject": "react-scripts eject",
-  "sitemap": "node generate-sitemap.js"
-},
+    "start": "craco start",
+    "build": "node generate-sitemap.js || true && craco build && npm run purgecss",
+    "purgecss": "purgecss --css build/static/css/*.css --content src/**/*.{js,jsx} public/index.html --output build/static/css",
+    "test": "craco test",
+    "eject": "react-scripts eject",
+    "sitemap": "node generate-sitemap.js"
+  },
   "eslintConfig": {
     "extends": [
       "react-app",
@@ -50,6 +50,7 @@
   "devDependencies": {
     "@craco/craco": "^7.1.0",
     "@fullhuman/postcss-purgecss": "^8.0.0",
+    "compression-webpack-plugin": "^12.0.0",
     "postcss": "^8.5.8",
     "purgecss": "^8.0.0"
   }

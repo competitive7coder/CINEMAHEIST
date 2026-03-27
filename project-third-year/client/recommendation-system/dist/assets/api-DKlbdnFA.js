@@ -1,1 +1,0 @@
-import{j as r}from"./chunk-vendors-3DY9Nbxc.js";const a="https://streamhub-research.onrender.com/api/v1",o=r.create({baseURL:a});o.interceptors.request.use(e=>{const t=localStorage.getItem("token");return t&&(e.headers.Authorization=`Bearer ${t}`),e});export{o as a};

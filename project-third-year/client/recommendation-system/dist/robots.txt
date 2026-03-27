@@ -1,0 +1,24 @@
+User-agent: *
+Allow: /
+Allow: /movie/
+Allow: /search
+Allow: /search?q=
+Allow: /popular
+Allow: /genre/
+Allow: /home
+Allow: /faq
+Allow: /dmca
+Allow: /privacy
+Allow: /terms
+Allow: /disclaimer
+Allow: /contact
+Allow: /about
+
+# Block private/user pages
+Disallow: /dashboard
+Disallow: /watchlist
+Disallow: /profile
+Disallow: /settings
+Disallow: /api/
+
+Sitemap: https://stream1hub.pages.dev/sitemap.xml

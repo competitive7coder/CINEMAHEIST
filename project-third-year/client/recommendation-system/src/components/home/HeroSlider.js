@@ -162,7 +162,7 @@ const HeroSlider = ({
       text-transform: uppercase;
     }
 
-    .hero-badge-new    { background: #ff0000; color: #fff; }
+    .hero-badge-new { background: #b30000; color: #ffffff; }
     .hero-badge-rating { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: #facc15; }
     .hero-badge-year   { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); }
 
@@ -227,15 +227,15 @@ const HeroSlider = ({
       white-space: nowrap;
     }
 
-    .hero-btn-watchnow {
-      background: #e50914;
-      color: #fff;
-      box-shadow: 0 4px 24px rgba(229,9,20,0.45);
-    }
+ .hero-btn-watchnow {
+  background: #b30000;
+  color: #ffffff;
+  box-shadow: 0 3px 10px rgba(179, 0, 0, 0.2);
+}
     .hero-btn-watchnow:hover {
       background: #ff1a1a;
       transform: translateY(-3px) scale(1.03);
-      box-shadow: 0 14px 40px rgba(229,9,20,0.55);
+  box-shadow: 0 4px 14px rgba(229, 9, 20, 0.3);
     }
     .hero-btn-watchnow .play-icon {
       width: 22px; height: 22px;

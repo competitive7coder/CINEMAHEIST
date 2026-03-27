@@ -193,12 +193,12 @@ const MovieCard = ({
 
         {/* Desktop Hover Overlay */}
         <div className="mc-overlay">
-          <h6
-            className="text-white fw-bold mb-1 text-truncate"
-            style={{ fontSize: "0.85rem" }}
-          >
-            {movie.title}
-          </h6>
+          <span
+  className="text-white fw-bold mb-1 d-block text-truncate"
+  style={{ fontSize: "0.85rem" }}
+>
+  {movie.title}
+</span>
           <div
             className="d-flex gap-2 mb-2"
             style={{ fontSize: "0.7rem", color: "#aaa" }}

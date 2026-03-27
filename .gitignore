@@ -6,7 +6,7 @@ project-third-year/client/recommendation-system/node_modules/
 project-third-year/client/recommendation-system/node_modules/.cache/
 
 # Production build
-build/
+dist/
 client/recommendation-system/build/
 project-third-year/client/recommendation-system/build/
 

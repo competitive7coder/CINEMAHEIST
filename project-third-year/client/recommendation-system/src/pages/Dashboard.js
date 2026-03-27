@@ -113,7 +113,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
     // polling before upgrading to WebSocket. Starting with ["websocket"] only
     // skips the HTTP handshake and causes the "closed before established" error.
     const SOCKET_URL =
-      process.env.REACT_APP_SOCKET_URL || "http://localhost:8000";
+      import.meta.env.VITE_SOCKET_URL || "http://localhost:8000";
     const socket = io(SOCKET_URL, {
       path: "/socket.io",
       transports: ["polling", "websocket"], // polling first → upgrades to WS

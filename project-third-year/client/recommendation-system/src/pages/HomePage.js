@@ -1,4 +1,11 @@
-import React, { useState, useEffect, useCallback, useRef, lazy, Suspense } from "react";
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  lazy,
+  Suspense,
+} from "react";
 import api from "../services/api";
 
 import HeroSlider from "../components/home/HeroSlider";
@@ -6,24 +13,24 @@ import MovieRow from "../components/movie/MovieRow";
 import { toast } from "react-toastify";
 
 // Lazy-load below-fold components — don't block hero paint
-const VideoModal   = lazy(() => import("../components/common/VideoModal"));
+const VideoModal = lazy(() => import("../components/common/VideoModal"));
 const Top10Section = lazy(() => import("../components/movie/Top10Section"));
 
 // ── Constants ────────────────────────────────────────────────────────────────
 const GENRE_ORDER = [
-  { id: 28,    name: "Action Packed" },
-  { id: 878,   name: "Science Fiction" },
+  { id: 28, name: "Action Packed" },
+  { id: 878, name: "Science Fiction" },
   { id: 10749, name: "Romantic Movies" },
-  { id: 53,    name: "Thriller Tales" },
-  { id: 12,    name: "Adventure" },
-  { id: 16,    name: "Animation" },
-  { id: 35,    name: "Comedy Movies" },
-  { id: 80,    name: "Crime" },
-  { id: 18,    name: "Drama" },
-  { id: 27,    name: "Horror Flicks" },
+  { id: 53, name: "Thriller Tales" },
+  { id: 12, name: "Adventure" },
+  { id: 16, name: "Animation" },
+  { id: 35, name: "Comedy Movies" },
+  { id: 80, name: "Crime" },
+  { id: 18, name: "Drama" },
+  { id: 27, name: "Horror Flicks" },
 ];
 
-const SOCKET_URL = process.env.REACT_APP_SOCKET_URL || "http://localhost:8000";
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:8000";
 
 // ── Skeletons (defined outside component — stable references, no re-creation) ─
 const skeletonStyle = (w, h) => ({
@@ -37,7 +44,14 @@ const skeletonStyle = (w, h) => ({
 
 const RowSkeleton = () => (
   <div style={{ marginBottom: "2.5rem" }}>
-    <div style={{ display: "flex", alignItems: "center", marginBottom: 14, gap: 12 }}>
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        marginBottom: 14,
+        gap: 12,
+      }}
+    >
       <div style={skeletonStyle(180, 20)} />
     </div>
     <div style={{ display: "flex", gap: 12, overflow: "hidden" }}>
@@ -73,21 +87,21 @@ const HeroSkeleton = () => (
 const HomePage = () => {
   // Phase 1a — hero (fetched first, alone)
   const [trendingMovies, setTrendingMovies] = useState([]);
-  const [heroReady, setHeroReady]           = useState(false);
+  const [heroReady, setHeroReady] = useState(false);
 
   // Phase 1b — below-hero content (fetched in parallel after hero fires)
-  const [top10Movies, setTop10Movies]       = useState([]);
-  const [newReleases, setNewReleases]       = useState([]);
-  const [watchlist, setWatchlist]           = useState([]);
+  const [top10Movies, setTop10Movies] = useState([]);
+  const [newReleases, setNewReleases] = useState([]);
+  const [watchlist, setWatchlist] = useState([]);
 
   // Phase 2 — genre rows streamed via SSE
-  const [moviesByGenre, setMoviesByGenre]   = useState({});
-  const [streamDone, setStreamDone]         = useState(false);
-  const [loadedCount, setLoadedCount]       = useState(0);
+  const [moviesByGenre, setMoviesByGenre] = useState({});
+  const [streamDone, setStreamDone] = useState(false);
+  const [loadedCount, setLoadedCount] = useState(0);
 
   // Video modal
   const [showVideoModal, setShowVideoModal] = useState(false);
-  const [videoKey, setVideoKey]             = useState(null);
+  const [videoKey, setVideoKey] = useState(null);
 
   const esRef = useRef(null);
 
@@ -95,7 +109,8 @@ const HomePage = () => {
   useEffect(() => {
     let cancelled = false;
 
-    api.get("/movies/trending")
+    api
+      .get("/movies/trending")
       .then((res) => {
         if (cancelled) return;
         setTrendingMovies(res.data?.results?.slice(0, 8) || []);
@@ -107,7 +122,9 @@ const HomePage = () => {
         setHeroReady(true); // unblock hero even on error
       });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // ── PHASE 1b: fetch remaining above-fold data in parallel ────────────────
@@ -135,7 +152,9 @@ const HomePage = () => {
         toast.error("Failed to load some content.");
       });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // ── PHASE 2: SSE genre stream — starts once hero is visible ──────────────
@@ -143,25 +162,40 @@ const HomePage = () => {
     if (!heroReady) return;
 
     // Guard against React StrictMode double-invoke
-    if (esRef.current) { esRef.current.close(); esRef.current = null; }
+    if (esRef.current) {
+      esRef.current.close();
+      esRef.current = null;
+    }
 
     const es = new EventSource(
-      `${SOCKET_URL}/api/v1/movies/homepage-sections/stream`
+      `${SOCKET_URL}/api/v1/movies/homepage-sections/stream`,
     );
     esRef.current = es;
 
     es.onmessage = (e) => {
       try {
         const data = JSON.parse(e.data);
-        if (data.done) { setStreamDone(true); es.close(); return; }
+        if (data.done) {
+          setStreamDone(true);
+          es.close();
+          return;
+        }
         setMoviesByGenre((prev) => ({ ...prev, [data.name]: data.movies }));
         setLoadedCount((prev) => prev + 1);
-      } catch { /* ignore malformed frames */ }
+      } catch {
+        /* ignore malformed frames */
+      }
     };
 
-    es.onerror = () => { setStreamDone(true); es.close(); };
+    es.onerror = () => {
+      setStreamDone(true);
+      es.close();
+    };
 
-    return () => { es.close(); esRef.current = null; };
+    return () => {
+      es.close();
+      esRef.current = null;
+    };
   }, [heroReady]);
 
   // ── ACTIVITY LOG ─────────────────────────────────────────────────────────
@@ -169,67 +203,76 @@ const HomePage = () => {
     if (!movie) return;
     try {
       await api.post("/activity/log", {
-        action_type:       actionType,
-        movie_id:          movie.id,
-        movie_title:       movie.title || movie.name,
+        action_type: actionType,
+        movie_id: movie.id,
+        movie_title: movie.title || movie.name,
         movie_poster_path: movie.poster_path,
       });
-    } catch { /* non-critical, swallow silently */ }
+    } catch {
+      /* non-critical, swallow silently */
+    }
   }, []);
 
   // ── TRAILER ──────────────────────────────────────────────────────────────
-  const handleWatchTrailerClick = useCallback(async (movieOrId) => {
-    const movie   = typeof movieOrId === "object" ? movieOrId : null;
-    const movieId = movie ? movie.id : movieOrId;
-    if (!movieId) return;
-    if (movie) logActivity(movie, "trailer_watch");
-    try {
-      const res     = await api.get(`/movies/${movieId}/videos`);
-      const trailer = res.data?.results?.find(
-        (v) => v.type === "Trailer" && v.site === "YouTube"
-      ) || res.data;
-      setVideoKey(trailer?.key || null);
-    } catch {
-      setVideoKey(null);
-    }
-    setShowVideoModal(true);
-  }, [logActivity]);
+  const handleWatchTrailerClick = useCallback(
+    async (movieOrId) => {
+      const movie = typeof movieOrId === "object" ? movieOrId : null;
+      const movieId = movie ? movie.id : movieOrId;
+      if (!movieId) return;
+      if (movie) logActivity(movie, "trailer_watch");
+      try {
+        const res = await api.get(`/movies/${movieId}/videos`);
+        const trailer =
+          res.data?.results?.find(
+            (v) => v.type === "Trailer" && v.site === "YouTube",
+          ) || res.data;
+        setVideoKey(trailer?.key || null);
+      } catch {
+        setVideoKey(null);
+      }
+      setShowVideoModal(true);
+    },
+    [logActivity],
+  );
 
   // ── WATCHLIST TOGGLE ─────────────────────────────────────────────────────
-  const handleWatchlistToggle = useCallback(async (movie) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      toast.info("Sign in to save movies to your watchlist!", {
-        toastId: "watchlist-auth", // prevent duplicate toasts on rapid clicks
-      });
-      return;
-    }
-
-    const inList = watchlist.includes(movie.id);
-
-    // Optimistic update — button flips instantly
-    setWatchlist((prev) =>
-      inList ? prev.filter((id) => id !== movie.id) : [...prev, movie.id]
-    );
-
-    try {
-      if (inList) {
-        await api.delete(`/users/watchlist/${movie.id}`);
-        logActivity(movie, "removed_from_watchlist");
-        toast.info("Removed from watchlist");
-      } else {
-        await api.post(`/users/watchlist/${movie.id}`);
-        logActivity(movie, "added_to_watchlist");
-        toast.success("Added to watchlist");
+  const handleWatchlistToggle = useCallback(
+    async (movie) => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast.info("Sign in to save movies to your watchlist!", {
+          toastId: "watchlist-auth", // prevent duplicate toasts on rapid clicks
+        });
+        return;
       }
-    } catch {
-      // Revert optimistic update on failure
+
+      const inList = watchlist.includes(movie.id);
+
+      // Optimistic update — button flips instantly
       setWatchlist((prev) =>
-        inList ? [...prev, movie.id] : prev.filter((id) => id !== movie.id)
+        inList ? prev.filter((id) => id !== movie.id) : [...prev, movie.id],
       );
-      toast.error("Could not update watchlist.");
-    }
-  }, [watchlist, logActivity]);
+
+      try {
+        if (inList) {
+          await api.delete(`/users/watchlist/${movie.id}`);
+          logActivity(movie, "removed_from_watchlist");
+          toast.info("Removed from watchlist");
+        } else {
+          await api.post(`/users/watchlist/${movie.id}`);
+          logActivity(movie, "added_to_watchlist");
+          toast.success("Added to watchlist");
+        }
+      } catch {
+        // Revert optimistic update on failure
+        setWatchlist((prev) =>
+          inList ? [...prev, movie.id] : prev.filter((id) => id !== movie.id),
+        );
+        toast.error("Could not update watchlist.");
+      }
+    },
+    [watchlist, logActivity],
+  );
 
   // ── DERIVED ───────────────────────────────────────────────────────────────
   const progressPct = streamDone
@@ -259,7 +302,10 @@ const HomePage = () => {
       {/* SSE progress bar — disappears when all genre rows are loaded */}
       {!streamDone && (
         <div className="stream-progress">
-          <div className="stream-progress-bar" style={{ width: `${progressPct}%` }} />
+          <div
+            className="stream-progress-bar"
+            style={{ width: `${progressPct}%` }}
+          />
         </div>
       )}
 
@@ -276,7 +322,6 @@ const HomePage = () => {
       ) : null}
 
       <div className="container-fluid pt-5">
-
         {/* Top 10 — lazy loaded, doesn't block hero */}
         {top10Movies.length > 0 && (
           <Suspense fallback={<RowSkeleton />}>
@@ -318,7 +363,6 @@ const HomePage = () => {
             />
           );
         })}
-
       </div>
 
       {/* Video modal — lazy loaded, only mounts when needed */}

@@ -168,7 +168,7 @@ async def lifespan(app: FastAPI):
     print("💤 Shutting down...")
 
 load_dotenv()
-FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:3000")
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173, http://localhost:4173/")
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -205,7 +205,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "https://stream1hub.pages.dev",   # Cloudflare Pages deployment
-        "http://localhost:3000",           # local dev
+        "http://localhost:5173",           # local dev
+        "http://localhost:4173",           # local testing dev
     ],
     allow_credentials=True,
     allow_methods=["*"],

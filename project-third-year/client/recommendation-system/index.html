@@ -4,33 +4,122 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- SEO -->
+  <!-- ═══════════════════════════════════════════════════
+       CRITICAL CSS — inlined, zero render-blocking
+  ═══════════════════════════════════════════════════ -->
+  <style>
+    *,*::before,*::after{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{margin:0;background:#040404;color:#fff;font-family:'DM Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+    #root{min-height:100vh;background:#040404}
+    /* Prevent FOUC on hero — placeholder until React mounts */
+    #root:empty::before{
+      content:'';display:block;height:100vh;
+      background:linear-gradient(135deg,#0a0a0a 0%,#111 100%);
+    }
+  </style>
+
+  <!-- ═══════════════════════════════════════════════════
+       PRECONNECTS — must come before any external fetch
+       crossorigin is REQUIRED on image CDN so the TLS
+       handshake is reused for actual <img> fetches
+  ═══════════════════════════════════════════════════ -->
+  <link rel="preconnect" href="https://image.tmdb.org" crossorigin />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="dns-prefetch" href="https://api.themoviedb.org" />
+  <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+  <link rel="dns-prefetch" href="https://static.cloudflareinsights.com" />
+
+  <!-- ═══════════════════════════════════════════════════
+       LCP IMAGE PRELOAD SLOT
+       • href left empty — filled by React as soon as
+         movies[0] is available (see HeroSlider / App)
+       • fetchpriority="high" tells the browser this is
+         the most important asset on the page
+       • imagesizes / imagesrcset can be added too for
+         responsive preload if needed
+  ═══════════════════════════════════════════════════ -->
+  <link
+    rel="preload"
+    as="image"
+    id="lcp-hero-preload"
+    fetchpriority="high"
+    href=""
+  />
+
+  <!-- ═══════════════════════════════════════════════════
+       MOBILE LCP IMAGE PRELOAD SLOT
+       • Separate slot for mobile poster (portrait image)
+       • media query ensures only mobile devices use it
+       • href filled by React same time as desktop slot
+  ═══════════════════════════════════════════════════ -->
+  <link
+    rel="preload"
+    as="image"
+    id="lcp-hero-preload-mobile"
+    fetchpriority="high"
+    media="(max-width: 480px)"
+    href=""
+  />
+
+  <!-- ═══════════════════════════════════════════════════
+       FONTS — all 7 families are actively used across
+       the codebase (Navbar, Footer, WatchMovieModal,
+       Dashboard, PublicHome etc). Non-blocking via
+       preload + onload swap. display=swap prevents
+       invisible text during load.
+  ═══════════════════════════════════════════════════ -->
+  <link
+    rel="preload"
+    as="style"
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap"
+    onload="this.onload=null;this.rel='stylesheet'"
+  />
+  <noscript>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap"
+    />
+  </noscript>
+
+  <!-- ═══════════════════════════════════════════════════
+       SEO
+  ═══════════════════════════════════════════════════ -->
   <title>StreamHub — Watch Movies Online Free | Stream Latest Films</title>
   <meta name="description" content="StreamHub lets you watch movies online free. Stream the latest Hollywood films and world cinema with AI-powered recommendations." />
   <meta name="keywords" content="watch movies online free, stream movies free, latest movies 2025" />
   <meta name="author" content="StreamHub" />
   <link rel="canonical" href="https://stream1hub.pages.dev/" />
 
-  <!-- Favicon -->
+  <!-- ═══════════════════════════════════════════════════
+       FAVICON
+  ═══════════════════════════════════════════════════ -->
   <link rel="icon" href="/favicon.ico" sizes="any" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <link rel="manifest" href="/manifest.webmanifest" />
 
-  <!-- Open Graph -->
+  <!-- ═══════════════════════════════════════════════════
+       OPEN GRAPH
+  ═══════════════════════════════════════════════════ -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="StreamHub — Watch Movies Online Free" />
   <meta property="og:description" content="Watch latest movies online free." />
   <meta property="og:image" content="https://stream1hub.pages.dev/og-image.jpg" />
   <meta property="og:url" content="https://stream1hub.pages.dev/" />
 
-  <!-- Twitter -->
+  <!-- ═══════════════════════════════════════════════════
+       TWITTER CARD
+  ═══════════════════════════════════════════════════ -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="StreamHub — Watch Movies Online Free" />
   <meta name="twitter:description" content="Stream movies online free." />
   <meta name="twitter:image" content="https://stream1hub.pages.dev/og-image.jpg" />
 
-  <!-- JSON-LD structured data -->
+  <!-- ═══════════════════════════════════════════════════
+       JSON-LD STRUCTURED DATA
+  ═══════════════════════════════════════════════════ -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -48,28 +137,13 @@
   }
   </script>
 
-  <!-- Critical CSS — inlined to eliminate render-blocking -->
-  <style>
-    *,*::before,*::after{box-sizing:border-box}
-    body{margin:0;background:#000;color:#fff;font-family:Inter,system-ui,sans-serif}
-    #root{min-height:100vh;background:#000}
-  </style>
-
-  <!-- Preconnect -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preconnect" href="https://image.tmdb.org" />
-  <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-  <link rel="dns-prefetch" href="https://static.cloudflareinsights.com" />
-
-  <!-- Fonts — all 7 families, single request, non-blocking -->
-  <link rel="preload" as="style"
-    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap"
-    onload="this.onload=null;this.rel='stylesheet'" />
-  <noscript>
-    <link rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap" />
-  </noscript>
+  <!-- ═══════════════════════════════════════════════════
+       MODULE PRELOAD — tells browser to fetch + parse
+       the Vite entry bundle earlier, so React mounts
+       sooner and the TMDB API call starts sooner,
+       which means the LCP image URL is known sooner.
+  ═══════════════════════════════════════════════════ -->
+  <link rel="modulepreload" href="/src/index.js" />
 
 </head>
 
@@ -87,11 +161,12 @@
   <!-- App root -->
   <div id="root"></div>
 
-  <!--
-    GTM — loads only on first real user interaction.
-    Bots, prerender, and instant bounces never download it.
-    dataLayer is initialized early so no events are lost.
-  -->
+  <!-- ═══════════════════════════════════════════════════
+       GTM — deferred until first real user interaction.
+       Bots, prerender, and instant bounces never
+       download it. dataLayer initialized early so no
+       events are lost before GTM loads.
+  ═══════════════════════════════════════════════════ -->
   <script>
     window.dataLayer = window.dataLayer || [];
 
@@ -109,7 +184,7 @@
     });
   </script>
 
-  <!-- Cloudflare Web Analytics -->
+  <!-- Cloudflare Web Analytics — defer so it never blocks anything -->
   <script
     defer
     src="https://static.cloudflareinsights.com/beacon.min.js"

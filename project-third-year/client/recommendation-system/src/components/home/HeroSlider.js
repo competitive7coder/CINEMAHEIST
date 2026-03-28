@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay, EffectFade } from "swiper/modules";
@@ -8,6 +8,17 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/effect-fade";
 
+// ─── TMDB image helpers ────────────────────────────────────────────────────
+const TMDB = "https://image.tmdb.org/t/p";
+
+function getDesktopSrc(movie) {
+  return `${TMDB}/w1280${movie.backdrop_path}`;
+}
+function getMobileSrc(movie) {
+  return `${TMDB}/w780${movie.poster_path}`;
+}
+
+// ─── Component ────────────────────────────────────────────────────────────
 const HeroSlider = ({
   movies,
   watchlist = [],
@@ -21,7 +32,36 @@ const HeroSlider = ({
     tmdbId: null,
     title: "",
   });
+
   const sliderMovies = movies.slice(0, 10);
+
+  // ── Inject LCP preload as early as possible ──────────────────────────────
+  // Two slots are filled:
+  //   1. #lcp-hero-preload        → desktop backdrop (w1280)
+  //   2. #lcp-hero-preload-mobile → mobile poster (w780), media-gated
+  // Both slots exist in index.html with href="" so the browser registers
+  // them instantly on parse — we just fill the href here.
+  const preloadInjected = useRef(false);
+  useEffect(() => {
+    if (preloadInjected.current) return;
+    if (!sliderMovies[0]) return;
+
+    const { backdrop_path, poster_path } = sliderMovies[0];
+
+    // Desktop preload slot
+    const desktopLink = document.getElementById("lcp-hero-preload");
+    if (desktopLink && !desktopLink.href) {
+      desktopLink.href = `https://image.tmdb.org/t/p/w1280${backdrop_path}`;
+    }
+
+    // Mobile preload slot — browser ignores this on desktop due to media attr
+    const mobileLink = document.getElementById("lcp-hero-preload-mobile");
+    if (mobileLink && !mobileLink.href) {
+      mobileLink.href = `https://image.tmdb.org/t/p/w780${poster_path}`;
+    }
+
+    preloadInjected.current = true;
+  }, [sliderMovies]);
 
   const handleSlideChange = useCallback((swiper) => {
     setActiveIndex(swiper.realIndex);
@@ -53,18 +93,20 @@ const HeroSlider = ({
       justify-content: flex-start;
     }
 
-    .hero-bg-img {
+    /* ── Ken Burns on the WRAPPER, not the img ──────────────────────────────
+       Animating transform on the <img> itself forces the browser to repaint
+       the LCP element on every frame. Moving the animation to a wrapper div
+       lets the GPU composite it independently — zero layout/paint cost.
+    ── */
+    .hero-bg-wrap {
       position: absolute;
       inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center center;
-      z-index: 0;
+      will-change: transform;
+      overflow: hidden;
     }
 
     @media (min-width: 769px) {
-      .hero-bg-img {
+      .hero-bg-wrap {
         animation: heroKenBurns 20s ease-in-out infinite alternate;
       }
     }
@@ -72,6 +114,17 @@ const HeroSlider = ({
     @keyframes heroKenBurns {
       from { transform: scale(1.05) translateY(-2%); }
       to   { transform: scale(1.15) translateY(-4%); }
+    }
+
+    /* img itself: no animation, no will-change */
+    .hero-bg-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+      display: block;
     }
 
     .hero-overlay-main {
@@ -350,8 +403,6 @@ const HeroSlider = ({
     @media (max-width: 480px) {
       .hero-slider { height: 100svh; min-height: 100svh; }
 
-      /* KEY FIX: contain shows full poster, no side cropping ever.
-         background-color fills the gaps with your existing dark bg. */
       .hero-bg-img {
         object-fit: contain;
         object-position: top center;
@@ -364,7 +415,6 @@ const HeroSlider = ({
         align-items: flex-end;
       }
 
-      /* overlay tuned for contain — covers the letterbox gaps cleanly */
       .hero-overlay-main {
         background:
           linear-gradient(to top,
@@ -451,16 +501,15 @@ const HeroSlider = ({
             ? movie.release_date.slice(0, 4)
             : null;
 
-          const isMobile = window.innerWidth <= 480;
-          const isTablet = window.innerWidth <= 768;
-
-          // poster_path (portrait 2:3) on mobile — fills frame without cropping
-          // backdrop_path (landscape 16:9) on tablet/desktop
-          const imgSrc = isMobile
-            ? `https://image.tmdb.org/t/p/w780${movie.poster_path}`
-            : `https://image.tmdb.org/t/p/${
-                isTablet ? "w780" : index === 0 ? "w1280" : "w500"
-              }${movie.backdrop_path}`;
+          // ── Loading strategy per slide ─────────────────────────────────
+          // Slide 0: highest priority — this is the LCP element
+          // Slide 1: eager but auto priority — visible after 6s autoplay
+          // Slide 2+: lazy — will never be seen before user interaction
+          const isFirst = index === 0;
+          const isSecond = index === 1;
+          const imgFetchPriority = isFirst ? "high" : isSecond ? "auto" : "low";
+          const imgLoading = index <= 1 ? "eager" : "lazy";
+          const imgDecoding = index <= 1 ? "sync" : "async";
 
           return (
             <SwiperSlide
@@ -468,14 +517,35 @@ const HeroSlider = ({
               style={{ height: "100%", position: "relative" }}
             >
               <div className="hero-slide-inner">
-                <img
-                  className="hero-bg-img"
-                  src={imgSrc}
-                  alt={movie.title}
-                  fetchpriority={index === 0 ? "high" : "low"}
-                  loading={index === 0 ? "eager" : "lazy"}
-                  decoding={index === 0 ? "sync" : "async"}
-                />
+
+                {/*
+                  ── <picture> instead of bare <img> ───────────────────────
+                  • Mobile (<= 480px): portrait poster (w780) with
+                    object-fit:contain so nothing is ever cropped
+                  • Tablet/Desktop: landscape backdrop (w1280) always —
+                    never w500 which was causing blurry upscaling
+                  • The <source> uses a CSS media query so the browser
+                    picks the right URL before fetching — no JS needed,
+                    no window.innerWidth race condition
+                */}
+                <div className="hero-bg-wrap">
+                  <picture>
+                    <source
+                      media="(max-width: 480px)"
+                      srcSet={getMobileSrc(movie)}
+                    />
+                    <img
+                      className="hero-bg-img"
+                      src={getDesktopSrc(movie)}
+                      alt={movie.title}
+                      fetchPriority={imgFetchPriority}
+                      loading={imgLoading}
+                      decoding={imgDecoding}
+                      width="1280"
+                      height="720"
+                    />
+                  </picture>
+                </div>
 
                 <div className="hero-overlay-main" />
                 <div className="hero-overlay-accent" />

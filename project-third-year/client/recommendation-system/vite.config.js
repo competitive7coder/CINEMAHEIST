@@ -3,7 +3,6 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [
-    // Force Vite to treat .js files as JSX
     {
       name: 'treat-js-files-as-jsx',
       async transform(code, id) {
@@ -16,6 +15,11 @@ export default defineConfig({
     },
     react(),
   ],
+
+  // Prevent React from being bundled twice
+  resolve: {
+    dedupe: ['react', 'react-dom'],
+  },
 
   optimizeDeps: {
     esbuildOptions: {
@@ -30,8 +34,10 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
+          // React must be isolated first
           if (id.includes('node_modules/react/') ||
               id.includes('node_modules/react-dom/') ||
+              id.includes('node_modules/scheduler/') ||
               id.includes('node_modules/react-router-dom/') ||
               id.includes('node_modules/react-router/')) {
             return 'chunk-react';

@@ -541,8 +541,6 @@ const HeroSlider = ({
                       fetchPriority={imgFetchPriority}
                       loading={imgLoading}
                       decoding={imgDecoding}
-                      width="1280"
-                      height="720"
                     />
                   </picture>
                 </div>

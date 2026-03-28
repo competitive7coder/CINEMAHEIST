@@ -1,11 +1,20 @@
-import { defineConfig } from 'vite';
+import { defineConfig, transformWithEsbuild } from 'vite';
 import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [
-    react({
-      include: '**/*.{js,jsx}',
-    }),
+    // Force Vite to treat .js files as JSX
+    {
+      name: 'treat-js-files-as-jsx',
+      async transform(code, id) {
+        if (!id.match(/src\/.*\.js$/)) return null;
+        return transformWithEsbuild(code, id, {
+          loader: 'jsx',
+          jsx: 'automatic',
+        });
+      },
+    },
+    react(),
   ],
 
   optimizeDeps: {
@@ -17,43 +26,32 @@ export default defineConfig({
   },
 
   build: {
-    // warn if any chunk exceeds 500kb
     chunkSizeWarningLimit: 500,
-
     rollupOptions: {
       output: {
         manualChunks(id) {
-          // React core
           if (id.includes('node_modules/react/') ||
               id.includes('node_modules/react-dom/') ||
               id.includes('node_modules/react-router-dom/') ||
               id.includes('node_modules/react-router/')) {
             return 'chunk-react';
           }
-
-          // UI libraries
           if (id.includes('node_modules/react-bootstrap/') ||
               id.includes('node_modules/bootstrap/') ||
               id.includes('node_modules/react-icons/') ||
               id.includes('node_modules/styled-components/')) {
             return 'chunk-ui';
           }
-
-          // Heavy libraries — each gets its own chunk
           if (id.includes('node_modules/swiper/')) {
             return 'chunk-swiper';
           }
-
           if (id.includes('node_modules/socket.io-client/') ||
               id.includes('node_modules/engine.io-client/')) {
             return 'chunk-socket';
           }
-
           if (id.includes('node_modules/axios/')) {
             return 'chunk-axios';
           }
-
-          // Everything else from node_modules
           if (id.includes('node_modules/')) {
             return 'chunk-vendors';
           }

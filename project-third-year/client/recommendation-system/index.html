@@ -32,6 +32,26 @@
   <link rel="dns-prefetch" href="https://static.cloudflareinsights.com" />
 
   <!-- ═══════════════════════════════════════════════════
+       TRENDING API PREFETCH
+       Fires during HTML parse — before React bundle even
+       downloads. Result cached in window.__trendingPrefetch
+       so HomePage.js consumes it instantly with zero extra
+       network request. Uses VITE_API_URL injected by Vite.
+  ═══════════════════════════════════════════════════ -->
+  <script>
+    (function () {
+      var base = '%VITE_API_URL%';
+      if (!base || base === '%VITE_API_URL%') return;
+      window.__trendingPrefetch = fetch(base + '/movies/trending', {
+        credentials: 'same-origin',
+        headers: { 'Accept': 'application/json' }
+      })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .catch(function () { return null; });
+    })();
+  </script>
+
+  <!-- ═══════════════════════════════════════════════════
        LCP IMAGE PRELOAD SLOT
        • href left empty — filled by React as soon as
          movies[0] is available (see HeroSlider / App)
@@ -45,6 +65,7 @@
     as="image"
     id="lcp-hero-preload"
     fetchpriority="high"
+    importance="high"
     href=""
   />
 
@@ -59,6 +80,7 @@
     as="image"
     id="lcp-hero-preload-mobile"
     fetchpriority="high"
+    importance="high"
     media="(max-width: 480px)"
     href=""
   />

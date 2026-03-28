@@ -67,7 +67,6 @@ const sections = [
 const PrivacyPolicy = () => (
   <div style={{ minHeight: "100vh", background: "#0a0a0a", color: "#fff", fontFamily: "'Poppins', sans-serif" }}>
     <style>{`
-      @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
       * { box-sizing: border-box; margin: 0; padding: 0; }
       .legal-hero {
         background: linear-gradient(180deg, #111 0%, #0a0a0a 100%);

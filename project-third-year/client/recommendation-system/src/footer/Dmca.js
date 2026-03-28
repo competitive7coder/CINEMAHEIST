@@ -18,7 +18,6 @@ const DMCA = () => {
       padding: "0",
     }}>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         * { box-sizing: border-box; margin: 0; padding: 0; }
         .dmca-hero {
           background: linear-gradient(180deg, #111 0%, #0a0a0a 100%);

@@ -11,7 +11,6 @@ import {
 } from "react-icons/bs";
 
 const modalStyles = `
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 
 /* ── Base Modal ── */
 .watch-modal .modal-dialog { max-width: 1160px; width: 98vw; margin: 10px auto; }

@@ -194,7 +194,6 @@ const MovieDetailPage = () => {
   const formatRuntime = (m) => (m ? `${Math.floor(m / 60)}h ${m % 60}m` : null);
 
   const css = `
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
 
     .mdp { background: #0c0c0f; color: #fff; font-family: 'Inter', sans-serif; min-height: 100vh; }
 

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay, EffectFade } from "swiper/modules";
@@ -23,23 +23,11 @@ const HeroSlider = ({
   });
   const sliderMovies = movies.slice(0, 10);
 
-  // ── Load Google Fonts non-blocking via <link> in <head> ──
-  useEffect(() => {
-    if (document.getElementById("hero-gfonts")) return;
-    const link = document.createElement("link");
-    link.id = "hero-gfonts";
-    link.rel = "stylesheet";
-    link.href =
-      "https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap";
-    document.head.appendChild(link);
-  }, []);
-
   const handleSlideChange = useCallback((swiper) => {
     setActiveIndex(swiper.realIndex);
   }, []);
 
   const componentStyles = `
-    /* ── Base ── */
     .hero-slider {
       height: 100vh;
       min-height: 520px;
@@ -56,7 +44,6 @@ const HeroSlider = ({
       width: 100% !important;
     }
 
-    /* ── Slide inner — full bleed image ── */
     .hero-slide-inner {
       position: absolute;
       inset: 0;
@@ -66,18 +53,16 @@ const HeroSlider = ({
       justify-content: flex-start;
     }
 
-    /* ── LCP image fills the slide ── */
     .hero-bg-img {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
-      object-position: top center;
+      object-position: center center;
       z-index: 0;
     }
 
-    /* Ken Burns desktop only — applied to the img */
     @media (min-width: 769px) {
       .hero-bg-img {
         animation: heroKenBurns 20s ease-in-out infinite alternate;
@@ -89,26 +74,26 @@ const HeroSlider = ({
       to   { transform: scale(1.15) translateY(-4%); }
     }
 
-    /* ── Overlays ── */
     .hero-overlay-main {
       position: absolute;
       inset: 0;
       background:
         linear-gradient(to top,
           rgba(4,4,4,1)    0%,
-          rgba(4,4,4,0.92) 20%,
-          rgba(4,4,4,0.5)  45%,
-          rgba(4,4,4,0.15) 70%,
-          rgba(4,4,4,0.02) 100%
+          rgba(4,4,4,0.85) 20%,
+          rgba(4,4,4,0.4)  45%,
+          rgba(4,4,4,0.08) 70%,
+          rgba(4,4,4,0.0)  100%
         ),
         linear-gradient(to bottom,
-          rgba(4,4,4,0.65) 0%,
-          rgba(4,4,4,0.0)  28%
+          rgba(4,4,4,0.55) 0%,
+          rgba(4,4,4,0.0)  22%
         ),
         linear-gradient(to right,
-          rgba(4,4,4,0.7)  0%,
-          rgba(4,4,4,0.25) 40%,
-          transparent      70%
+          rgba(4,4,4,0.85) 0%,
+          rgba(4,4,4,0.5)  30%,
+          rgba(4,4,4,0.1)  55%,
+          transparent      75%
         );
       z-index: 1;
     }
@@ -125,12 +110,11 @@ const HeroSlider = ({
       pointer-events: none;
     }
 
-    /* ── Content ── */
     .hero-content {
       position: relative;
       z-index: 10;
-      padding: 0 5rem 5rem;
-      max-width: 680px;
+      padding: 0 4rem 4.5rem;
+      max-width: 560px;
       width: 100%;
       align-self: flex-end;
       animation: heroFadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -141,7 +125,6 @@ const HeroSlider = ({
       to   { opacity: 1; transform: translateY(0); }
     }
 
-    /* ── Meta ── */
     .hero-meta {
       display: flex;
       align-items: center;
@@ -162,17 +145,16 @@ const HeroSlider = ({
       text-transform: uppercase;
     }
 
-    .hero-badge-new { background: #b30000; color: #ffffff; }
+    .hero-badge-new    { background: #b30000; color: #ffffff; }
     .hero-badge-rating { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: #facc15; }
     .hero-badge-year   { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.6); }
 
-    /* ── Title ── */
     .hero-title {
       font-family: 'Bebas Neue', sans-serif;
-      font-size: clamp(2.8rem, 7vw, 6.5rem);
+      font-size: clamp(1.6rem, 3vw, 3rem);
       font-weight: 400;
       letter-spacing: 2px;
-      line-height: 0.95;
+      line-height: 1.05;
       color: #fff;
       text-shadow: 0 2px 40px rgba(0,0,0,0.8);
       margin: 0 0 10px;
@@ -187,7 +169,6 @@ const HeroSlider = ({
       margin: 10px 0 14px;
     }
 
-    /* ── Overview ── */
     .hero-overview {
       font-size: clamp(0.85rem, 1.8vw, 1rem);
       line-height: 1.65;
@@ -201,9 +182,6 @@ const HeroSlider = ({
       max-width: 540px;
     }
 
-    /* ════════════════════════════════
-       DESKTOP BUTTONS
-    ════════════════════════════════ */
     .hero-buttons {
       display: flex;
       align-items: center;
@@ -227,15 +205,15 @@ const HeroSlider = ({
       white-space: nowrap;
     }
 
- .hero-btn-watchnow {
-  background: #b30000;
-  color: #ffffff;
-  box-shadow: 0 3px 10px rgba(179, 0, 0, 0.2);
-}
+    .hero-btn-watchnow {
+      background: #b30000;
+      color: #ffffff;
+      box-shadow: 0 3px 10px rgba(179, 0, 0, 0.2);
+    }
     .hero-btn-watchnow:hover {
       background: #ff1a1a;
       transform: translateY(-3px) scale(1.03);
-  box-shadow: 0 4px 14px rgba(229, 9, 20, 0.3);
+      box-shadow: 0 4px 14px rgba(229, 9, 20, 0.3);
     }
     .hero-btn-watchnow .play-icon {
       width: 22px; height: 22px;
@@ -245,7 +223,6 @@ const HeroSlider = ({
       font-size: 9px; padding-left: 2px; flex-shrink: 0;
     }
 
-    /* Secondary actions — frosted pill */
     .hero-secondary-actions {
       display: inline-flex;
       align-items: center;
@@ -281,10 +258,7 @@ const HeroSlider = ({
       color: #4ade80;
     }
 
-    .hero-action-icon {
-      font-size: 1rem;
-      line-height: 1;
-    }
+    .hero-action-icon { font-size: 1rem; line-height: 1; }
     .hero-action-label {
       font-size: 0.6rem;
       font-weight: 700;
@@ -299,7 +273,6 @@ const HeroSlider = ({
       flex-shrink: 0;
     }
 
-    /* Desktop info link */
     .hero-btn-info {
       background: transparent;
       color: rgba(255,255,255,0.5);
@@ -315,7 +288,6 @@ const HeroSlider = ({
     }
     .hero-btn-info:hover { color: #fff; }
 
-    /* ── Counter ── */
     .hero-counter {
       position: absolute;
       bottom: 40px; right: 50px;
@@ -335,7 +307,6 @@ const HeroSlider = ({
       letter-spacing: 2px;
     }
 
-    /* ── Pagination ── */
     .hero-slider .swiper-pagination {
       bottom: 20px !important;
       left: 5rem !important;
@@ -364,9 +335,7 @@ const HeroSlider = ({
       pointer-events: none;
     }
 
-    /* ════════════════════════════════
-       TABLET
-    ════════════════════════════════ */
+    /* ── Tablet ── */
     @media (max-width: 768px) {
       .hero-slider { height: 70vh; min-height: 440px; }
       .hero-content { padding: 0 1.5rem 2.5rem; max-width: 100%; }
@@ -377,80 +346,52 @@ const HeroSlider = ({
       .hero-slider .swiper-pagination { left: 1.5rem !important; }
     }
 
-    /* ════════════════════════════════
-       MOBILE
-    ════════════════════════════════ */
+    /* ── Mobile ── */
     @media (max-width: 480px) {
-      .hero-slider {
-        height: 100svh;
-        min-height: 620px;
+      .hero-slider { height: 100svh; min-height: 100svh; }
+
+      /* KEY FIX: contain shows full poster, no side cropping ever.
+         background-color fills the gaps with your existing dark bg. */
+      .hero-bg-img {
+        object-fit: contain;
+        object-position: top center;
+        background-color: #040404;
       }
 
-      /* Full viewport image */
       .hero-slide-inner {
         position: absolute;
         inset: 0;
-        background-size: cover;
-        background-position: top center;
         align-items: flex-end;
       }
 
-      /* Stronger bottom gradient so text pops */
+      /* overlay tuned for contain — covers the letterbox gaps cleanly */
       .hero-overlay-main {
         background:
           linear-gradient(to top,
             rgba(4,4,4,1)    0%,
-            rgba(4,4,4,1)    25%,
-            rgba(4,4,4,0.82) 48%,
-            rgba(4,4,4,0.22) 70%,
-            rgba(4,4,4,0.04) 100%
+            rgba(4,4,4,1)    30%,
+            rgba(4,4,4,0.7)  52%,
+            rgba(4,4,4,0.15) 72%,
+            rgba(4,4,4,0.0)  100%
           ),
           linear-gradient(to bottom,
-            rgba(4,4,4,0.5)  0%,
-            transparent      20%
+            rgba(4,4,4,0.6)  0%,
+            transparent      22%
           );
       }
 
-      .hero-content {
-        padding: 0 1.2rem 2.5rem;
-        width: 100%;
-      }
-
-      .hero-meta {
-        gap: 6px;
-        margin-bottom: 10px;
-        flex-wrap: nowrap;
-      }
-
-      .hero-badge {
-        font-size: 0.56rem;
-        padding: 3px 8px;
-        letter-spacing: 0.8px;
-      }
-
+      .hero-content { padding: 0 1.2rem 2.5rem; width: 100%; }
+      .hero-meta { gap: 6px; margin-bottom: 10px; flex-wrap: nowrap; }
+      .hero-badge { font-size: 0.56rem; padding: 3px 8px; letter-spacing: 0.8px; }
       .hero-title {
         font-size: clamp(1.75rem, 9vw, 2.4rem);
         line-height: 1.05;
         letter-spacing: 1px;
         margin-bottom: 4px;
       }
-
-      .hero-title-accent {
-        width: 34px; height: 2px;
-        margin: 7px 0 14px;
-      }
-
+      .hero-title-accent { width: 34px; height: 2px; margin: 7px 0 14px; }
       .hero-overview { display: none; }
-
-      /* ── Mobile buttons — vertical stack ── */
-      .hero-buttons {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 9px;
-        width: 100%;
-      }
-
-      /* Watch Now — full width pill */
+      .hero-buttons { flex-direction: column; align-items: stretch; gap: 9px; width: 100%; }
       .hero-btn-watchnow {
         width: 100%;
         justify-content: center;
@@ -459,44 +400,24 @@ const HeroSlider = ({
         border-radius: 50px;
         letter-spacing: 0.5px;
       }
-      .hero-btn-watchnow .play-icon {
-        display: flex;
-        width: 22px; height: 22px;
-        font-size: 9px;
-      }
-
-      /* Frosted pill — full width on mobile */
+      .hero-btn-watchnow .play-icon { display: flex; width: 22px; height: 22px; font-size: 9px; }
       .hero-secondary-actions {
         width: 100%;
         justify-content: space-around;
         border-radius: 50px;
         padding: 5px;
       }
-
-      .hero-action-btn {
-        flex: 1;
-        padding: 10px 4px;
-        gap: 5px;
-      }
-
+      .hero-action-btn { flex: 1; padding: 10px 4px; gap: 5px; }
       .hero-action-icon { font-size: 1.1rem; }
       .hero-action-label { font-size: 0.58rem; letter-spacing: 0.5px; }
       .hero-action-divider { height: 22px; }
-
-      /* Hide separate info button on mobile — it's in the pill */
       .hero-btn-info { display: none; }
-
-      .hero-slider .swiper-pagination {
-        left: 1.2rem !important;
-        bottom: 12px !important;
-      }
+      .hero-slider .swiper-pagination { left: 1.2rem !important; bottom: 12px !important; }
       .hero-counter { display: none; }
-      .hero-bottom-fade { height: 50px; }
+      .hero-bottom-fade { height: 60px; }
     }
 
-    /* ════════════════════════════════
-       VERY SMALL
-    ════════════════════════════════ */
+    /* ── Small mobile ── */
     @media (max-width: 360px) {
       .hero-slider { height: 100svh; min-height: 580px; }
       .hero-title { font-size: 1.7rem; }
@@ -530,11 +451,16 @@ const HeroSlider = ({
             ? movie.release_date.slice(0, 4)
             : null;
 
-          // Responsive image size — smaller on mobile to save bandwidth
-          const isMobile = window.innerWidth <= 768;
-          const imgSize = index === 0
-            ? (isMobile ? "w780" : "w1280")
-            : "w500";
+          const isMobile = window.innerWidth <= 480;
+          const isTablet = window.innerWidth <= 768;
+
+          // poster_path (portrait 2:3) on mobile — fills frame without cropping
+          // backdrop_path (landscape 16:9) on tablet/desktop
+          const imgSrc = isMobile
+            ? `https://image.tmdb.org/t/p/w780${movie.poster_path}`
+            : `https://image.tmdb.org/t/p/${
+                isTablet ? "w780" : index === 0 ? "w1280" : "w500"
+              }${movie.backdrop_path}`;
 
           return (
             <SwiperSlide
@@ -542,10 +468,9 @@ const HeroSlider = ({
               style={{ height: "100%", position: "relative" }}
             >
               <div className="hero-slide-inner">
-                {/* <img> tag — browser can detect & prioritize LCP */}
                 <img
                   className="hero-bg-img"
-                  src={`https://image.tmdb.org/t/p/${imgSize}${movie.backdrop_path}`}
+                  src={imgSrc}
                   alt={movie.title}
                   fetchpriority={index === 0 ? "high" : "low"}
                   loading={index === 0 ? "eager" : "lazy"}
@@ -556,33 +481,24 @@ const HeroSlider = ({
                 <div className="hero-overlay-accent" />
 
                 <div className="hero-content">
-                  {/* Meta */}
                   <div className="hero-meta">
-                    <span className="hero-badge hero-badge-new">
-                      ✦ Trending
-                    </span>
+                    <span className="hero-badge hero-badge-new">✦ Trending</span>
                     {rating && (
-                      <span className="hero-badge hero-badge-rating">
-                        ★ {rating}
-                      </span>
+                      <span className="hero-badge hero-badge-rating">★ {rating}</span>
                     )}
                     {year && (
                       <span className="hero-badge hero-badge-year">{year}</span>
                     )}
                   </div>
 
-                  {/* Title */}
                   <h1 className="hero-title">{movie.title}</h1>
                   <div className="hero-title-accent" />
 
-                  {/* Overview */}
                   {movie.overview && (
                     <p className="hero-overview">{movie.overview}</p>
                   )}
 
-                  {/* Buttons */}
                   <div className="hero-buttons">
-                    {/* Watch Now */}
                     <button
                       className="hero-btn hero-btn-watchnow"
                       onClick={() =>
@@ -597,7 +513,6 @@ const HeroSlider = ({
                       Watch Now
                     </button>
 
-                    {/* Frosted pill — Trailer / My List / Info */}
                     <div className="hero-secondary-actions">
                       <button
                         className="hero-action-btn"
@@ -632,7 +547,6 @@ const HeroSlider = ({
                       </button>
                     </div>
 
-                    {/* Desktop only text link */}
                     <button
                       className="hero-btn-info"
                       onClick={() => navigate(`/movie/${movie.id}`)}

@@ -9,8 +9,6 @@ import {
     FaSignOutAlt, FaTachometerAlt, FaChevronDown,
 } from "react-icons/fa";
 
-const NAV_FONTS = `@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=JetBrains+Mono:wght@300;400&display=swap');`;
-
 const fadeSlideDown = keyframes`
   from { opacity: 0; transform: translateY(-8px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -274,8 +272,6 @@ const SignupBtn = styled(Link)`
 
 const UserMenuWrapper = styled.div`
   position: relative;
-
-  /* Hide entirely on mobile — hamburger handles everything */
   @media (max-width: 992px) { display: none; }
 `;
 
@@ -367,7 +363,6 @@ const LogoutItem = styled.button`
   &:hover { color: #ff4444; background: rgba(255,0,0,0.06); }
 `;
 
-// ── Mobile only ───────────────────────────────────────────────────────────────
 const HamburgerBtn = styled.button`
   display: none;
   background: rgba(255,255,255,0.06);
@@ -427,7 +422,6 @@ const MobileMenuBody = styled.div`
   overflow-y: auto;
 `;
 
-/* User profile card inside mobile menu */
 const MobileUserCard = styled.div`
   display: flex;
   align-items: center;
@@ -726,9 +720,7 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
 
   return (
     <>
-      <style>{NAV_FONTS}</style>
       <Nav $scrolled={scrolled} $visible={visible}>
-
         <Brand to={isLoggedIn ? "/home" : "/"}>
           <span className="brand-name">STREAM<span>HUB</span></span>
         </Brand>
@@ -777,7 +769,6 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
             <SearchBtn type="submit"><FaSearch size={13} /></SearchBtn>
           </SearchWrapper>
 
-          {/* Desktop user menu only */}
           {isLoggedIn ? (
             <UserMenuWrapper ref={userRef}>
               <UserBtn onClick={() => setUserOpen(v => !v)}>
@@ -807,18 +798,14 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
             </>
           )}
 
-          {/* Hamburger — mobile only */}
           <HamburgerBtn onClick={() => setMobileOpen(true)} aria-label="Open menu">
             <FaBars />
           </HamburgerBtn>
         </RightSide>
       </Nav>
 
-      {/* ── Professional Mobile Menu ── */}
       {mobileOpen && (
         <MobileMenu>
-
-          {/* Header */}
           <MobileMenuHeader>
             <Brand to={isLoggedIn ? "/home" : "/"} onClick={closeMobile}>
               <span className="brand-name">STREAM<span>HUB</span></span>
@@ -829,8 +816,6 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
           </MobileMenuHeader>
 
           <MobileMenuBody>
-
-            {/* User card — if logged in */}
             {isLoggedIn && (
               <MobileUserCard>
                 <MobileAvatar><FaUser size={18} /></MobileAvatar>
@@ -841,7 +826,6 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
               </MobileUserCard>
             )}
 
-            {/* Search */}
             <MobileSearchForm onSubmit={handleSearchSubmit}>
               <input
                 type="search"
@@ -852,11 +836,8 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
               <button type="submit"><FaSearch size={13} /></button>
             </MobileSearchForm>
 
-            {/* Nav */}
             <MobileSectionLabel>Navigate</MobileSectionLabel>
-            <MobileNavLink to="/home" onClick={closeMobile}>
-              Home
-            </MobileNavLink>
+            <MobileNavLink to="/home" onClick={closeMobile}>Home</MobileNavLink>
 
             <MobileGenreToggle onClick={() => setMobileGenres(v => !v)}>
               <span>Movies</span>
@@ -880,7 +861,6 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
             <MobileNavLink to="/about" onClick={closeMobile}>About</MobileNavLink>
             <MobileNavLink to="/contact" onClick={closeMobile}>Contact</MobileNavLink>
 
-            {/* Account section */}
             {isLoggedIn ? (
               <>
                 <MobileDivider />
@@ -888,7 +868,6 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
                 <MobileActionLink to="/dashboard" onClick={closeMobile}>
                   <FaTachometerAlt /> Dashboard
                 </MobileActionLink>
-
                 <MobileLogoutBtn onClick={handleLogout}>
                   <FaSignOutAlt /> Sign Out
                 </MobileLogoutBtn>
@@ -902,7 +881,6 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
                 </MobileAuthRow>
               </>
             )}
-
           </MobileMenuBody>
         </MobileMenu>
       )}

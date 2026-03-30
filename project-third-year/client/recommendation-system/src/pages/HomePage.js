@@ -11,9 +11,11 @@ import { toast } from "react-toastify";
 
 import HeroSlider from "../components/home/HeroSlider";
 
-const VideoModal    = lazy(() => import("../components/common/VideoModal"));
-const Top10Section  = lazy(() => import("../components/movie/Top10Section"));
-const MovieRow      = lazy(() => import("../components/movie/MovieRow"));
+// ── Lazy-load ALL below-fold components ──────────────────────────────────────
+
+const VideoModal   = lazy(() => import("../components/common/VideoModal"));
+const Top10Section = lazy(() => import("../components/movie/Top10Section"));
+const MovieRow     = lazy(() => import("../components/movie/MovieRow"));
 
 // ── Constants ────────────────────────────────────────────────────────────────
 const GENRE_ORDER = [
@@ -31,7 +33,7 @@ const GENRE_ORDER = [
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:8000";
 
-// ── Skeleton components ──────────────────────────────────────────────────────
+// ── Skeletons ────────────────────────────────────────────────────────────────
 const skeletonStyle = (w, h) => ({
   width: w,
   height: h,
@@ -65,22 +67,22 @@ const RowSkeleton = () => (
 // ── Component ────────────────────────────────────────────────────────────────
 const HomePage = () => {
   // Phase 1a — hero
-  const [trendingMovies, setTrendingMovies]   = useState([]);
-  const [heroReady, setHeroReady]             = useState(false);
+  const [trendingMovies, setTrendingMovies] = useState([]);
+  const [heroReady, setHeroReady]           = useState(false);
 
   // Phase 1b — below-hero content
-  const [top10Movies, setTop10Movies]         = useState([]);
-  const [newReleases, setNewReleases]         = useState([]);
-  const [watchlist, setWatchlist]             = useState([]);
+  const [top10Movies, setTop10Movies]       = useState([]);
+  const [newReleases, setNewReleases]       = useState([]);
+  const [watchlist, setWatchlist]           = useState([]);
 
   // Phase 2 — genre rows via SSE
-  const [moviesByGenre, setMoviesByGenre]     = useState({});
-  const [streamDone, setStreamDone]           = useState(false);
-  const [loadedCount, setLoadedCount]         = useState(0);
+  const [moviesByGenre, setMoviesByGenre]   = useState({});
+  const [streamDone, setStreamDone]         = useState(false);
+  const [loadedCount, setLoadedCount]       = useState(0);
 
   // Video modal
-  const [showVideoModal, setShowVideoModal]   = useState(false);
-  const [videoKey, setVideoKey]               = useState(null);
+  const [showVideoModal, setShowVideoModal] = useState(false);
+  const [videoKey, setVideoKey]             = useState(null);
 
   const esRef = useRef(null);
 
@@ -91,19 +93,18 @@ const HomePage = () => {
 
     const load = async () => {
       try {
-        // Fast path: prefetch already resolved before React mounted
+        // Fast path: API already resolved before React mounted
         if (window.__trendingResolved?.results?.length) {
-          const results = window.__trendingResolved.results.slice(0, 8);
           if (!cancelled) {
-            setTrendingMovies(results);
+            setTrendingMovies(window.__trendingResolved.results.slice(0, 8));
             setHeroReady(true);
           }
           return;
         }
 
-        // Medium path: prefetch in-flight, await it
+        // Medium path: prefetch in-flight
         const prefetch = window.__trendingPrefetch;
-        const data = prefetch ? await prefetch : null;
+        const data     = prefetch ? await prefetch : null;
         if (cancelled) return;
 
         if (data?.results?.length) {
@@ -112,7 +113,7 @@ const HomePage = () => {
           return;
         }
 
-        // Slow path: no prefetch available, fetch fresh
+        // Slow path: no prefetch available
         const res = await api.get("/movies/trending");
         if (cancelled) return;
         setTrendingMovies(res.data?.results?.slice(0, 8) || []);
@@ -131,7 +132,7 @@ const HomePage = () => {
   // ── PHASE 1b — Secondary above-fold data ─────────────────────────────────
   useEffect(() => {
     let cancelled = false;
-    const token = localStorage.getItem("token");
+    const token   = localStorage.getItem("token");
 
     Promise.all([
       api.get("/movies/top-rated-in"),
@@ -155,78 +156,78 @@ const HomePage = () => {
     return () => { cancelled = true; };
   }, []);
 
-  // ── PHASE 2 — Genre rows via SSE ─────────────────────────────────────────
- 
- useEffect(() => {
-  if (!heroReady) return;
+  // ── PHASE 2 — SSE genre rows ──────────────────────────────────────────────
 
-  let es = null;
+  useEffect(() => {
+    if (!heroReady) return;
 
-  const openSSE = () => {
-    if (esRef.current) {
-      esRef.current.close();
-      esRef.current = null;
-    }
+    let es         = null;
+    let timerFired = false;
 
-    es = new EventSource(
-      `${SOCKET_URL}/api/v1/movies/homepage-sections/stream`
-    );
-    esRef.current = es;
+    const openSSE = () => {
+      if (esRef.current) {
+        esRef.current.close();
+        esRef.current = null;
+      }
 
-    es.onmessage = (e) => {
+      es            = new EventSource(
+        `${SOCKET_URL}/api/v1/movies/homepage-sections/stream`
+      );
+      esRef.current = es;
+
+      es.onmessage = (e) => {
+        try {
+          const data = JSON.parse(e.data);
+          if (data.done) {
+            setStreamDone(true);
+            es.close();
+            return;
+          }
+          setMoviesByGenre((prev) => ({ ...prev, [data.name]: data.movies }));
+          setLoadedCount((prev) => prev + 1);
+        } catch { /* ignore malformed frames */ }
+      };
+
+      es.onerror = () => {
+        setStreamDone(true);
+        es.close();
+      };
+    };
+
+    // 2s safety net for slow mobile connections
+    const fallbackTimer = setTimeout(() => {
+      timerFired = true;
+      openSSE();
+    }, 2000);
+
+    // Open SSE the moment LCP image is painted — no artificial wait
+    let observer = null;
+    if (typeof PerformanceObserver !== "undefined") {
       try {
-        const data = JSON.parse(e.data);
-        if (data.done) {
-          setStreamDone(true);
-          es.close();
-          return;
-        }
-        setMoviesByGenre((prev) => ({ ...prev, [data.name]: data.movies }));
-        setLoadedCount((prev) => prev + 1);
-      } catch { /* ignore malformed frames */ }
-    };
-
-    es.onerror = () => {
-      setStreamDone(true);
-      es.close();
-    };
-  };
-  
-  let timerFired = false;
-
-  const fallbackTimer = setTimeout(() => {
-    timerFired = true;
-    openSSE();
-  }, 2000);
-
-  // PerformanceObserver: open SSE as soon as LCP is painted
-  let observer = null;
-  if (typeof PerformanceObserver !== 'undefined') {
-    try {
-      observer = new PerformanceObserver((list) => {
-        const entries = list.getEntries();
-        if (entries.length > 0 && !timerFired) {
-          timerFired = true;
-          clearTimeout(fallbackTimer);
-          // Small buffer so image decode + paint fully complete
-          setTimeout(openSSE, 100);
-        }
-      });
-      observer.observe({ type: 'largest-contentful-paint', buffered: true });
-    } catch {
-      
+        observer = new PerformanceObserver((list) => {
+          if (list.getEntries().length > 0 && !timerFired) {
+            timerFired = true;
+            clearTimeout(fallbackTimer);
+            // 100ms buffer — lets browser finish image decode + compositor
+            // work before SSE bandwidth contention begins
+            setTimeout(openSSE, 100);
+          }
+        });
+        observer.observe({ type: "largest-contentful-paint", buffered: true });
+      } catch {
+        // PerformanceObserver unsupported — fallback timer handles it
+      }
     }
-  }
 
-  return () => {
-    clearTimeout(fallbackTimer);
-    if (observer) observer.disconnect();
-    if (es) {
-      es.close();
-      esRef.current = null;
-    }
-  };
-}, [heroReady]);
+    return () => {
+      clearTimeout(fallbackTimer);
+      if (observer) observer.disconnect();
+      if (es) {
+        es.close();
+        esRef.current = null;
+      }
+    };
+  }, [heroReady]);
 
   // ── Activity log ─────────────────────────────────────────────────────────
   const logActivity = useCallback(async (movie, actionType) => {
@@ -249,6 +250,7 @@ const HomePage = () => {
       if (!movieId) return;
       if (movie) logActivity(movie, "trailer_watch");
 
+      // Reset first — prevents stale trailer from previous movie flashing
       setShowVideoModal(false);
       setVideoKey(null);
 
@@ -273,13 +275,14 @@ const HomePage = () => {
     async (movie) => {
       const token = localStorage.getItem("token");
       if (!token) {
-        toast.error("Sign in to save movies to your watchlist!", {
+        toast.info("Sign in to save movies to your watchlist!", {
           toastId: "watchlist-auth",
         });
         return;
       }
 
       const inList = watchlist.includes(movie.id);
+
       // Optimistic update
       setWatchlist((prev) =>
         inList ? prev.filter((id) => id !== movie.id) : [...prev, movie.id]
@@ -334,7 +337,7 @@ const HomePage = () => {
           CLS FIX: hero-wrapper always holds 100vh.
           Before heroReady → shimmer placeholder.
           After heroReady  → fade in HeroSlider.
-          The viewport height never changes = zero layout shift.
+          Viewport height never changes = zero layout shift.
         */
         .hero-wrapper {
           position: relative;
@@ -383,7 +386,7 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* Below-fold content — all lazy-loaded to protect TBT */}
+      {/* Below-fold — all lazy to protect TBT */}
       <div className="container-fluid pt-5">
         {top10Movies.length > 0 && (
           <Suspense fallback={<RowSkeleton />}>

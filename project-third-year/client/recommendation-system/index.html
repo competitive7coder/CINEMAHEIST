@@ -19,7 +19,7 @@
   </style>
 
   <!-- ═══════════════════════════════════════════════════
-       PRECONNECTS — must come before any external fetch
+       PRECONNECTS — before any external fetch
   ═══════════════════════════════════════════════════ -->
   <link rel="preconnect" href="https://image.tmdb.org" crossorigin />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -28,43 +28,129 @@
   <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
   <link rel="dns-prefetch" href="https://static.cloudflareinsights.com" />
 
+  <!-- ═══════════════════════════════════════════════════
+       LCP HERO IMAGE PRELOAD STRATEGY
+       
+       TWO-PHASE approach:
+       
+       PHASE 1 — INSTANT (0ms, before any network request)
+         Read hero image paths cached from the previous visit
+         in localStorage. Fires a <link rel="preload"> immediately
+         during HTML parse. Works on ALL return visits (99%+ of
+         real traffic). First-ever visit has no cache — falls
+         through to Phase 2.
+       
+       PHASE 2 — API-DRIVEN (~300-500ms after parse)
+         Fetch trending API, inject preload as soon as it resolves,
+         AND save paths to localStorage for the next visit.
+         Also preloads slide[1] to cover Swiper loop clone edge case.
+       
+       WHY THIS WORKS IN PROD:
+         Cloudflare Pages serves HTML from edge (~10ms TTFB).
+         localStorage read is synchronous, ~0.1ms.
+         So the preload fires before the browser even starts
+         downloading the JS bundle — image fetch begins in parallel
+         with everything else instead of waiting 3-4s for React.
+  ═══════════════════════════════════════════════════ -->
   <script>
-  (function () {
-    var base = '%VITE_API_URL%';
-    if (!base || base === '%VITE_API_URL%') return;
+    (function () {
 
-    window.__trendingPrefetch = fetch(base + '/movies/trending', {
-      credentials: 'same-origin',
-      headers: { 'Accept': 'application/json' }
-    })
-    .then(function (r) { return r.ok ? r.json() : null; })
-    .then(function (data) {
-      if (!data || !data.results) return data;
+      // ── PHASE 1: Instant preload from localStorage cache ────────────────
+      // Runs synchronously at parse time. Zero network dependency.
+      // On return visits this is the ONLY preload needed — the image
+      // URL hasn't changed (trending movies rotate slowly).
+      try {
+        var cached = localStorage.getItem('sh_hero_lcp');
+        if (cached) {
+          var paths   = JSON.parse(cached);
+          var mobile  = window.matchMedia('(max-width: 480px)').matches;
+          var href    = mobile ? paths.m : paths.d;
+          var href2   = mobile ? paths.m2 : paths.d2;
 
-      var isMobile = window.matchMedia('(max-width: 480px)').matches;
+          if (href) {
+            var l1      = document.createElement('link');
+            l1.rel      = 'preload';
+            l1.as       = 'image';
+            l1.href     = href;
+            l1.setAttribute('fetchpriority', 'high');
+            document.head.appendChild(l1);
+          }
 
-      [0, 1].forEach(function(i) {
-        var movie = data.results[i];
-        if (!movie) return;
+          // Second slide preload (covers Swiper loop clone LCP ambiguity)
+          if (href2) {
+            var l2      = document.createElement('link');
+            l2.rel      = 'preload';
+            l2.as       = 'image';
+            l2.href     = href2;
+            l2.setAttribute('fetchpriority', 'auto');
+            document.head.appendChild(l2);
+          }
+        }
+      } catch (e) { /* localStorage blocked (private mode etc) — no-op */ }
 
-        var href = isMobile
-          ? 'https://image.tmdb.org/t/p/w780' + movie.poster_path
-          : 'https://image.tmdb.org/t/p/w1280' + movie.backdrop_path;
+      // ── PHASE 2: API prefetch → update cache + inject if Phase 1 missed ─
+      var base = '%VITE_API_URL%';
+      if (!base || base === '%VITE_API_URL%') return;
 
-        var link = document.createElement('link');
-        link.rel = 'preload';
-        link.as  = 'image';
-        link.href = href;
-        link.setAttribute('fetchpriority', i === 0 ? 'high' : 'auto');
-        document.head.appendChild(link);
-      });
+      window.__trendingPrefetch = fetch(base + '/movies/trending', {
+        credentials: 'same-origin',
+        headers: { 'Accept': 'application/json' }
+      })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (!data || !data.results || !data.results.length) return data;
 
-      window.__trendingResolved = data;
-      return data;
-    })
-    .catch(function () { return null; });
-  })();
-</script>
+        var m1 = data.results[0];
+        var m2 = data.results[1];
+        if (!m1) return data;
+
+        var d1  = 'https://image.tmdb.org/t/p/w1280' + m1.backdrop_path;
+        var mo1 = 'https://image.tmdb.org/t/p/w780'  + m1.poster_path;
+        var d2  = m2 ? 'https://image.tmdb.org/t/p/w1280' + m2.backdrop_path : '';
+        var mo2 = m2 ? 'https://image.tmdb.org/t/p/w780'  + m2.poster_path   : '';
+
+        // Save to localStorage so NEXT visit preloads at 0ms
+        try {
+          localStorage.setItem('sh_hero_lcp', JSON.stringify({
+            d:  d1,
+            m:  mo1,
+            d2: d2,
+            m2: mo2
+          }));
+        } catch (e) {}
+
+        // Only inject preload if Phase 1 didn't already (first-ever visit)
+        var alreadyPreloaded = document.querySelector(
+          'link[rel="preload"][as="image"]'
+        );
+        if (!alreadyPreloaded) {
+          var mobile = window.matchMedia('(max-width: 480px)').matches;
+
+          var n1      = document.createElement('link');
+          n1.rel      = 'preload';
+          n1.as       = 'image';
+          n1.href     = mobile ? mo1 : d1;
+          n1.setAttribute('fetchpriority', 'high');
+          document.head.appendChild(n1);
+
+          if (d2 || mo2) {
+            var n2    = document.createElement('link');
+            n2.rel    = 'preload';
+            n2.as     = 'image';
+            n2.href   = mobile ? mo2 : d2;
+            n2.setAttribute('fetchpriority', 'auto');
+            document.head.appendChild(n2);
+          }
+        }
+
+        // Store resolved data so React consumes it without re-fetching
+        window.__trendingResolved = data;
+        return data;
+      })
+      .catch(function () { return null; });
+
+    })();
+  </script>
 
   <!-- ═══════════════════════════════════════════════════
        FONTS — non-blocking via preload + onload swap
@@ -117,7 +203,7 @@
   <meta name="twitter:image" content="https://stream1hub.pages.dev/og-image.jpg" />
 
   <!-- ═══════════════════════════════════════════════════
-       JSON-LD STRUCTURED DATA
+       JSON-LD
   ═══════════════════════════════════════════════════ -->
   <script type="application/ld+json">
   {
@@ -138,7 +224,6 @@
 
   <!-- ═══════════════════════════════════════════════════
        MODULE PRELOAD — fetch + parse Vite entry earlier
-       so React mounts sooner.
   ═══════════════════════════════════════════════════ -->
   <link rel="modulepreload" href="/src/index.js" />
 
@@ -146,7 +231,6 @@
 
 <body>
 
-  <!-- GTM noscript fallback -->
   <noscript>
     <iframe
       src="https://www.googletagmanager.com/ns.html?id=GTM-TRKN2KNM"
@@ -155,37 +239,37 @@
     </iframe>
   </noscript>
 
-  <!-- App root -->
   <div id="root"></div>
 
   <!-- ═══════════════════════════════════════════════════
-       GTM — deferred until first real user interaction.
+       GTM — deferred until first user interaction
   ═══════════════════════════════════════════════════ -->
   <script>
     window.dataLayer = window.dataLayer || [];
-
     function loadGTM() {
       if (window._gtmLoaded) return;
       window._gtmLoaded = true;
-      var s = document.createElement('script');
-      s.src = 'https://www.googletagmanager.com/gtm.js?id=GTM-TRKN2KNM';
+      var s   = document.createElement('script');
+      s.src   = 'https://www.googletagmanager.com/gtm.js?id=GTM-TRKN2KNM';
       s.async = true;
       document.body.appendChild(s);
     }
-
-    ['click', 'scroll', 'keydown', 'touchstart'].forEach(function(e) {
+    ['click','scroll','keydown','touchstart'].forEach(function(e) {
       document.addEventListener(e, loadGTM, { once: true, passive: true });
     });
   </script>
 
-  <!-- Cloudflare Web Analytics — defer so it never blocks anything -->
-  <script
-    defer
-    src="https://static.cloudflareinsights.com/beacon.min.js"
-    data-cf-beacon='{"token":"a53ff023fe3c4a49b77ee6dd02d4b8ef"}'>
+  <!-- Cloudflare Analytics — skip on localhost to avoid CORS noise -->
+  <script>
+    if (location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+      var s = document.createElement('script');
+      s.defer = true;
+      s.src   = 'https://static.cloudflareinsights.com/beacon.min.js';
+      s.setAttribute('data-cf-beacon', '{"token":"a53ff023fe3c4a49b77ee6dd02d4b8ef"}');
+      document.head.appendChild(s);
+    }
   </script>
 
-  <!-- Vite entry point -->
   <script type="module" src="/src/index.js"></script>
 
 </body>

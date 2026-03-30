@@ -25,20 +25,20 @@ const HeroSlider = ({
   onWatchTrailerClick,
   onAddToWatchlist,
 }) => {
-  const navigate = useNavigate();
+  const navigate  = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
   const swiperRef = useRef(null);
-  const [watchModal, setWatchModal] = useState({
-    show: false,
-    tmdbId: null,
-    title: "",
+  const [watchModal, setWatchModal]   = useState({
+    show: false, tmdbId: null, title: "",
   });
 
   const sliderMovies = movies.slice(0, 10);
 
+
   const handleSlideChange = useCallback((swiper) => {
     setActiveIndex(swiper.realIndex);
   }, []);
+
 
   const getCurrentMovie = useCallback(() => {
     const realIndex = swiperRef.current?.realIndex ?? activeIndex;
@@ -52,9 +52,7 @@ const HeroSlider = ({
 
   const handleWatchNowClick = useCallback(() => {
     const movie = getCurrentMovie();
-    if (movie) {
-      setWatchModal({ show: true, tmdbId: movie.id, title: movie.title });
-    }
+    if (movie) setWatchModal({ show: true, tmdbId: movie.id, title: movie.title });
   }, [getCurrentMovie]);
 
   const handleInfoClick = useCallback(() => {
@@ -250,12 +248,12 @@ const HeroSlider = ({
     .hero-btn-watchnow {
       background: #b30000;
       color: #ffffff;
-      box-shadow: 0 3px 10px rgba(179, 0, 0, 0.2);
+      box-shadow: 0 3px 10px rgba(179,0,0,0.2);
     }
     .hero-btn-watchnow:hover {
       background: #ff1a1a;
       transform: translateY(-3px) scale(1.03);
-      box-shadow: 0 4px 14px rgba(229, 9, 20, 0.3);
+      box-shadow: 0 4px 14px rgba(229,9,20,0.3);
     }
     .hero-btn-watchnow .play-icon {
       width: 22px; height: 22px;
@@ -465,11 +463,10 @@ const HeroSlider = ({
         slidesPerView={1}
         pagination={{ clickable: true }}
         loop={false}
+
         effect="fade"
         fadeEffect={{ crossFade: true }}
-        onSwiper={(swiper) => {
-          swiperRef.current = swiper;
-        }}
+        onSwiper={(swiper) => { swiperRef.current = swiper; }}
         onSlideChange={handleSlideChange}
         autoplay={{ delay: 6000, disableOnInteraction: false }}
       >
@@ -482,9 +479,9 @@ const HeroSlider = ({
             ? movie.release_date.slice(0, 4)
             : null;
 
-          const imgFetchPriority = index === 0 || index === 1 ? "high" : "low";
-          const imgLoading = index <= 2 ? "eager" : "lazy";
-          const imgDecoding = index <= 1 ? "sync" : "async";
+          const imgFetchPriority = index === 0 ? "high"  : index === 1 ? "auto" : "low";
+          const imgLoading       = index <= 1  ? "eager" : "lazy";
+          const imgDecoding      = index === 0 ? "sync"  : "async";
 
           return (
             <SwiperSlide
@@ -494,11 +491,12 @@ const HeroSlider = ({
               <div className="hero-slide-inner">
                 <div className="hero-bg-wrap">
                   <picture>
+                    {/* Mobile portrait poster — breakpoint matches index.html preload */}
                     <source
                       media="(max-width: 480px)"
                       srcSet={getMobileSrc(movie)}
                     />
-                    {/* Desktop: landscape backdrop */}
+                    {/* Desktop landscape backdrop */}
                     <img
                       className="hero-bg-img"
                       src={getDesktopSrc(movie)}
@@ -515,13 +513,9 @@ const HeroSlider = ({
 
                 <div className="hero-content">
                   <div className="hero-meta">
-                    <span className="hero-badge hero-badge-new">
-                      ✦ Trending
-                    </span>
+                    <span className="hero-badge hero-badge-new">✦ Trending</span>
                     {rating && (
-                      <span className="hero-badge hero-badge-rating">
-                        ★ {rating}
-                      </span>
+                      <span className="hero-badge hero-badge-rating">★ {rating}</span>
                     )}
                     {year && (
                       <span className="hero-badge hero-badge-year">{year}</span>
@@ -578,7 +572,10 @@ const HeroSlider = ({
                       </button>
                     </div>
 
-                    <button className="hero-btn-info" onClick={handleInfoClick}>
+                    <button
+                      className="hero-btn-info"
+                      onClick={handleInfoClick}
+                    >
                       More Info ›
                     </button>
                   </div>

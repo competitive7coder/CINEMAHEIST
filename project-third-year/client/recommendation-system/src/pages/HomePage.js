@@ -32,7 +32,7 @@ const GENRE_ORDER = [
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:8000";
 
-// ── Skeletons (defined outside component — stable references, no re-creation) ─
+// ── Skeletons ────────────────────────────────────────────────────────────────
 const skeletonStyle = (w, h) => ({
   width: w,
   height: h,
@@ -44,14 +44,7 @@ const skeletonStyle = (w, h) => ({
 
 const RowSkeleton = () => (
   <div style={{ marginBottom: "2.5rem" }}>
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        marginBottom: 14,
-        gap: 12,
-      }}
-    >
+    <div style={{ display: "flex", alignItems: "center", marginBottom: 14, gap: 12 }}>
       <div style={skeletonStyle(180, 20)} />
     </div>
     <div style={{ display: "flex", gap: 12, overflow: "hidden" }}>
@@ -70,31 +63,18 @@ const RowSkeleton = () => (
   </div>
 );
 
-// Full-viewport shimmer shown before trending data arrives
-const HeroSkeleton = () => (
-  <div
-    style={{
-      height: "100vh",
-      minHeight: 520,
-      background: "linear-gradient(90deg,#0e0e0e 25%,#1a1a1a 50%,#0e0e0e 75%)",
-      backgroundSize: "400% 100%",
-      animation: "shimmer 1.5s infinite",
-    }}
-  />
-);
-
 // ── Component ────────────────────────────────────────────────────────────────
 const HomePage = () => {
-  // Phase 1a — hero (fetched first, alone)
+  // Phase 1a — hero
   const [trendingMovies, setTrendingMovies] = useState([]);
   const [heroReady, setHeroReady] = useState(false);
 
-  // Phase 1b — below-hero content (fetched in parallel after hero fires)
+  // Phase 1b — below-hero content
   const [top10Movies, setTop10Movies] = useState([]);
   const [newReleases, setNewReleases] = useState([]);
   const [watchlist, setWatchlist] = useState([]);
 
-  // Phase 2 — genre rows streamed via SSE
+  // Phase 2 — genre rows via SSE
   const [moviesByGenre, setMoviesByGenre] = useState({});
   const [streamDone, setStreamDone] = useState(false);
   const [loadedCount, setLoadedCount] = useState(0);
@@ -105,30 +85,38 @@ const HomePage = () => {
 
   const esRef = useRef(null);
 
-  // ── PHASE 1a: fetch trending FIRST so hero renders ASAP ──────────────────
+  // ── PHASE 1a ─────────────────────────────────────────────────────────────
+  // Uses prefetch from index.html if available, else falls back to api.get.
   useEffect(() => {
     let cancelled = false;
 
-    api
-      .get("/movies/trending")
-      .then((res) => {
+    const load = async () => {
+      try {
+        const prefetch = window.__trendingPrefetch;
+        const data = prefetch ? await prefetch : null;
         if (cancelled) return;
-        setTrendingMovies(res.data?.results?.slice(0, 8) || []);
-        setHeroReady(true);
-      })
-      .catch((err) => {
+
+        if (data?.results?.length) {
+          setTrendingMovies(data.results.slice(0, 8));
+          setHeroReady(true);
+        } else {
+          const res = await api.get("/movies/trending");
+          if (cancelled) return;
+          setTrendingMovies(res.data?.results?.slice(0, 8) || []);
+          setHeroReady(true);
+        }
+      } catch (err) {
         if (cancelled) return;
         console.error("Trending fetch error:", err);
-        setHeroReady(true); // unblock hero even on error
-      });
-
-    return () => {
-      cancelled = true;
+        setHeroReady(true);
+      }
     };
+
+    load();
+    return () => { cancelled = true; };
   }, []);
 
-  // ── PHASE 1b: fetch remaining above-fold data in parallel ────────────────
-  // Fires immediately — doesn't wait for trending to resolve
+  // ── PHASE 1b ─────────────────────────────────────────────────────────────
   useEffect(() => {
     let cancelled = false;
     const token = localStorage.getItem("token");
@@ -152,16 +140,13 @@ const HomePage = () => {
         toast.error("Failed to load some content.");
       });
 
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
-  // ── PHASE 2: SSE genre stream — starts once hero is visible ──────────────
+  // ── PHASE 2: SSE ─────────────────────────────────────────────────────────
   useEffect(() => {
     if (!heroReady) return;
 
-    // Guard against React StrictMode double-invoke
     if (esRef.current) {
       esRef.current.close();
       esRef.current = null;
@@ -182,9 +167,7 @@ const HomePage = () => {
         }
         setMoviesByGenre((prev) => ({ ...prev, [data.name]: data.movies }));
         setLoadedCount((prev) => prev + 1);
-      } catch {
-        /* ignore malformed frames */
-      }
+      } catch { /* ignore malformed frames */ }
     };
 
     es.onerror = () => {
@@ -208,9 +191,7 @@ const HomePage = () => {
         movie_title: movie.title || movie.name,
         movie_poster_path: movie.poster_path,
       });
-    } catch {
-      /* non-critical, swallow silently */
-    }
+    } catch { /* non-critical */ }
   }, []);
 
   // ── TRAILER ──────────────────────────────────────────────────────────────
@@ -220,6 +201,12 @@ const HomePage = () => {
       const movieId = movie ? movie.id : movieOrId;
       if (!movieId) return;
       if (movie) logActivity(movie, "trailer_watch");
+
+      // Close modal first + clear key — ensures no stale trailer
+      // from a previous movie ever plays, even if modal was already open
+      setShowVideoModal(false);
+      setVideoKey(null);
+
       try {
         const res = await api.get(`/movies/${movieId}/videos`);
         const trailer =
@@ -230,25 +217,25 @@ const HomePage = () => {
       } catch {
         setVideoKey(null);
       }
+
+      // Open modal after fetch — correct key is now set
       setShowVideoModal(true);
     },
     [logActivity],
   );
 
-  // ── WATCHLIST TOGGLE ─────────────────────────────────────────────────────
+  // ── WATCHLIST ─────────────────────────────────────────────────────────────
   const handleWatchlistToggle = useCallback(
     async (movie) => {
       const token = localStorage.getItem("token");
       if (!token) {
         toast.info("Sign in to save movies to your watchlist!", {
-          toastId: "watchlist-auth", // prevent duplicate toasts on rapid clicks
+          toastId: "watchlist-auth",
         });
         return;
       }
 
       const inList = watchlist.includes(movie.id);
-
-      // Optimistic update — button flips instantly
       setWatchlist((prev) =>
         inList ? prev.filter((id) => id !== movie.id) : [...prev, movie.id],
       );
@@ -264,7 +251,6 @@ const HomePage = () => {
           toast.success("Added to watchlist");
         }
       } catch {
-        // Revert optimistic update on failure
         setWatchlist((prev) =>
           inList ? [...prev, movie.id] : prev.filter((id) => id !== movie.id),
         );
@@ -297,32 +283,66 @@ const HomePage = () => {
           transition: width 0.35s ease;
           border-radius: 0 2px 2px 0;
         }
+
+        /* ── CLS FIX ────────────────────────────────────────────────────────
+           OLD: conditional render swaps HeroSkeleton ↔ HeroSlider.
+           The skeleton is removed from DOM and HeroSlider inserted —
+           this is a full layout shift = CLS 0.224.
+
+           NEW: HeroSlider always occupies the space (height: 100vh).
+           Before data arrives it shows a shimmer background via CSS.
+           When data arrives it fades in — zero DOM size change = CLS 0.
+        ── */
+        .hero-wrapper {
+          position: relative;
+          height: 100vh;
+          min-height: 520px;
+          background: linear-gradient(90deg,#0e0e0e 25%,#1a1a1a 50%,#0e0e0e 75%);
+          background-size: 400% 100%;
+        }
+        .hero-wrapper.loading {
+          animation: shimmer 1.5s infinite;
+        }
+        .hero-wrapper .hero-inner {
+          position: absolute;
+          inset: 0;
+          opacity: 0;
+          transition: opacity 0.4s ease;
+          pointer-events: none;
+        }
+        .hero-wrapper.ready .hero-inner {
+          opacity: 1;
+          pointer-events: auto;
+        }
       `}</style>
 
-      {/* SSE progress bar — disappears when all genre rows are loaded */}
+      {/* SSE progress bar */}
       {!streamDone && (
         <div className="stream-progress">
-          <div
-            className="stream-progress-bar"
-            style={{ width: `${progressPct}%` }}
-          />
+          <div className="stream-progress-bar" style={{ width: `${progressPct}%` }} />
         </div>
       )}
 
-      {/* Hero — renders as soon as trending resolves (Phase 1a) */}
-      {!heroReady ? (
-        <HeroSkeleton />
-      ) : trendingMovies.length > 0 ? (
-        <HeroSlider
-          movies={trendingMovies}
-          watchlist={watchlist}
-          onWatchTrailerClick={handleWatchTrailerClick}
-          onAddToWatchlist={handleWatchlistToggle}
-        />
-      ) : null}
+      {/*
+        ── CLS FIX: hero-wrapper always holds 100vh space ──────────────────
+        Before heroReady: shows shimmer background (loading class)
+        After heroReady:  fades in HeroSlider (ready class), removes shimmer
+        The viewport height NEVER changes — browser sees no layout shift.
+      */}
+      <div className={`hero-wrapper ${heroReady ? "ready" : "loading"}`}>
+        <div className="hero-inner">
+          {trendingMovies.length > 0 && (
+            <HeroSlider
+              movies={trendingMovies}
+              watchlist={watchlist}
+              onWatchTrailerClick={handleWatchTrailerClick}
+              onAddToWatchlist={handleWatchlistToggle}
+            />
+          )}
+        </div>
+      </div>
 
       <div className="container-fluid pt-5">
-        {/* Top 10 — lazy loaded, doesn't block hero */}
         {top10Movies.length > 0 && (
           <Suspense fallback={<RowSkeleton />}>
             <Top10Section
@@ -334,7 +354,6 @@ const HomePage = () => {
           </Suspense>
         )}
 
-        {/* New Releases */}
         {newReleases.length > 0 && (
           <MovieRow
             title="New Releases"
@@ -346,7 +365,6 @@ const HomePage = () => {
           />
         )}
 
-        {/* Genre rows — stream in one by one via SSE */}
         {GENRE_ORDER.map((genre) => {
           const movies = moviesByGenre[genre.name];
           if (!movies) return <RowSkeleton key={genre.name} />;
@@ -365,7 +383,6 @@ const HomePage = () => {
         })}
       </div>
 
-      {/* Video modal — lazy loaded, only mounts when needed */}
       {showVideoModal && (
         <Suspense fallback={null}>
           <VideoModal

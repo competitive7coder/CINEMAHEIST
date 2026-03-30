@@ -27,6 +27,7 @@ const HeroSlider = ({
 }) => {
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
+  const swiperRef = useRef(null); // ← stores swiper instance for realIndex access
   const [watchModal, setWatchModal] = useState({
     show: false,
     tmdbId: null,
@@ -35,12 +36,7 @@ const HeroSlider = ({
 
   const sliderMovies = movies.slice(0, 10);
 
-  // ── Inject LCP preload as early as possible ──────────────────────────────
-  // Two slots are filled:
-  //   1. #lcp-hero-preload        → desktop backdrop (w1280)
-  //   2. #lcp-hero-preload-mobile → mobile poster (w780), media-gated
-  // Both slots exist in index.html with href="" so the browser registers
-  // them instantly on parse — we just fill the href here.
+  // ── Inject LCP preload slots ──────────────────────────────────────────────
   const preloadInjected = useRef(false);
   useEffect(() => {
     if (preloadInjected.current) return;
@@ -48,13 +44,11 @@ const HeroSlider = ({
 
     const { backdrop_path, poster_path } = sliderMovies[0];
 
-    // Desktop preload slot
     const desktopLink = document.getElementById("lcp-hero-preload");
     if (desktopLink && !desktopLink.href) {
       desktopLink.href = `https://image.tmdb.org/t/p/w1280${backdrop_path}`;
     }
 
-    // Mobile preload slot — browser ignores this on desktop due to media attr
     const mobileLink = document.getElementById("lcp-hero-preload-mobile");
     if (mobileLink && !mobileLink.href) {
       mobileLink.href = `https://image.tmdb.org/t/p/w780${poster_path}`;
@@ -66,6 +60,33 @@ const HeroSlider = ({
   const handleSlideChange = useCallback((swiper) => {
     setActiveIndex(swiper.realIndex);
   }, []);
+
+  // ── Get correct movie using realIndex at click time ───────────────────────
+  // Swiper loop mode clones slides in the DOM. Each cloned slide's onClick
+  // closes over the wrong movie object from the original render. Reading
+  // swiperRef.current.realIndex at click time always returns the currently
+  // visible slide's true index — this is the root fix for wrong trailers.
+  const getCurrentMovie = useCallback(() => {
+    const realIndex = swiperRef.current?.realIndex ?? activeIndex;
+    return sliderMovies[realIndex] || sliderMovies[0];
+  }, [activeIndex, sliderMovies]);
+
+  const handleTrailerClick = useCallback(() => {
+    const movie = getCurrentMovie();
+    if (movie) onWatchTrailerClick(movie);
+  }, [getCurrentMovie, onWatchTrailerClick]);
+
+  const handleWatchNowClick = useCallback(() => {
+    const movie = getCurrentMovie();
+    if (movie) {
+      setWatchModal({ show: true, tmdbId: movie.id, title: movie.title });
+    }
+  }, [getCurrentMovie]);
+
+  const handleInfoClick = useCallback(() => {
+    const movie = getCurrentMovie();
+    if (movie) navigate(`/movie/${movie.id}`);
+  }, [getCurrentMovie, navigate]);
 
   const componentStyles = `
     .hero-slider {
@@ -93,11 +114,6 @@ const HeroSlider = ({
       justify-content: flex-start;
     }
 
-    /* ── Ken Burns on the WRAPPER, not the img ──────────────────────────────
-       Animating transform on the <img> itself forces the browser to repaint
-       the LCP element on every frame. Moving the animation to a wrapper div
-       lets the GPU composite it independently — zero layout/paint cost.
-    ── */
     .hero-bg-wrap {
       position: absolute;
       inset: 0;
@@ -116,7 +132,6 @@ const HeroSlider = ({
       to   { transform: scale(1.15) translateY(-4%); }
     }
 
-    /* img itself: no animation, no will-change */
     .hero-bg-img {
       position: absolute;
       inset: 0;
@@ -388,7 +403,6 @@ const HeroSlider = ({
       pointer-events: none;
     }
 
-    /* ── Tablet ── */
     @media (max-width: 768px) {
       .hero-slider { height: 70vh; min-height: 440px; }
       .hero-content { padding: 0 1.5rem 2.5rem; max-width: 100%; }
@@ -399,22 +413,14 @@ const HeroSlider = ({
       .hero-slider .swiper-pagination { left: 1.5rem !important; }
     }
 
-    /* ── Mobile ── */
     @media (max-width: 480px) {
       .hero-slider { height: 100svh; min-height: 100svh; }
-
       .hero-bg-img {
         object-fit: contain;
         object-position: top center;
         background-color: #040404;
       }
-
-      .hero-slide-inner {
-        position: absolute;
-        inset: 0;
-        align-items: flex-end;
-      }
-
+      .hero-slide-inner { position: absolute; inset: 0; align-items: flex-end; }
       .hero-overlay-main {
         background:
           linear-gradient(to top,
@@ -429,7 +435,6 @@ const HeroSlider = ({
             transparent      22%
           );
       }
-
       .hero-content { padding: 0 1.2rem 2.5rem; width: 100%; }
       .hero-meta { gap: 6px; margin-bottom: 10px; flex-wrap: nowrap; }
       .hero-badge { font-size: 0.56rem; padding: 3px 8px; letter-spacing: 0.8px; }
@@ -467,7 +472,6 @@ const HeroSlider = ({
       .hero-bottom-fade { height: 60px; }
     }
 
-    /* ── Small mobile ── */
     @media (max-width: 360px) {
       .hero-slider { height: 100svh; min-height: 580px; }
       .hero-title { font-size: 1.7rem; }
@@ -489,6 +493,7 @@ const HeroSlider = ({
         loop
         effect="fade"
         fadeEffect={{ crossFade: true }}
+        onSwiper={(swiper) => { swiperRef.current = swiper; }}
         onSlideChange={handleSlideChange}
         autoplay={{ delay: 6000, disableOnInteraction: false }}
       >
@@ -501,10 +506,6 @@ const HeroSlider = ({
             ? movie.release_date.slice(0, 4)
             : null;
 
-          // ── Loading strategy per slide ─────────────────────────────────
-          // Slide 0: highest priority — this is the LCP element
-          // Slide 1: eager but auto priority — visible after 6s autoplay
-          // Slide 2+: lazy — will never be seen before user interaction
           const isFirst = index === 0;
           const isSecond = index === 1;
           const imgFetchPriority = isFirst ? "high" : isSecond ? "auto" : "low";
@@ -517,17 +518,6 @@ const HeroSlider = ({
               style={{ height: "100%", position: "relative" }}
             >
               <div className="hero-slide-inner">
-
-                {/*
-                  ── <picture> instead of bare <img> ───────────────────────
-                  • Mobile (<= 480px): portrait poster (w780) with
-                    object-fit:contain so nothing is ever cropped
-                  • Tablet/Desktop: landscape backdrop (w1280) always —
-                    never w500 which was causing blurry upscaling
-                  • The <source> uses a CSS media query so the browser
-                    picks the right URL before fetching — no JS needed,
-                    no window.innerWidth race condition
-                */}
                 <div className="hero-bg-wrap">
                   <picture>
                     <source
@@ -569,13 +559,7 @@ const HeroSlider = ({
                   <div className="hero-buttons">
                     <button
                       className="hero-btn hero-btn-watchnow"
-                      onClick={() =>
-                        setWatchModal({
-                          show: true,
-                          tmdbId: movie.id,
-                          title: movie.title,
-                        })
-                      }
+                      onClick={handleWatchNowClick}
                     >
                       <span className="play-icon">▶</span>
                       Watch Now
@@ -584,7 +568,7 @@ const HeroSlider = ({
                     <div className="hero-secondary-actions">
                       <button
                         className="hero-action-btn"
-                        onClick={() => onWatchTrailerClick(movie)}
+                        onClick={handleTrailerClick}
                       >
                         <span className="hero-action-icon">🎬</span>
                         <span className="hero-action-label">Trailer</span>
@@ -608,7 +592,7 @@ const HeroSlider = ({
 
                       <button
                         className="hero-action-btn"
-                        onClick={() => navigate(`/movie/${movie.id}`)}
+                        onClick={handleInfoClick}
                       >
                         <span className="hero-action-icon">ℹ</span>
                         <span className="hero-action-label">Info</span>
@@ -617,7 +601,7 @@ const HeroSlider = ({
 
                     <button
                       className="hero-btn-info"
-                      onClick={() => navigate(`/movie/${movie.id}`)}
+                      onClick={handleInfoClick}
                     >
                       More Info ›
                     </button>

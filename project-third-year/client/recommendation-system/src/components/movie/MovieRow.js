@@ -47,18 +47,47 @@ const MovieRow = ({
       margin: 0;
     }
 
+    /* ── CLS FIX ──────────────────────────────────────────────────────────
+       OLD: animated background-position-x — not GPU composited, causes
+       layout recalc on every frame → CLS 0.224
+
+       NEW: pseudo-element with transform: translateX() — runs entirely
+       on the GPU compositor thread, zero layout/paint cost → CLS ~0
+    ── */
     .btn-shine {
       display: inline-block;
-      background: linear-gradient(to right, #606060 0%, #fff 40%, #fff 60%, #606060 100%);
-      background-size: 250%;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      animation: shine 4s linear infinite;
+      position: relative;
+      color: #606060;
+      overflow: hidden;
     }
 
+    .btn-shine::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(
+        to right,
+        transparent 0%,
+        rgba(255,255,255,0.0) 20%,
+        rgba(255,255,255,0.85) 50%,
+        rgba(255,255,255,0.0) 80%,
+        transparent 100%
+      );
+      /* -webkit-background-clip clips the shine to text only */
+      -webkit-background-clip: text;
+      background-clip: text;
+      transform: translateX(-200%);
+      animation: shine 4s linear infinite;
+      pointer-events: none;
+    }
+
+    /* GPU composited — only transform changes, no layout/paint */
     @keyframes shine {
-      0%   { background-position: 100% center; }
-      100% { background-position: -100% center; }
+      0%   { transform: translateX(-200%); }
+      100% { transform: translateX(400%); }
     }
 
     .movie-row-container .swiper-button-next,

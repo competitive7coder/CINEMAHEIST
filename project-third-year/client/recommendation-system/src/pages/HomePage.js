@@ -157,15 +157,18 @@ const HomePage = () => {
 
   // ── PHASE 2 — Genre rows via SSE ─────────────────────────────────────────
  
-  useEffect(() => {
-    if (!heroReady) return;
+ useEffect(() => {
+  if (!heroReady) return;
 
+  let es = null;
+
+  const openSSE = () => {
     if (esRef.current) {
       esRef.current.close();
       esRef.current = null;
     }
 
-    const es = new EventSource(
+    es = new EventSource(
       `${SOCKET_URL}/api/v1/movies/homepage-sections/stream`
     );
     esRef.current = es;
@@ -187,12 +190,43 @@ const HomePage = () => {
       setStreamDone(true);
       es.close();
     };
+  };
+  
+  let timerFired = false;
 
-    return () => {
+  const fallbackTimer = setTimeout(() => {
+    timerFired = true;
+    openSSE();
+  }, 2000);
+
+  // PerformanceObserver: open SSE as soon as LCP is painted
+  let observer = null;
+  if (typeof PerformanceObserver !== 'undefined') {
+    try {
+      observer = new PerformanceObserver((list) => {
+        const entries = list.getEntries();
+        if (entries.length > 0 && !timerFired) {
+          timerFired = true;
+          clearTimeout(fallbackTimer);
+          // Small buffer so image decode + paint fully complete
+          setTimeout(openSSE, 100);
+        }
+      });
+      observer.observe({ type: 'largest-contentful-paint', buffered: true });
+    } catch {
+      
+    }
+  }
+
+  return () => {
+    clearTimeout(fallbackTimer);
+    if (observer) observer.disconnect();
+    if (es) {
       es.close();
       esRef.current = null;
-    };
-  }, [heroReady]);
+    }
+  };
+}, [heroReady]);
 
   // ── Activity log ─────────────────────────────────────────────────────────
   const logActivity = useCallback(async (movie, actionType) => {
@@ -239,7 +273,7 @@ const HomePage = () => {
     async (movie) => {
       const token = localStorage.getItem("token");
       if (!token) {
-        toast.info("Sign in to save movies to your watchlist!", {
+        toast.error("Sign in to save movies to your watchlist!", {
           toastId: "watchlist-auth",
         });
         return;

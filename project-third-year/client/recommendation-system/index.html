@@ -29,42 +29,42 @@
   <link rel="dns-prefetch" href="https://static.cloudflareinsights.com" />
 
   <script>
-    (function () {
-      var base = '%VITE_API_URL%';
-      if (!base || base === '%VITE_API_URL%') return;
+  (function () {
+    var base = '%VITE_API_URL%';
+    if (!base || base === '%VITE_API_URL%') return;
 
-      window.__trendingPrefetch = fetch(base + '/movies/trending', {
-        credentials: 'same-origin',
-        headers: { 'Accept': 'application/json' }
-      })
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (data) {
-        var movie = data && data.results && data.results[0];
-        if (!movie) return data;
+    window.__trendingPrefetch = fetch(base + '/movies/trending', {
+      credentials: 'same-origin',
+      headers: { 'Accept': 'application/json' }
+    })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (data) {
+      if (!data || !data.results) return data;
 
-        // Inject LCP preload as soon as we have the image path.
-        // matchMedia check mirrors the <picture> breakpoint in HeroSlider.
-        var isMobile = window.matchMedia('(max-width: 480px)').matches;
+      var isMobile = window.matchMedia('(max-width: 480px)').matches;
+
+      [0, 1].forEach(function(i) {
+        var movie = data.results[i];
+        if (!movie) return;
+
         var href = isMobile
           ? 'https://image.tmdb.org/t/p/w780' + movie.poster_path
           : 'https://image.tmdb.org/t/p/w1280' + movie.backdrop_path;
 
         var link = document.createElement('link');
-        link.rel          = 'preload';
-        link.as           = 'image';
-        link.href         = href;
-        link.setAttribute('fetchpriority', 'high');
-        link.setAttribute('importance', 'high');
+        link.rel = 'preload';
+        link.as  = 'image';
+        link.href = href;
+        link.setAttribute('fetchpriority', i === 0 ? 'high' : 'auto');
         document.head.appendChild(link);
+      });
 
-        // Also store resolved data so HomePage can consume it
-        // synchronously with no extra network request.
-        window.__trendingResolved = data;
-        return data;
-      })
-      .catch(function () { return null; });
-    })();
-  </script>
+      window.__trendingResolved = data;
+      return data;
+    })
+    .catch(function () { return null; });
+  })();
+</script>
 
   <!-- ═══════════════════════════════════════════════════
        FONTS — non-blocking via preload + onload swap

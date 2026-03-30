@@ -25,10 +25,10 @@ const HeroSlider = ({
   onWatchTrailerClick,
   onAddToWatchlist,
 }) => {
-  const navigate    = useNavigate();
+  const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
-  const swiperRef   = useRef(null);
-  const [watchModal, setWatchModal]   = useState({
+  const swiperRef = useRef(null);
+  const [watchModal, setWatchModal] = useState({
     show: false,
     tmdbId: null,
     title: "",
@@ -464,10 +464,12 @@ const HeroSlider = ({
         spaceBetween={0}
         slidesPerView={1}
         pagination={{ clickable: true }}
-        loop
+        loop={false}
         effect="fade"
         fadeEffect={{ crossFade: true }}
-        onSwiper={(swiper) => { swiperRef.current = swiper; }}
+        onSwiper={(swiper) => {
+          swiperRef.current = swiper;
+        }}
         onSlideChange={handleSlideChange}
         autoplay={{ delay: 6000, disableOnInteraction: false }}
       >
@@ -480,9 +482,9 @@ const HeroSlider = ({
             ? movie.release_date.slice(0, 4)
             : null;
 
-          const imgFetchPriority = index === 0 ? "high" : index === 1 ? "auto" : "low";
-          const imgLoading       = index <= 1 ? "eager" : "lazy";
-          const imgDecoding      = index === 0 ? "sync" : "async";
+          const imgFetchPriority = index === 0 || index === 1 ? "high" : "low";
+          const imgLoading = index <= 2 ? "eager" : "lazy";
+          const imgDecoding = index <= 1 ? "sync" : "async";
 
           return (
             <SwiperSlide
@@ -513,9 +515,13 @@ const HeroSlider = ({
 
                 <div className="hero-content">
                   <div className="hero-meta">
-                    <span className="hero-badge hero-badge-new">✦ Trending</span>
+                    <span className="hero-badge hero-badge-new">
+                      ✦ Trending
+                    </span>
                     {rating && (
-                      <span className="hero-badge hero-badge-rating">★ {rating}</span>
+                      <span className="hero-badge hero-badge-rating">
+                        ★ {rating}
+                      </span>
                     )}
                     {year && (
                       <span className="hero-badge hero-badge-year">{year}</span>
@@ -572,10 +578,7 @@ const HeroSlider = ({
                       </button>
                     </div>
 
-                    <button
-                      className="hero-btn-info"
-                      onClick={handleInfoClick}
-                    >
+                    <button className="hero-btn-info" onClick={handleInfoClick}>
                       More Info ›
                     </button>
                   </div>

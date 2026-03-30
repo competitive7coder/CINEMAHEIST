@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay, EffectFade } from "swiper/modules";
@@ -25,10 +25,10 @@ const HeroSlider = ({
   onWatchTrailerClick,
   onAddToWatchlist,
 }) => {
-  const navigate = useNavigate();
+  const navigate    = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
-  const swiperRef = useRef(null); // ← stores swiper instance for realIndex access
-  const [watchModal, setWatchModal] = useState({
+  const swiperRef   = useRef(null);
+  const [watchModal, setWatchModal]   = useState({
     show: false,
     tmdbId: null,
     title: "",
@@ -36,36 +36,10 @@ const HeroSlider = ({
 
   const sliderMovies = movies.slice(0, 10);
 
-  // ── Inject LCP preload slots ──────────────────────────────────────────────
-  const preloadInjected = useRef(false);
-  useEffect(() => {
-    if (preloadInjected.current) return;
-    if (!sliderMovies[0]) return;
-
-    const { backdrop_path, poster_path } = sliderMovies[0];
-
-    const desktopLink = document.getElementById("lcp-hero-preload");
-    if (desktopLink && !desktopLink.href) {
-      desktopLink.href = `https://image.tmdb.org/t/p/w1280${backdrop_path}`;
-    }
-
-    const mobileLink = document.getElementById("lcp-hero-preload-mobile");
-    if (mobileLink && !mobileLink.href) {
-      mobileLink.href = `https://image.tmdb.org/t/p/w780${poster_path}`;
-    }
-
-    preloadInjected.current = true;
-  }, [sliderMovies]);
-
   const handleSlideChange = useCallback((swiper) => {
     setActiveIndex(swiper.realIndex);
   }, []);
 
-  // ── Get correct movie using realIndex at click time ───────────────────────
-  // Swiper loop mode clones slides in the DOM. Each cloned slide's onClick
-  // closes over the wrong movie object from the original render. Reading
-  // swiperRef.current.realIndex at click time always returns the currently
-  // visible slide's true index — this is the root fix for wrong trailers.
   const getCurrentMovie = useCallback(() => {
     const realIndex = swiperRef.current?.realIndex ?? activeIndex;
     return sliderMovies[realIndex] || sliderMovies[0];
@@ -326,7 +300,7 @@ const HeroSlider = ({
       color: #4ade80;
     }
 
-    .hero-action-icon { font-size: 1rem; line-height: 1; }
+    .hero-action-icon  { font-size: 1rem; line-height: 1; }
     .hero-action-label {
       font-size: 0.6rem;
       font-weight: 700;
@@ -506,11 +480,9 @@ const HeroSlider = ({
             ? movie.release_date.slice(0, 4)
             : null;
 
-          const isFirst = index === 0;
-          const isSecond = index === 1;
-          const imgFetchPriority = isFirst ? "high" : isSecond ? "auto" : "low";
-          const imgLoading = index <= 1 ? "eager" : "lazy";
-          const imgDecoding = index <= 1 ? "sync" : "async";
+          const imgFetchPriority = index === 0 ? "high" : index === 1 ? "auto" : "low";
+          const imgLoading       = index <= 1 ? "eager" : "lazy";
+          const imgDecoding      = index === 0 ? "sync" : "async";
 
           return (
             <SwiperSlide
@@ -524,6 +496,7 @@ const HeroSlider = ({
                       media="(max-width: 480px)"
                       srcSet={getMobileSrc(movie)}
                     />
+                    {/* Desktop: landscape backdrop */}
                     <img
                       className="hero-bg-img"
                       src={getDesktopSrc(movie)}

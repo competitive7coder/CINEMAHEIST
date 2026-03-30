@@ -12,7 +12,6 @@
     html{scroll-behavior:smooth}
     body{margin:0;background:#040404;color:#fff;font-family:'DM Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
     #root{min-height:100vh;background:#040404}
-    /* Prevent FOUC on hero — placeholder until React mounts */
     #root:empty::before{
       content:'';display:block;height:100vh;
       background:linear-gradient(135deg,#0a0a0a 0%,#111 100%);
@@ -21,8 +20,6 @@
 
   <!-- ═══════════════════════════════════════════════════
        PRECONNECTS — must come before any external fetch
-       crossorigin is REQUIRED on image CDN so the TLS
-       handshake is reused for actual <img> fetches
   ═══════════════════════════════════════════════════ -->
   <link rel="preconnect" href="https://image.tmdb.org" crossorigin />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -31,66 +28,46 @@
   <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
   <link rel="dns-prefetch" href="https://static.cloudflareinsights.com" />
 
-  <!-- ═══════════════════════════════════════════════════
-       TRENDING API PREFETCH
-       Fires during HTML parse — before React bundle even
-       downloads. Result cached in window.__trendingPrefetch
-       so HomePage.js consumes it instantly with zero extra
-       network request. Uses VITE_API_URL injected by Vite.
-  ═══════════════════════════════════════════════════ -->
   <script>
     (function () {
       var base = '%VITE_API_URL%';
       if (!base || base === '%VITE_API_URL%') return;
+
       window.__trendingPrefetch = fetch(base + '/movies/trending', {
         credentials: 'same-origin',
         headers: { 'Accept': 'application/json' }
       })
       .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        var movie = data && data.results && data.results[0];
+        if (!movie) return data;
+
+        // Inject LCP preload as soon as we have the image path.
+        // matchMedia check mirrors the <picture> breakpoint in HeroSlider.
+        var isMobile = window.matchMedia('(max-width: 480px)').matches;
+        var href = isMobile
+          ? 'https://image.tmdb.org/t/p/w780' + movie.poster_path
+          : 'https://image.tmdb.org/t/p/w1280' + movie.backdrop_path;
+
+        var link = document.createElement('link');
+        link.rel          = 'preload';
+        link.as           = 'image';
+        link.href         = href;
+        link.setAttribute('fetchpriority', 'high');
+        link.setAttribute('importance', 'high');
+        document.head.appendChild(link);
+
+        // Also store resolved data so HomePage can consume it
+        // synchronously with no extra network request.
+        window.__trendingResolved = data;
+        return data;
+      })
       .catch(function () { return null; });
     })();
   </script>
 
   <!-- ═══════════════════════════════════════════════════
-       LCP IMAGE PRELOAD SLOT
-       • href left empty — filled by React as soon as
-         movies[0] is available (see HeroSlider / App)
-       • fetchpriority="high" tells the browser this is
-         the most important asset on the page
-       • imagesizes / imagesrcset can be added too for
-         responsive preload if needed
-  ═══════════════════════════════════════════════════ -->
-  <link
-    rel="preload"
-    as="image"
-    id="lcp-hero-preload"
-    fetchpriority="high"
-    importance="high"
-    href=""
-  />
-
-  <!-- ═══════════════════════════════════════════════════
-       MOBILE LCP IMAGE PRELOAD SLOT
-       • Separate slot for mobile poster (portrait image)
-       • media query ensures only mobile devices use it
-       • href filled by React same time as desktop slot
-  ═══════════════════════════════════════════════════ -->
-  <link
-    rel="preload"
-    as="image"
-    id="lcp-hero-preload-mobile"
-    fetchpriority="high"
-    importance="high"
-    media="(max-width: 480px)"
-    href=""
-  />
-
-  <!-- ═══════════════════════════════════════════════════
-       FONTS — all 7 families are actively used across
-       the codebase (Navbar, Footer, WatchMovieModal,
-       Dashboard, PublicHome etc). Non-blocking via
-       preload + onload swap. display=swap prevents
-       invisible text during load.
+       FONTS — non-blocking via preload + onload swap
   ═══════════════════════════════════════════════════ -->
   <link
     rel="preload"
@@ -160,10 +137,8 @@
   </script>
 
   <!-- ═══════════════════════════════════════════════════
-       MODULE PRELOAD — tells browser to fetch + parse
-       the Vite entry bundle earlier, so React mounts
-       sooner and the TMDB API call starts sooner,
-       which means the LCP image URL is known sooner.
+       MODULE PRELOAD — fetch + parse Vite entry earlier
+       so React mounts sooner.
   ═══════════════════════════════════════════════════ -->
   <link rel="modulepreload" href="/src/index.js" />
 
@@ -185,9 +160,6 @@
 
   <!-- ═══════════════════════════════════════════════════
        GTM — deferred until first real user interaction.
-       Bots, prerender, and instant bounces never
-       download it. dataLayer initialized early so no
-       events are lost before GTM loads.
   ═══════════════════════════════════════════════════ -->
   <script>
     window.dataLayer = window.dataLayer || [];

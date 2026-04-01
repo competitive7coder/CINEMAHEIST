@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import WatchMovieModal from "./WatchMovieModal";
 
-/* ─── inject once at module level, never per-render ─────────────────────── */
 if (typeof document !== "undefined" && !document.getElementById("mc-styles")) {
   const tag = document.createElement("style");
   tag.id = "mc-styles";

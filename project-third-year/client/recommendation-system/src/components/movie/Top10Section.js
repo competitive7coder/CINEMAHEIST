@@ -17,7 +17,7 @@ const Top10Section = ({
       <h3 className="h4 mb-5 text-white">{title}</h3>
       <Swiper
         modules={[Navigation]}
-        spaceBetween={40}
+        spaceBetween={12}
         slidesPerView="auto"
         navigation
       >

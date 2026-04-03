@@ -185,25 +185,36 @@ const MovieCard = ({
 
   if (!movie) return null;
 
-  const posterUrl = movie.poster_path
-    ? `https://image.tmdb.org/t/p/w342${movie.poster_path}`  // upgraded from w185
-    : "https://placehold.co/154x231?text=No+Image";
-
-  const year    = movie.release_date ? new Date(movie.release_date).getFullYear() : "N/A";
-  const rating  = typeof movie.vote_average === "number" ? movie.vote_average.toFixed(1) : "N/A";
+  const year = movie.release_date
+    ? new Date(movie.release_date).getFullYear()
+    : "N/A";
+  const rating =
+    typeof movie.vote_average === "number"
+      ? movie.vote_average.toFixed(1)
+      : "N/A";
   const runtime = movie.runtime ? `${movie.runtime}m` : null;
-  const genre   = movie.genres?.[0]?.name ?? null;
+  const genre = movie.genres?.[0]?.name ?? null;
 
   const isInWatchlist =
-    isInWatchlistProp !== null ? isInWatchlistProp : watchlist.includes(movie.id);
+    isInWatchlistProp !== null
+      ? isInWatchlistProp
+      : watchlist.includes(movie.id);
 
-  const stop = (e, cb) => { e.stopPropagation(); cb?.(movie); };
+  const stop = (e, cb) => {
+    e.stopPropagation();
+    cb?.(movie);
+  };
 
   return (
     <>
       <div className="mc" onClick={() => navigate(`/movie/${movie.id}`)}>
         <img
-          src={posterUrl}
+          src={`https://image.tmdb.org/t/p/w185${movie.poster_path}`}
+          srcSet={`
+    https://image.tmdb.org/t/p/w185${movie.poster_path} 185w,
+    https://image.tmdb.org/t/p/w342${movie.poster_path} 342w
+  `}
+          sizes="200px"
           alt={movie.title}
           className="mc-poster"
           loading="lazy"
@@ -216,26 +227,34 @@ const MovieCard = ({
         {rating !== "N/A" && (
           <div className="mc-badge">
             <svg width="10" height="10" viewBox="0 0 24 24" fill="#ffd700">
-              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
             </svg>
             {rating}
           </div>
         )}
 
         {/* always-visible footer */}
-       <div className="mc-foot">
-  <div className="mc-foot-year">{year}{runtime && ` · ${runtime}`}</div>
-</div>
+        <div className="mc-foot">
+          <div className="mc-foot-year">
+            {year}
+            {runtime && ` · ${runtime}`}
+          </div>
+        </div>
 
         {/* desktop hover overlay */}
         <div className="mc-overlay">
           <div className="mc-ol-inner">
             <div className="mc-ol-meta">
-              {year}{rating !== "N/A" && ` · ★ ${rating}`}{runtime && ` · ${runtime}`}
+              {year}
+              {rating !== "N/A" && ` · ★ ${rating}`}
+              {runtime && ` · ${runtime}`}
             </div>
             <button
               className="mc-watch"
-              onClick={(e) => { e.stopPropagation(); setShowWatchModal(true); }}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowWatchModal(true);
+              }}
             >
               <svg width="11" height="11" viewBox="0 0 12 12">
                 <polygon points="2,1 11,6 2,11" fill="#0d0d0d" />
@@ -243,7 +262,10 @@ const MovieCard = ({
               Watch Now
             </button>
             <div className="mc-row">
-              <button className="mc-btn" onClick={(e) => stop(e, onWatchTrailerClick)}>
+              <button
+                className="mc-btn"
+                onClick={(e) => stop(e, onWatchTrailerClick)}
+              >
                 Trailer
               </button>
               <button

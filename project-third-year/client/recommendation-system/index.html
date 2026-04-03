@@ -1,243 +1,293 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- ═══════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════
        CRITICAL CSS — inlined, zero render-blocking
   ═══════════════════════════════════════════════════ -->
-  <style>
-    *,*::before,*::after{box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    body{margin:0;background:#040404;color:#fff;font-family:'DM Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
-    #root{min-height:100vh;background:#040404}
-    #root:empty::before{
-      content:'';display:block;height:100vh;
-      background:linear-gradient(135deg,#0a0a0a 0%,#111 100%);
-    }
-  </style>
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        margin: 0;
+        background: #040404;
+        color: #fff;
+        font-family: "DM Sans", system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      #root {
+        min-height: 100vh;
+        background: #040404;
+      }
+      #root:empty::before {
+        content: "";
+        display: block;
+        height: 100vh;
+        background: linear-gradient(135deg, #0a0a0a 0%, #111 100%);
+      }
+    </style>
 
-  <!-- ═══════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════
        PRECONNECTS — before any external fetch
   ═══════════════════════════════════════════════════ -->
-  <link rel="preconnect" href="https://image.tmdb.org" crossorigin />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="dns-prefetch" href="https://api.themoviedb.org" />
-  <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-  <link rel="dns-prefetch" href="https://static.cloudflareinsights.com" />
+    <link rel="preconnect" href="https://image.tmdb.org" crossorigin />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://api.themoviedb.org" />
+    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+    <link rel="dns-prefetch" href="https://static.cloudflareinsights.com" />
 
-  <script>
-    (function () {
-
-      try {
-        var cached = localStorage.getItem('sh_hero_lcp');
-        if (cached) {
-          var paths   = JSON.parse(cached);
-          var mobile  = window.matchMedia('(max-width: 480px)').matches;
-          var href    = mobile ? paths.m : paths.d;
-          var href2   = mobile ? paths.m2 : paths.d2;
-
-          if (href) {
-            var l1      = document.createElement('link');
-            l1.rel      = 'preload';
-            l1.as       = 'image';
-            l1.href     = href;
-            l1.setAttribute('fetchpriority', 'high');
-            document.head.appendChild(l1);
-          }
-
-          if (href2) {
-            var l2      = document.createElement('link');
-            l2.rel      = 'preload';
-            l2.as       = 'image';
-            l2.href     = href2;
-            l2.setAttribute('fetchpriority', 'auto');
-            document.head.appendChild(l2);
-          }
-        }
-      } catch (e) { /* localStorage blocked (private mode etc) — no-op */ }
-
-      var base = '%VITE_API_URL%';
-      if (!base || base === '%VITE_API_URL%') return;
-
-      window.__trendingPrefetch = fetch(base + '/movies/trending', {
-        credentials: 'same-origin',
-        headers: { 'Accept': 'application/json' }
-      })
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (data) {
-        if (!data || !data.results || !data.results.length) return data;
-
-        var m1 = data.results[0];
-        var m2 = data.results[1];
-        if (!m1) return data;
-
-        var d1  = 'https://image.tmdb.org/t/p/w1280' + m1.backdrop_path;
-        var mo1 = 'https://image.tmdb.org/t/p/w780'  + m1.poster_path;
-        var d2  = m2 ? 'https://image.tmdb.org/t/p/w1280' + m2.backdrop_path : '';
-        var mo2 = m2 ? 'https://image.tmdb.org/t/p/w780'  + m2.poster_path   : '';
-
+    <script>
+      (function () {
         try {
-          localStorage.setItem('sh_hero_lcp', JSON.stringify({
-            d:  d1,
-            m:  mo1,
-            d2: d2,
-            m2: mo2
-          }));
-        } catch (e) {}
+          var cached = localStorage.getItem("sh_hero_lcp");
+          if (cached) {
+            var paths = JSON.parse(cached);
+            var mobile = window.matchMedia("(max-width: 480px)").matches;
+            var href = mobile ? paths.m : paths.d;
+            var href2 = mobile ? paths.m2 : paths.d2;
 
-        var alreadyPreloaded = document.querySelector(
-          'link[rel="preload"][as="image"]'
-        );
-        if (!alreadyPreloaded) {
-          var mobile = window.matchMedia('(max-width: 480px)').matches;
+            if (href) {
+              var l1 = document.createElement("link");
+              l1.rel = "preload";
+              l1.as = "image";
+              l1.href = href;
+              l1.setAttribute("fetchpriority", "high");
+              document.head.appendChild(l1);
+            }
 
-          var n1      = document.createElement('link');
-          n1.rel      = 'preload';
-          n1.as       = 'image';
-          n1.href     = mobile ? mo1 : d1;
-          n1.setAttribute('fetchpriority', 'high');
-          document.head.appendChild(n1);
-
-          if (d2 || mo2) {
-            var n2    = document.createElement('link');
-            n2.rel    = 'preload';
-            n2.as     = 'image';
-            n2.href   = mobile ? mo2 : d2;
-            n2.setAttribute('fetchpriority', 'auto');
-            document.head.appendChild(n2);
+            if (href2) {
+              var l2 = document.createElement("link");
+              l2.rel = "preload";
+              l2.as = "image";
+              l2.href = href2;
+              l2.setAttribute("fetchpriority", "auto");
+              document.head.appendChild(l2);
+            }
           }
+        } catch (e) {
+          /* localStorage blocked (private mode etc) — no-op */
         }
 
-        window.__trendingResolved = data;
-        return data;
-      })
-      .catch(function () { return null; });
+        var base = "%VITE_API_URL%";
+        if (!base || base === "%VITE_API_URL%") return;
 
-    })();
-  </script>
+        window.__trendingPrefetch = fetch(base + "/movies/trending", {
+          credentials: "same-origin",
+          headers: { Accept: "application/json" },
+        })
+          .then(function (r) {
+            return r.ok ? r.json() : null;
+          })
+          .then(function (data) {
+            if (!data || !data.results || !data.results.length) return data;
 
-  <!-- ═══════════════════════════════════════════════════
+            var m1 = data.results[0];
+            var m2 = data.results[1];
+            if (!m1) return data;
+            var d1 = "https://image.tmdb.org/t/p/w1280" + m1.backdrop_path;
+            var mo1 = "https://image.tmdb.org/t/p/w342" + m1.poster_path; // ← w780 to w342
+            var d2 = m2
+              ? "https://image.tmdb.org/t/p/w1280" + m2.backdrop_path
+              : "";
+            var mo2 = m2
+              ? "https://image.tmdb.org/t/p/w342" + m2.poster_path
+              : ""; // ← w780 to w342
+
+            try {
+              localStorage.setItem(
+                "sh_hero_lcp",
+                JSON.stringify({
+                  d: d1,
+                  m: mo1,
+                  d2: d2,
+                  m2: mo2,
+                }),
+              );
+            } catch (e) {}
+
+            var alreadyPreloaded = document.querySelector(
+              'link[rel="preload"][as="image"]',
+            );
+            if (!alreadyPreloaded) {
+              var mobile = window.matchMedia("(max-width: 480px)").matches;
+
+              var n1 = document.createElement("link");
+              n1.rel = "preload";
+              n1.as = "image";
+              n1.href = mobile ? mo1 : d1;
+              n1.setAttribute("fetchpriority", "high");
+              document.head.appendChild(n1);
+
+              if (d2 || mo2) {
+                var n2 = document.createElement("link");
+                n2.rel = "preload";
+                n2.as = "image";
+                n2.href = mobile ? mo2 : d2;
+                n2.setAttribute("fetchpriority", "auto");
+                document.head.appendChild(n2);
+              }
+            }
+
+            window.__trendingResolved = data;
+            return data;
+          })
+          .catch(function () {
+            return null;
+          });
+      })();
+    </script>
+
+    <!-- ═══════════════════════════════════════════════════
        FONTS — non-blocking via preload + onload swap
   ═══════════════════════════════════════════════════ -->
-  <link
-    rel="preload"
-    as="style"
-    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap"
-    onload="this.onload=null;this.rel='stylesheet'"
-  />
-  <noscript>
     <link
-      rel="stylesheet"
+      rel="preload"
+      as="style"
       href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap"
+      onload="
+        this.onload = null;
+        this.rel = 'stylesheet';
+      "
     />
-  </noscript>
+    <noscript>
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700&display=swap"
+      />
+    </noscript>
 
-  <!-- ═══════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════
        SEO
   ═══════════════════════════════════════════════════ -->
-  <title>StreamHub — Watch Movies Online Free | Stream Latest Films</title>
-  <meta name="description" content="StreamHub lets you watch movies online free. Stream the latest Hollywood films and world cinema with AI-powered recommendations." />
-  <meta name="keywords" content="watch movies online free, stream movies free, latest movies 2025" />
-  <meta name="author" content="StreamHub" />
-  <link rel="canonical" href="https://stream1hub.pages.dev/" />
+    <title>StreamHub — Watch Movies Online Free | Stream Latest Films</title>
+    <meta
+      name="description"
+      content="StreamHub lets you watch movies online free. Stream the latest Hollywood films and world cinema with AI-powered recommendations."
+    />
+    <meta
+      name="keywords"
+      content="watch movies online free, stream movies free, latest movies 2025"
+    />
+    <meta name="author" content="StreamHub" />
+    <link rel="canonical" href="https://stream1hub.pages.dev/" />
 
-  <!-- ═══════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════
        FAVICON
   ═══════════════════════════════════════════════════ -->
-  <link rel="icon" href="/favicon.ico" sizes="any" />
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-  <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
 
-  <!-- ═══════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════
        OPEN GRAPH
   ═══════════════════════════════════════════════════ -->
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="StreamHub — Watch Movies Online Free" />
-  <meta property="og:description" content="Watch latest movies online free." />
-  <meta property="og:image" content="https://stream1hub.pages.dev/og-image.jpg" />
-  <meta property="og:url" content="https://stream1hub.pages.dev/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="StreamHub — Watch Movies Online Free" />
+    <meta
+      property="og:description"
+      content="Watch latest movies online free."
+    />
+    <meta
+      property="og:image"
+      content="https://stream1hub.pages.dev/og-image.jpg"
+    />
+    <meta property="og:url" content="https://stream1hub.pages.dev/" />
 
-  <!-- ═══════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════
        TWITTER CARD
   ═══════════════════════════════════════════════════ -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="StreamHub — Watch Movies Online Free" />
-  <meta name="twitter:description" content="Stream movies online free." />
-  <meta name="twitter:image" content="https://stream1hub.pages.dev/og-image.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="StreamHub — Watch Movies Online Free" />
+    <meta name="twitter:description" content="Stream movies online free." />
+    <meta
+      name="twitter:image"
+      content="https://stream1hub.pages.dev/og-image.jpg"
+    />
 
-  <!-- ═══════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════
        JSON-LD
   ═══════════════════════════════════════════════════ -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "StreamHub",
-    "url": "https://stream1hub.pages.dev",
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": {
-        "@type": "EntryPoint",
-        "urlTemplate": "https://stream1hub.pages.dev/search?q={search_term_string}"
-      },
-      "query-input": "required name=search_term_string"
-    }
-  }
-  </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "StreamHub",
+        "url": "https://stream1hub.pages.dev",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://stream1hub.pages.dev/search?q={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
 
-  <!-- ═══════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════
        MODULE PRELOAD — fetch + parse Vite entry earlier
   ═══════════════════════════════════════════════════ -->
-  <link rel="modulepreload" href="/src/index.js" />
+    <link rel="modulepreload" href="/src/index.js" />
+  </head>
 
-</head>
+  <body>
+    <noscript>
+      <iframe
+        src="https://www.googletagmanager.com/ns.html?id=GTM-TRKN2KNM"
+        height="0"
+        width="0"
+        style="display: none; visibility: hidden"
+      >
+      </iframe>
+    </noscript>
 
-<body>
+    <div id="root"></div>
 
-  <noscript>
-    <iframe
-      src="https://www.googletagmanager.com/ns.html?id=GTM-TRKN2KNM"
-      height="0" width="0"
-      style="display:none;visibility:hidden">
-    </iframe>
-  </noscript>
-
-  <div id="root"></div>
-
-  <!-- ═══════════════════════════════════════════════════
+    <!-- ═══════════════════════════════════════════════════
        GTM — deferred until first user interaction
   ═══════════════════════════════════════════════════ -->
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function loadGTM() {
-      if (window._gtmLoaded) return;
-      window._gtmLoaded = true;
-      var s   = document.createElement('script');
-      s.src   = 'https://www.googletagmanager.com/gtm.js?id=GTM-TRKN2KNM';
-      s.async = true;
-      document.body.appendChild(s);
-    }
-    ['click','scroll','keydown','touchstart'].forEach(function(e) {
-      document.addEventListener(e, loadGTM, { once: true, passive: true });
-    });
-  </script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function loadGTM() {
+        if (window._gtmLoaded) return;
+        window._gtmLoaded = true;
+        var s = document.createElement("script");
+        s.src = "https://www.googletagmanager.com/gtm.js?id=GTM-TRKN2KNM";
+        s.async = true;
+        document.body.appendChild(s);
+      }
+      ["click", "scroll", "keydown", "touchstart"].forEach(function (e) {
+        document.addEventListener(e, loadGTM, { once: true, passive: true });
+      });
+    </script>
 
-  <!-- Cloudflare Analytics — skip on localhost to avoid CORS noise -->
-  <script>
-    if (location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
-      var s = document.createElement('script');
-      s.defer = true;
-      s.src   = 'https://static.cloudflareinsights.com/beacon.min.js';
-      s.setAttribute('data-cf-beacon', '{"token":"a53ff023fe3c4a49b77ee6dd02d4b8ef"}');
-      document.head.appendChild(s);
-    }
-  </script>
+    <!-- Cloudflare Analytics — skip on localhost to avoid CORS noise -->
+    <script>
+      if (
+        location.hostname !== "localhost" &&
+        location.hostname !== "127.0.0.1"
+      ) {
+        var s = document.createElement("script");
+        s.defer = true;
+        s.src = "https://static.cloudflareinsights.com/beacon.min.js";
+        s.setAttribute(
+          "data-cf-beacon",
+          '{"token":"a53ff023fe3c4a49b77ee6dd02d4b8ef"}',
+        );
+        document.head.appendChild(s);
+      }
+    </script>
 
-  <script type="module" src="/src/index.js"></script>
-
-</body>
+    <script type="module" src="/src/index.js"></script>
+  </body>
 </html>

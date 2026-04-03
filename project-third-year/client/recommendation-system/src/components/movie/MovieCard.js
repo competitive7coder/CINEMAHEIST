@@ -168,6 +168,15 @@ if (typeof document !== "undefined" && !document.getElementById("mc-styles")) {
       background: rgba(52,211,153,0.08);
     }
     .mc-btn.saved:hover { background: rgba(52,211,153,0.14); }
+
+    /* ── Mobile: fill grid cell ── */
+    @media (max-width: 768px) {
+      .mc {
+        width: 100%;
+        height: 0;
+        padding-bottom: 150%;  /* maintains 2:3 ratio */
+      }
+    }
   `;
   document.head.appendChild(tag);
 }
@@ -214,7 +223,7 @@ const MovieCard = ({
     https://image.tmdb.org/t/p/w185${movie.poster_path} 185w,
     https://image.tmdb.org/t/p/w342${movie.poster_path} 342w
   `}
-          sizes="154px"
+          sizes="(max-width: 768px) calc(50vw - 16px), 154px"
           alt={movie.title}
           className="mc-poster"
           loading="lazy"

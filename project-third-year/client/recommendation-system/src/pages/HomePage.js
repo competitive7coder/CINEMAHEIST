@@ -8,16 +8,12 @@ import React, {
 } from "react";
 import api from "../services/api";
 import { toast } from "react-toastify";
-
 import HeroSlider from "../components/home/HeroSlider";
-
-// ── Lazy-load ALL below-fold components ──────────────────────────────────────
 
 const VideoModal   = lazy(() => import("../components/common/VideoModal"));
 const Top10Section = lazy(() => import("../components/movie/Top10Section"));
 const MovieRow     = lazy(() => import("../components/movie/MovieRow"));
 
-// ── Constants ────────────────────────────────────────────────────────────────
 const GENRE_ORDER = [
   { id: 28,    name: "Action Packed" },
   { id: 878,   name: "Science Fiction" },
@@ -33,7 +29,13 @@ const GENRE_ORDER = [
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:8000";
 
-// ── Skeletons ────────────────────────────────────────────────────────────────
+// Safely extract an array from any API response shape
+const toArray = (data) => {
+  if (Array.isArray(data)) return data;
+  if (data && Array.isArray(data.results)) return data.results;
+  return [];
+};
+
 const skeletonStyle = (w, h) => ({
   width: w,
   height: h,
@@ -64,36 +66,26 @@ const RowSkeleton = () => (
   </div>
 );
 
-// ── Component ────────────────────────────────────────────────────────────────
 const HomePage = () => {
-  // Phase 1a — hero
   const [trendingMovies, setTrendingMovies] = useState([]);
   const [heroReady, setHeroReady]           = useState(false);
-
-  // Phase 1b — below-hero content
   const [top10Movies, setTop10Movies]       = useState([]);
   const [newReleases, setNewReleases]       = useState([]);
   const [watchlist, setWatchlist]           = useState([]);
-
-  // Phase 2 — genre rows via SSE
   const [moviesByGenre, setMoviesByGenre]   = useState({});
   const [streamDone, setStreamDone]         = useState(false);
   const [loadedCount, setLoadedCount]       = useState(0);
-
-  // Video modal
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [videoKey, setVideoKey]             = useState(null);
 
   const esRef = useRef(null);
 
-  // ── PHASE 1a — Hero data ──────────────────────────────────────────────────
-
+  // ── Phase 1a: Hero ────────────────────────────────────────────────────────
   useEffect(() => {
     let cancelled = false;
 
     const load = async () => {
       try {
-        // Fast path: API already resolved before React mounted
         if (window.__trendingResolved?.results?.length) {
           if (!cancelled) {
             setTrendingMovies(window.__trendingResolved.results.slice(0, 8));
@@ -102,7 +94,6 @@ const HomePage = () => {
           return;
         }
 
-        // Medium path: prefetch in-flight
         const prefetch = window.__trendingPrefetch;
         const data     = prefetch ? await prefetch : null;
         if (cancelled) return;
@@ -113,10 +104,9 @@ const HomePage = () => {
           return;
         }
 
-        // Slow path: no prefetch available
         const res = await api.get("/movies/trending");
         if (cancelled) return;
-        setTrendingMovies(res.data?.results?.slice(0, 8) || []);
+        setTrendingMovies(toArray(res.data).slice(0, 8));
         setHeroReady(true);
       } catch (err) {
         if (cancelled) return;
@@ -129,7 +119,7 @@ const HomePage = () => {
     return () => { cancelled = true; };
   }, []);
 
-  // ── PHASE 1b — Secondary above-fold data ─────────────────────────────────
+  // ── Phase 1b: Secondary data ──────────────────────────────────────────────
   useEffect(() => {
     let cancelled = false;
     const token   = localStorage.getItem("token");
@@ -143,9 +133,10 @@ const HomePage = () => {
     ])
       .then(([top10Res, newRelRes, wlRes]) => {
         if (cancelled) return;
-        setTop10Movies(top10Res.data.slice(0, 10));
-        setNewReleases(newRelRes.data);
-        setWatchlist(Array.isArray(wlRes.data) ? wlRes.data : []);
+        // Both endpoints return plain arrays (confirmed from API responses)
+        setTop10Movies(toArray(top10Res.data).slice(0, 10));
+        setNewReleases(toArray(newRelRes.data));
+        setWatchlist(toArray(wlRes.data));
       })
       .catch((err) => {
         if (cancelled) return;
@@ -156,8 +147,7 @@ const HomePage = () => {
     return () => { cancelled = true; };
   }, []);
 
-  // ── PHASE 2 — SSE genre rows ──────────────────────────────────────────────
-
+  // ── Phase 2: SSE genre rows ───────────────────────────────────────────────
   useEffect(() => {
     if (!heroReady) return;
 
@@ -170,9 +160,7 @@ const HomePage = () => {
         esRef.current = null;
       }
 
-      es            = new EventSource(
-        `${SOCKET_URL}/api/v1/movies/homepage-sections/stream`
-      );
+      es            = new EventSource(`${SOCKET_URL}/api/v1/movies/homepage-sections/stream`);
       esRef.current = es;
 
       es.onmessage = (e) => {
@@ -183,7 +171,9 @@ const HomePage = () => {
             es.close();
             return;
           }
-          setMoviesByGenre((prev) => ({ ...prev, [data.name]: data.movies }));
+          // SSE sends { name, movies } where movies is always a plain array
+          const movies = Array.isArray(data.movies) ? data.movies : [];
+          setMoviesByGenre((prev) => ({ ...prev, [data.name]: movies }));
           setLoadedCount((prev) => prev + 1);
         } catch { /* ignore malformed frames */ }
       };
@@ -194,13 +184,11 @@ const HomePage = () => {
       };
     };
 
-    // 2s safety net for slow mobile connections
     const fallbackTimer = setTimeout(() => {
       timerFired = true;
       openSSE();
     }, 2000);
 
-    // Open SSE the moment LCP image is painted — no artificial wait
     let observer = null;
     if (typeof PerformanceObserver !== "undefined") {
       try {
@@ -208,15 +196,11 @@ const HomePage = () => {
           if (list.getEntries().length > 0 && !timerFired) {
             timerFired = true;
             clearTimeout(fallbackTimer);
-            // 100ms buffer — lets browser finish image decode + compositor
-            // work before SSE bandwidth contention begins
             setTimeout(openSSE, 100);
           }
         });
         observer.observe({ type: "largest-contentful-paint", buffered: true });
-      } catch {
-        // PerformanceObserver unsupported — fallback timer handles it
-      }
+      } catch { /* unsupported — fallback timer handles it */ }
     }
 
     return () => {
@@ -229,7 +213,7 @@ const HomePage = () => {
     };
   }, [heroReady]);
 
-  // ── Activity log ─────────────────────────────────────────────────────────
+  // ── Activity log ──────────────────────────────────────────────────────────
   const logActivity = useCallback(async (movie, actionType) => {
     if (!movie) return;
     try {
@@ -242,7 +226,7 @@ const HomePage = () => {
     } catch { /* non-critical */ }
   }, []);
 
-  // ── Trailer handler ───────────────────────────────────────────────────────
+  // ── Trailer ───────────────────────────────────────────────────────────────
   const handleWatchTrailerClick = useCallback(
     async (movieOrId) => {
       const movie   = typeof movieOrId === "object" ? movieOrId : null;
@@ -250,12 +234,11 @@ const HomePage = () => {
       if (!movieId) return;
       if (movie) logActivity(movie, "trailer_watch");
 
-      // Reset first — prevents stale trailer from previous movie flashing
       setShowVideoModal(false);
       setVideoKey(null);
 
       try {
-        const res = await api.get(`/movies/${movieId}/videos`);
+        const res     = await api.get(`/movies/${movieId}/videos`);
         const trailer =
           res.data?.results?.find(
             (v) => v.type === "Trailer" && v.site === "YouTube"
@@ -270,7 +253,7 @@ const HomePage = () => {
     [logActivity]
   );
 
-  // ── Watchlist handler ─────────────────────────────────────────────────────
+  // ── Watchlist ─────────────────────────────────────────────────────────────
   const handleWatchlistToggle = useCallback(
     async (movie) => {
       const token = localStorage.getItem("token");
@@ -283,7 +266,6 @@ const HomePage = () => {
 
       const inList = watchlist.includes(movie.id);
 
-      // Optimistic update
       setWatchlist((prev) =>
         inList ? prev.filter((id) => id !== movie.id) : [...prev, movie.id]
       );
@@ -299,7 +281,6 @@ const HomePage = () => {
           toast.success("Added to watchlist");
         }
       } catch {
-        // Rollback on failure
         setWatchlist((prev) =>
           inList ? [...prev, movie.id] : prev.filter((id) => id !== movie.id)
         );
@@ -309,12 +290,10 @@ const HomePage = () => {
     [watchlist, logActivity]
   );
 
-  // ── Derived ───────────────────────────────────────────────────────────────
   const progressPct = streamDone
     ? 100
     : Math.round((loadedCount / GENRE_ORDER.length) * 100);
 
-  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div style={{ backgroundColor: "#000", minHeight: "100vh" }}>
       <style>{`
@@ -332,13 +311,6 @@ const HomePage = () => {
           transition: width 0.35s ease;
           border-radius: 0 2px 2px 0;
         }
-
-        /*
-          CLS FIX: hero-wrapper always holds 100vh.
-          Before heroReady → shimmer placeholder.
-          After heroReady  → fade in HeroSlider.
-          Viewport height never changes = zero layout shift.
-        */
         .hero-wrapper {
           position: relative;
           height: 100vh;
@@ -346,9 +318,7 @@ const HomePage = () => {
           background: linear-gradient(90deg,#0e0e0e 25%,#1a1a1a 50%,#0e0e0e 75%);
           background-size: 400% 100%;
         }
-        .hero-wrapper.loading {
-          animation: shimmer 1.5s infinite;
-        }
+        .hero-wrapper.loading { animation: shimmer 1.5s infinite; }
         .hero-wrapper .hero-inner {
           position: absolute;
           inset: 0;
@@ -362,17 +332,12 @@ const HomePage = () => {
         }
       `}</style>
 
-      {/* SSE progress bar */}
       {!streamDone && (
         <div className="stream-progress">
-          <div
-            className="stream-progress-bar"
-            style={{ width: `${progressPct}%` }}
-          />
+          <div className="stream-progress-bar" style={{ width: `${progressPct}%` }} />
         </div>
       )}
 
-      {/* Hero — always occupies 100vh to prevent CLS */}
       <div className={`hero-wrapper ${heroReady ? "ready" : "loading"}`}>
         <div className="hero-inner">
           {trendingMovies.length > 0 && (
@@ -386,7 +351,6 @@ const HomePage = () => {
         </div>
       </div>
 
-      {/* Below-fold — all lazy to protect TBT */}
       <div className="container-fluid pt-5">
         {top10Movies.length > 0 && (
           <Suspense fallback={<RowSkeleton />}>

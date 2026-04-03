@@ -214,7 +214,7 @@ const MovieCard = ({
     https://image.tmdb.org/t/p/w185${movie.poster_path} 185w,
     https://image.tmdb.org/t/p/w342${movie.poster_path} 342w
   `}
-          sizes="200px"
+          sizes="154px"
           alt={movie.title}
           className="mc-poster"
           loading="lazy"

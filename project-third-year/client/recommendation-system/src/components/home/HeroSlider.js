@@ -11,7 +11,7 @@ import "swiper/css/effect-fade";
 const TMDB = "https://image.tmdb.org/t/p";
 const getDesktopSrc = (movie) => `${TMDB}/w1280${movie.backdrop_path}`;
 const getDesktopSrcSm = (movie) => `${TMDB}/w780${movie.backdrop_path}`;
-const getMobileSrc = (movie) => `${TMDB}/w500${movie.poster_path}`;
+const getMobileSrc = (movie) => `${TMDB}/w342${movie.poster_path}`;
 
 const HeroSlider = ({
   movies,

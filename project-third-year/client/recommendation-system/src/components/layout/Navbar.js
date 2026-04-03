@@ -2,12 +2,23 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import styled, { keyframes, css } from 'styled-components';
 
-import {
-    FaSearch, FaUser, FaFistRaised, FaCompass, FaSmile,
-    FaLaugh, FaUserSecret, FaTheaterMasks, FaGhost,
-    FaHeart, FaRocket, FaEye, FaTimes, FaBars,
-    FaSignOutAlt, FaTachometerAlt, FaChevronDown,
-} from "react-icons/fa";
+const FaSearch       = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round"/></svg>
+const FaUser         = ({ size = 14 }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+const FaBars         = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none"/></svg>
+const FaTimes        = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none"/></svg>
+const FaChevronDown  = ({ style }) => <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" style={style}><path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none"/></svg>
+const FaSignOutAlt   = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none"/></svg>
+const FaTachometerAlt= () => <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 1 0 10 10M12 12L18 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none"/></svg>
+const FaFistRaised   = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18 11V7a2 2 0 0 0-4 0M14 11V5a2 2 0 0 0-4 0M10 11V7a2 2 0 0 0-4 0M6 11v4a6 6 0 0 0 12 0v-3"/></svg>
+const FaCompass      = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/><path d="M16.24 7.76l-2.12 6.36-6.36 2.12 2.12-6.36 6.36-2.12z" stroke="currentColor" strokeWidth="2" fill="none"/></svg>
+const FaSmile        = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none"/></svg>
+const FaLaugh        = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" fill="none"/><path d="M8 13s1.5 3 4 3 4-3 4-3M9 9h.01M15 9h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none"/></svg>
+const FaUserSecret   = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a5 5 0 0 1 5 5v2a5 5 0 0 1-10 0V7a5 5 0 0 1 5-5zM3 21a9 9 0 0 1 18 0" stroke="currentColor" strokeWidth="2" fill="none"/></svg>
+const FaTheaterMasks = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M2 10s3-3 6-3 6 3 6 3v5c0 3-2 5-6 5s-6-2-6-5v-5zM10 10s3-3 6-3 6 3 6 3v3c0 3-2 5-6 5" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round"/></svg>
+const FaGhost        = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a8 8 0 0 1 8 8v12l-4-3-4 3-4-3-4 3V10a8 8 0 0 1 8-8z" stroke="currentColor" strokeWidth="2" fill="none"/></svg>
+const FaHeart        = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" stroke="currentColor" strokeWidth="2" fill="none"/></svg>
+const FaRocket       = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09zM12 15l-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11L12 15z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round"/></svg>
+const FaEye          = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" strokeWidth="2" fill="none"/><circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" fill="none"/></svg>
 
 const fadeSlideDown = keyframes`
   from { opacity: 0; transform: translateY(-8px); }

@@ -10,7 +10,8 @@ import "swiper/css/effect-fade";
 
 const TMDB = "https://image.tmdb.org/t/p";
 const getDesktopSrc = (movie) => `${TMDB}/w1280${movie.backdrop_path}`;
-const getMobileSrc  = (movie) => `${TMDB}/w780${movie.poster_path}`;
+const getDesktopSrcSm = (movie) => `${TMDB}/w780${movie.backdrop_path}`;
+const getMobileSrc = (movie) => `${TMDB}/w500${movie.poster_path}`;
 
 const HeroSlider = ({
   movies,
@@ -18,12 +19,14 @@ const HeroSlider = ({
   onWatchTrailerClick,
   onAddToWatchlist,
 }) => {
-  const navigate  = useNavigate();
+  const navigate = useNavigate();
   const swiperRef = useRef(null);
 
   const [activeIndex, setActiveIndex] = useState(0);
-  const [watchModal, setWatchModal]   = useState({
-    show: false, tmdbId: null, title: "",
+  const [watchModal, setWatchModal] = useState({
+    show: false,
+    tmdbId: null,
+    title: "",
   });
 
   const sliderMovies = movies.slice(0, 10);
@@ -45,7 +48,8 @@ const HeroSlider = ({
 
   const handleWatchNowClick = useCallback(() => {
     const movie = getCurrentMovie();
-    if (movie) setWatchModal({ show: true, tmdbId: movie.id, title: movie.title });
+    if (movie)
+      setWatchModal({ show: true, tmdbId: movie.id, title: movie.title });
   }, [getCurrentMovie]);
 
   const handleInfoClick = useCallback(() => {
@@ -70,15 +74,21 @@ const HeroSlider = ({
         loop={false}
         effect="fade"
         fadeEffect={{ crossFade: true }}
-        onSwiper={(swiper) => { swiperRef.current = swiper; }}
+        onSwiper={(swiper) => {
+          swiperRef.current = swiper;
+        }}
         onSlideChange={handleSlideChange}
         autoplay={{ delay: 6000, disableOnInteraction: false }}
       >
         {sliderMovies.map((movie, index) => {
-          // isInWatchlist re-evaluates on every watchlist prop change — instant UI sync
+          
           const isInWatchlist = watchlist.includes(movie.id);
-          const rating = movie.vote_average ? movie.vote_average.toFixed(1) : null;
-          const year   = movie.release_date ? movie.release_date.slice(0, 4) : null;
+          const rating = movie.vote_average
+            ? movie.vote_average.toFixed(1)
+            : null;
+          const year = movie.release_date
+            ? movie.release_date.slice(0, 4)
+            : null;
 
           return (
             <SwiperSlide
@@ -88,13 +98,22 @@ const HeroSlider = ({
               <div className="hero-slide-inner">
                 <div className="hero-bg-wrap">
                   <picture>
-                    <source media="(max-width: 480px)" srcSet={getMobileSrc(movie)} />
+                    <source
+                      media="(max-width: 480px)"
+                      srcSet={getMobileSrc(movie)}
+                      type="image/jpeg"
+                    />
+                    <source
+                      media="(max-width: 1024px)"
+                      srcSet={getDesktopSrcSm(movie)}
+                      type="image/jpeg"
+                    />
                     <img
                       className="hero-bg-img"
                       src={getDesktopSrc(movie)}
                       alt={movie.title}
-                      fetchPriority={index === 0 ? "high" : index === 1 ? "auto" : "low"}
-                      loading={index <= 1 ? "eager" : "lazy"}
+                      fetchPriority={index === 0 ? "high" : "low"}
+                      loading={index === 0 ? "eager" : "lazy"}
                       decoding={index === 0 ? "sync" : "async"}
                     />
                   </picture>
@@ -105,9 +124,17 @@ const HeroSlider = ({
 
                 <div className="hero-content">
                   <div className="hero-meta">
-                    <span className="hero-badge hero-badge-new">✦ Trending</span>
-                    {rating && <span className="hero-badge hero-badge-rating">★ {rating}</span>}
-                    {year   && <span className="hero-badge hero-badge-year">{year}</span>}
+                    <span className="hero-badge hero-badge-new">
+                      ✦ Trending
+                    </span>
+                    {rating && (
+                      <span className="hero-badge hero-badge-rating">
+                        ★ {rating}
+                      </span>
+                    )}
+                    {year && (
+                      <span className="hero-badge hero-badge-year">{year}</span>
+                    )}
                   </div>
 
                   <h1 className="hero-title">{movie.title}</h1>
@@ -118,20 +145,25 @@ const HeroSlider = ({
                   )}
 
                   <div className="hero-buttons">
-                    <button className="hero-btn hero-btn-watchnow" onClick={handleWatchNowClick}>
+                    <button
+                      className="hero-btn hero-btn-watchnow"
+                      onClick={handleWatchNowClick}
+                    >
                       <span className="play-icon">▶</span>
                       Watch Now
                     </button>
 
                     <div className="hero-secondary-actions">
-                      <button className="hero-action-btn" onClick={handleTrailerClick}>
+                      <button
+                        className="hero-action-btn"
+                        onClick={handleTrailerClick}
+                      >
                         <span className="hero-action-icon">🎬</span>
                         <span className="hero-action-label">Trailer</span>
                       </button>
 
                       <div className="hero-action-divider" />
 
-                      {/* Pass movie directly — correct slide's movie, instant watchlist sync */}
                       <button
                         className={`hero-action-btn ${isInWatchlist ? "hero-action-saved" : ""}`}
                         onClick={() => onAddToWatchlist(movie)}
@@ -146,7 +178,10 @@ const HeroSlider = ({
 
                       <div className="hero-action-divider" />
 
-                      <button className="hero-action-btn" onClick={handleInfoClick}>
+                      <button
+                        className="hero-action-btn"
+                        onClick={handleInfoClick}
+                      >
                         <span className="hero-action-icon">ℹ</span>
                         <span className="hero-action-label">Info</span>
                       </button>

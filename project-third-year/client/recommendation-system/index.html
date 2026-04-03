@@ -28,37 +28,9 @@
   <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
   <link rel="dns-prefetch" href="https://static.cloudflareinsights.com" />
 
-  <!-- ═══════════════════════════════════════════════════
-       LCP HERO IMAGE PRELOAD STRATEGY
-       
-       TWO-PHASE approach:
-       
-       PHASE 1 — INSTANT (0ms, before any network request)
-         Read hero image paths cached from the previous visit
-         in localStorage. Fires a <link rel="preload"> immediately
-         during HTML parse. Works on ALL return visits (99%+ of
-         real traffic). First-ever visit has no cache — falls
-         through to Phase 2.
-       
-       PHASE 2 — API-DRIVEN (~300-500ms after parse)
-         Fetch trending API, inject preload as soon as it resolves,
-         AND save paths to localStorage for the next visit.
-         Also preloads slide[1] to cover Swiper loop clone edge case.
-       
-       WHY THIS WORKS IN PROD:
-         Cloudflare Pages serves HTML from edge (~10ms TTFB).
-         localStorage read is synchronous, ~0.1ms.
-         So the preload fires before the browser even starts
-         downloading the JS bundle — image fetch begins in parallel
-         with everything else instead of waiting 3-4s for React.
-  ═══════════════════════════════════════════════════ -->
   <script>
     (function () {
 
-      // ── PHASE 1: Instant preload from localStorage cache ────────────────
-      // Runs synchronously at parse time. Zero network dependency.
-      // On return visits this is the ONLY preload needed — the image
-      // URL hasn't changed (trending movies rotate slowly).
       try {
         var cached = localStorage.getItem('sh_hero_lcp');
         if (cached) {
@@ -76,7 +48,6 @@
             document.head.appendChild(l1);
           }
 
-          // Second slide preload (covers Swiper loop clone LCP ambiguity)
           if (href2) {
             var l2      = document.createElement('link');
             l2.rel      = 'preload';
@@ -88,7 +59,6 @@
         }
       } catch (e) { /* localStorage blocked (private mode etc) — no-op */ }
 
-      // ── PHASE 2: API prefetch → update cache + inject if Phase 1 missed ─
       var base = '%VITE_API_URL%';
       if (!base || base === '%VITE_API_URL%') return;
 
@@ -109,7 +79,6 @@
         var d2  = m2 ? 'https://image.tmdb.org/t/p/w1280' + m2.backdrop_path : '';
         var mo2 = m2 ? 'https://image.tmdb.org/t/p/w780'  + m2.poster_path   : '';
 
-        // Save to localStorage so NEXT visit preloads at 0ms
         try {
           localStorage.setItem('sh_hero_lcp', JSON.stringify({
             d:  d1,
@@ -119,7 +88,6 @@
           }));
         } catch (e) {}
 
-        // Only inject preload if Phase 1 didn't already (first-ever visit)
         var alreadyPreloaded = document.querySelector(
           'link[rel="preload"][as="image"]'
         );
@@ -143,7 +111,6 @@
           }
         }
 
-        // Store resolved data so React consumes it without re-fetching
         window.__trendingResolved = data;
         return data;
       })

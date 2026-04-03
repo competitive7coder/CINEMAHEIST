@@ -16,6 +16,7 @@ export default defineConfig({
     react(),
   ],
 
+  // Prevent React from being bundled twice
   resolve: {
     dedupe: ['react', 'react-dom'],
   },
@@ -30,10 +31,10 @@ export default defineConfig({
 
   build: {
     chunkSizeWarningLimit: 500,
-    cssCodeSplit: false, 
     rollupOptions: {
       output: {
         manualChunks(id) {
+          // React must be isolated first
           if (id.includes('node_modules/react/') ||
               id.includes('node_modules/react-dom/') ||
               id.includes('node_modules/scheduler/') ||

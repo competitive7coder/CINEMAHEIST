@@ -25,7 +25,7 @@ const MovieRow = ({
 }) => {
   const swiperRef = useRef(null);
 
-  // Guarantee movies is always a safe array — defensive against any API shape
+  // movies is always a safe array — defensive against any API shape
   const safeMovies = Array.isArray(movies) ? movies : [];
 
   const stopAutoplay  = () => swiperRef.current?.swiper?.autoplay?.stop();

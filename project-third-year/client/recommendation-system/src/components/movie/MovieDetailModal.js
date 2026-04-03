@@ -41,19 +41,19 @@ const MovieDetailModal = ({ show, handleClose, movieId, onWatchTrailer }) => {
   };
 
   const posterUrl = movieDetails?.backdrop_path
-    ? `https://image.tmdb.org/t/p/w1280${movieDetails.backdrop_path}`
+    ? `https://image.tmdb.org/t/p/w780${movieDetails.backdrop_path}`
     : movieDetails?.poster_path
       ? `https://image.tmdb.org/t/p/w500${movieDetails.poster_path}`
-      : "https://via.placeholder.com/1280x720?text=No+Image";
+      : "https://placehold.co/780x440?text=No+Image";
 
   // ====== Inline Styles ======
   const styles = {
     movieDetailModal: {
-      maxWidth: "800px", // Adjust as needed
+      maxWidth: "800px", 
       width: "90%",
     },
     modalContent: {
-      backgroundColor: "#1a1a1a", // Dark background
+      backgroundColor: "#1a1a1a", 
       borderRadius: "10px",
       border: "none",
       overflow: "hidden", // Ensures image corners are rounded
@@ -65,12 +65,12 @@ const MovieDetailModal = ({ show, handleClose, movieId, onWatchTrailer }) => {
       width: "100%",
       zIndex: 10, // Ensure close button is clickable
       background:
-        "linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%)", // Fades out
+        "linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%)", 
       borderBottom: "none",
       padding: "1rem",
     },
     closeButton: {
-      filter: "invert(1)", // Makes close button white
+      filter: "invert(1)", 
     },
     detailHeader: {
       position: "relative",
@@ -79,7 +79,7 @@ const MovieDetailModal = ({ show, handleClose, movieId, onWatchTrailer }) => {
       backgroundSize: "cover",
       backgroundPosition: "center",
       backgroundRepeat: "no-repeat",
-      borderRadius: "10px 10px 0 0", // Match modal content border-radius
+      borderRadius: "10px 10px 0 0", 
       backgroundImage: `url(${posterUrl})`,
     },
     detailOverlay: {

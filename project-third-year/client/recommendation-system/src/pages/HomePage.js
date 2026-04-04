@@ -311,14 +311,23 @@ const HomePage = () => {
           transition: width 0.35s ease;
           border-radius: 0 2px 2px 0;
         }
-        .hero-wrapper {
-          position: relative;
-          height: 100vh;
-          min-height: 520px;
-          background: linear-gradient(90deg,#0e0e0e 25%,#1a1a1a 50%,#0e0e0e 75%);
-          background-size: 400% 100%;
-        }
-        .hero-wrapper.loading { animation: shimmer 1.5s infinite; }
+        /* AFTER */
+.hero-wrapper {
+  position: relative;
+  height: 100vh;
+  min-height: 520px;
+  background: linear-gradient(90deg,#0e0e0e 25%,#1a1a1a 50%,#0e0e0e 75%);
+  background-size: 400% 100%;
+}
+.hero-wrapper.loading { animation: shimmer 1.5s infinite; }
+
+@media (max-width: 768px) {
+  .hero-wrapper { height: 70vh; min-height: 440px; }
+}
+
+@media (max-width: 480px) {
+  .hero-wrapper { height: 100svh; min-height: 100svh; }
+}
         .hero-wrapper .hero-inner {
           position: absolute;
           inset: 0;

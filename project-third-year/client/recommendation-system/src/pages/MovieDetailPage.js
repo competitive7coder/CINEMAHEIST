@@ -7,10 +7,19 @@ import VideoModal from "../components/common/VideoModal";
 import WatchMovieModal from "../components/movie/WatchMovieModal";
 import MovieCard from "../components/movie/MovieCard";
 import useSEO from "../hooks/useSEO";
-import { BsFillPlayFill, BsFilm, BsCheck2, BsBookmark } from 'react-icons/bs';
+import { BsFillPlayFill, BsFilm, BsCheck2, BsBookmark } from "react-icons/bs";
+import { toMovieSlug } from "../utils/movieSlug";
 
 const MovieDetailPage = () => {
-  const { movieId } = useParams();
+ const { slug } = useParams();
+const [movieId, setMovieId] = useState(null);
+
+useEffect(() => {
+    api.get(`/movies/by-slug/${slug}`)
+        .then(res => setMovieId(res.data.id))
+        .catch(() => setMovieId(null));
+}, [slug]);
+
 
   const [movie, setMovie] = useState(null);
   const [relatedMovies, setRelatedMovies] = useState([]);
@@ -23,29 +32,61 @@ const MovieDetailPage = () => {
   const [watchlistIds, setWatchlistIds] = useState([]);
 
   useSEO({
-    title: movie ? `${movie.title} (${movie.release_date?.split("-")[0] || ""})` : "Watch Movie",
-    description: movie ? `Watch ${movie.title} online free on StreamHub. ${movie.overview?.slice(0, 120)}...` : "Watch movies online free on StreamHub.",
-    image: movie?.backdrop_path ? `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}` : movie?.poster_path ? `https://image.tmdb.org/t/p/w780${movie.poster_path}` : null,
-    url: movie ? `/movie/${movie.id}` : null,
+    title: movie
+      ? `${movie.title} (${movie.release_date?.split("-")[0] || ""})`
+      : "Watch Movie",
+    description: movie
+      ? `Watch ${movie.title} online free on StreamHub. ${movie.overview?.slice(0, 120)}...`
+      : "Watch movies online free on StreamHub.",
+    image: movie?.backdrop_path
+      ? `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`
+      : movie?.poster_path
+        ? `https://image.tmdb.org/t/p/w780${movie.poster_path}`
+        : null,
+    url: movie ? `/movie/${toMovieSlug(movie)}` : null,
+
     type: "video.movie",
-    structuredData: movie ? {
-      "@context": "https://schema.org", "@type": "Movie",
-      name: movie.title, description: movie.overview, datePublished: movie.release_date,
-      image: movie.poster_path ? `https://image.tmdb.org/t/p/w780${movie.poster_path}` : null,
-      aggregateRating: movie.vote_average ? { "@type": "AggregateRating", ratingValue: movie.vote_average.toFixed(1), ratingCount: movie.vote_count, bestRating: "10", worstRating: "1" } : undefined,
-      genre: movie.genres?.map((g) => g.name),
-      url: `https://streamhub-research.vercel.app/movie/${movie.id}`,
-    } : null,
+    structuredData: movie
+      ? {
+          "@context": "https://schema.org",
+          "@type": "Movie",
+          name: movie.title,
+          description: movie.overview,
+          datePublished: movie.release_date,
+          image: movie.poster_path
+            ? `https://image.tmdb.org/t/p/w780${movie.poster_path}`
+            : null,
+          aggregateRating: movie.vote_average
+            ? {
+                "@type": "AggregateRating",
+                ratingValue: movie.vote_average.toFixed(1),
+                ratingCount: movie.vote_count,
+                bestRating: "10",
+                worstRating: "1",
+              }
+            : undefined,
+          genre: movie.genres?.map((g) => g.name),
+          url: `https://stream1hub.pages.dev/movie/${toMovieSlug(movie)}`,
+        }
+      : null,
   });
 
   const logActivity = async (movieData, actionType) => {
     if (!localStorage.getItem("token")) return;
     try {
-      await api.post("/activity/log", { movie_id: movieData.id, action_type: actionType, movie_title: movieData.title || "Unknown", movie_poster_path: movieData.poster_path || "" });
-    } catch (err) { console.error("Failed to log activity:", err); }
+      await api.post("/activity/log", {
+        movie_id: movieData.id,
+        action_type: actionType,
+        movie_title: movieData.title || "Unknown",
+        movie_poster_path: movieData.poster_path || "",
+      });
+    } catch (err) {
+      console.error("Failed to log activity:", err);
+    }
   };
 
   useEffect(() => {
+    if (!movieId) return;  
     const fetchMovieData = async () => {
       setLoading(true);
       window.scrollTo(0, 0);
@@ -63,23 +104,38 @@ const MovieDetailPage = () => {
             setIsInWatchlist(check.data.isInWatchlist);
             const wlRes = await api.get("/users/watchlist");
             setWatchlistIds(Array.isArray(wlRes.data) ? wlRes.data : []);
-          } catch (err) { console.error("Watchlist check failed:", err); }
+          } catch (err) {
+            console.error("Watchlist check failed:", err);
+          }
           try {
-            await api.post("/activity/log", { movie_id: movieData.id, action_type: "search_click", movie_title: movieData.title || "Unknown", movie_poster_path: movieData.poster_path || "" });
+            await api.post("/activity/log", {
+              movie_id: movieData.id,
+              action_type: "search_click",
+              movie_title: movieData.title || "Unknown",
+              movie_poster_path: movieData.poster_path || "",
+            });
           } catch (_) {}
         }
-        setRelatedMovies(recRes.data.filter((m, i, self) => i === self.findIndex((x) => x.id === m.id)));
+        setRelatedMovies(
+          recRes.data.filter(
+            (m, i, self) => i === self.findIndex((x) => x.id === m.id),
+          ),
+        );
       } catch (err) {
         toast.error("Failed to load movie details.");
         setMovie(null);
-      } finally { setLoading(false); }
+      } finally {
+        setLoading(false);
+      }
     };
     fetchMovieData();
   }, [movieId]);
 
   useEffect(() => {
     if (movie && window.location.hash === "#watch") {
-      document.getElementById("watch-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      document
+        .getElementById("watch-section")
+        ?.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }, [movie]);
 
@@ -87,9 +143,13 @@ const MovieDetailPage = () => {
     try {
       if (movie) logActivity(movie, "trailer_watch");
       const res = await api.get(`/movies/${movieId}/videos`);
-      if (res.data?.key) { setVideoKey(res.data.key); setShowVideoModal(true); }
-      else toast.info("No trailer available.");
-    } catch { toast.error("Could not load trailer."); }
+      if (res.data?.key) {
+        setVideoKey(res.data.key);
+        setShowVideoModal(true);
+      } else toast.info("No trailer available.");
+    } catch {
+      toast.error("Could not load trailer.");
+    }
   };
 
   const handleWatchRelatedTrailerClick = async (relatedMovie) => {
@@ -97,13 +157,20 @@ const MovieDetailPage = () => {
     if (!id) return;
     try {
       const res = await api.get(`/movies/${id}/videos`);
-      if (res.data?.key) { setVideoKey(res.data.key); setShowVideoModal(true); }
-      else toast.info("No trailer available.");
-    } catch { toast.error("Could not load trailer."); }
+      if (res.data?.key) {
+        setVideoKey(res.data.key);
+        setShowVideoModal(true);
+      } else toast.info("No trailer available.");
+    } catch {
+      toast.error("Could not load trailer.");
+    }
   };
 
   const handleWatchlistToggle = async (movieToToggle) => {
-    if (!localStorage.getItem("token")) { toast.error("Please log in first."); return; }
+    if (!localStorage.getItem("token")) {
+      toast.error("Please log in first.");
+      return;
+    }
     try {
       const check = await api.get(`/users/watchlist/check/${movieToToggle.id}`);
       if (check.data.isInWatchlist) {
@@ -119,7 +186,9 @@ const MovieDetailPage = () => {
         setIsInWatchlist(true);
         setWatchlistIds((prev) => [...prev, movieToToggle.id]);
       }
-    } catch { toast.error("Could not update watchlist."); }
+    } catch {
+      toast.error("Could not update watchlist.");
+    }
   };
 
   const handleLoadMore = () => setVisibleRelatedCount((prev) => prev + 6);
@@ -393,21 +462,35 @@ const MovieDetailPage = () => {
   `;
 
   if (loading) return <LoadingSpinner />;
-  if (!movie) return (
-    <div className="container text-light pt-5 mt-5 text-center">
-      <h2>Movie Not Found</h2>
-      <p>The requested movie details could not be loaded.</p>
-    </div>
-  );
+  if (!movie)
+    return (
+      <div className="container text-light pt-5 mt-5 text-center">
+        <h2>Movie Not Found</h2>
+        <p>The requested movie details could not be loaded.</p>
+      </div>
+    );
 
-  const backdropUrl = movie.backdrop_path ? `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}` : null;
-  const posterUrl   = movie.poster_path   ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`   : "https://placehold.co/200x300?text=No+Poster";
-  const mobileImgUrl= movie.poster_path   ? `https://image.tmdb.org/t/p/w780${movie.poster_path}`   : backdropUrl;
-  const year        = movie.release_date  ? new Date(movie.release_date).getFullYear() : null;
-  const rating      = typeof movie.vote_average === "number" && movie.vote_average > 0 ? movie.vote_average.toFixed(1) : null;
-  const director    = movie.credits?.crew?.find((p) => p.job === "Director");
-  const writers     = movie.credits?.crew?.filter((p) => ["Writer","Screenplay","Story"].includes(p.job)).slice(0, 2);
-  const mainCast    = movie.credits?.cast?.slice(0, 10) || [];
+  const backdropUrl = movie.backdrop_path
+    ? `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`
+    : null;
+  const posterUrl = movie.poster_path
+    ? `https://image.tmdb.org/t/p/w500${movie.poster_path}`
+    : "https://placehold.co/200x300?text=No+Poster";
+  const mobileImgUrl = movie.poster_path
+    ? `https://image.tmdb.org/t/p/w780${movie.poster_path}`
+    : backdropUrl;
+  const year = movie.release_date
+    ? new Date(movie.release_date).getFullYear()
+    : null;
+  const rating =
+    typeof movie.vote_average === "number" && movie.vote_average > 0
+      ? movie.vote_average.toFixed(1)
+      : null;
+  const director = movie.credits?.crew?.find((p) => p.job === "Director");
+  const writers = movie.credits?.crew
+    ?.filter((p) => ["Writer", "Screenplay", "Story"].includes(p.job))
+    .slice(0, 2);
+  const mainCast = movie.credits?.cast?.slice(0, 10) || [];
 
   return (
     <div className="mdp">
@@ -416,7 +499,10 @@ const MovieDetailPage = () => {
       {/* ══ HERO — new stylish design ══ */}
       <div
         className="mdp-backdrop"
-        style={{ backgroundImage: backdropUrl ? `url(${backdropUrl})` : "none", backgroundColor: "#0c0c0f" }}
+        style={{
+          backgroundImage: backdropUrl ? `url(${backdropUrl})` : "none",
+          backgroundColor: "#0c0c0f",
+        }}
       >
         <style>{`@media(max-width:768px){.mdp-backdrop{background-image:url('${mobileImgUrl}') !important; background-position:center top !important;}}`}</style>
         <div className="mdp-backdrop-overlay" />
@@ -424,7 +510,6 @@ const MovieDetailPage = () => {
 
         <div className="mdp-hero-wrap">
           <div className="mdp-hero">
-
             {/* Poster — desktop only */}
             <div className="mdp-poster-wrap">
               <img src={posterUrl} alt={movie.title} className="mdp-poster" />
@@ -438,40 +523,83 @@ const MovieDetailPage = () => {
               {/* Badge row */}
               <div className="mdp-badge-row">
                 <span className="mdp-badge mdp-badge-brand">✦ StreamHub</span>
-                {year && <span className="mdp-badge mdp-badge-meta">{year}</span>}
-                {movie.runtime > 0 && <span className="mdp-badge mdp-badge-meta">{formatRuntime(movie.runtime)}</span>}
-                {rating && <span className="mdp-badge mdp-badge-meta">★ {rating}</span>}
+                {year && (
+                  <span className="mdp-badge mdp-badge-meta">{year}</span>
+                )}
+                {movie.runtime > 0 && (
+                  <span className="mdp-badge mdp-badge-meta">
+                    {formatRuntime(movie.runtime)}
+                  </span>
+                )}
+                {rating && (
+                  <span className="mdp-badge mdp-badge-meta">★ {rating}</span>
+                )}
               </div>
 
               <h1 className="mdp-title">{movie.title}</h1>
-              {movie.tagline && <p className="mdp-tagline">"{movie.tagline}"</p>}
+              {movie.tagline && (
+                <p className="mdp-tagline">"{movie.tagline}"</p>
+              )}
               <div className="mdp-title-divider" />
 
               <div className="mdp-genres">
-                {movie.genres?.map((g) => <span key={g.id} className="mdp-genre">{g.name}</span>)}
+                {movie.genres?.map((g) => (
+                  <span key={g.id} className="mdp-genre">
+                    {g.name}
+                  </span>
+                ))}
               </div>
 
               {(director || writers?.length > 0) && (
                 <div className="mdp-crew">
-                  {director && <span className="mdp-crew-item">DIR <b>{director.name}</b></span>}
-                  {writers?.length > 0 && <span className="mdp-crew-item">WRT <b>{writers.map((w) => w.name).join(", ")}</b></span>}
+                  {director && (
+                    <span className="mdp-crew-item">
+                      DIR <b>{director.name}</b>
+                    </span>
+                  )}
+                  {writers?.length > 0 && (
+                    <span className="mdp-crew-item">
+                      WRT <b>{writers.map((w) => w.name).join(", ")}</b>
+                    </span>
+                  )}
                 </div>
               )}
 
-              <p className="mdp-overview">{movie.overview || "No overview available."}</p>
+              <p className="mdp-overview">
+                {movie.overview || "No overview available."}
+              </p>
 
               <div className="mdp-actions">
                 <div className="mdp-actions-top-row">
-                  <button className="mdp-btn-watch" onClick={() => setShowWatchModal(true)}>
-                    <span className="mdp-btn-watch-icon"><BsFillPlayFill /></span>
+                  <button
+                    className="mdp-btn-watch"
+                    onClick={() => setShowWatchModal(true)}
+                  >
+                    <span className="mdp-btn-watch-icon">
+                      <BsFillPlayFill />
+                    </span>
                     Watch Now
                   </button>
-                  <button className="mdp-btn-trailer" onClick={handleWatchMainTrailerClick}>
+                  <button
+                    className="mdp-btn-trailer"
+                    onClick={handleWatchMainTrailerClick}
+                  >
                     <BsFilm /> Trailer
                   </button>
                 </div>
-                <button className={`mdp-btn-wl${isInWatchlist ? " on" : ""}`} onClick={() => handleWatchlistToggle(movie)}>
-                  {isInWatchlist ? <><BsCheck2 /> Saved</> : <><BsBookmark /> Add to Watchlist</>}
+                <button
+                  className={`mdp-btn-wl${isInWatchlist ? " on" : ""}`}
+                  onClick={() => handleWatchlistToggle(movie)}
+                >
+                  {isInWatchlist ? (
+                    <>
+                      <BsCheck2 /> Saved
+                    </>
+                  ) : (
+                    <>
+                      <BsBookmark /> Add to Watchlist
+                    </>
+                  )}
                 </button>
               </div>
             </div>
@@ -494,14 +622,20 @@ const MovieDetailPage = () => {
               {mainCast.map((actor) => (
                 <div key={actor.cast_id || actor.id} className="mdp-cast-item">
                   <img
-                    src={actor.profile_path ? `https://image.tmdb.org/t/p/w185${actor.profile_path}` : "https://placehold.co/110x165/13131a/333?text=?"}
+                    src={
+                      actor.profile_path
+                        ? `https://image.tmdb.org/t/p/w185${actor.profile_path}`
+                        : "https://placehold.co/110x165/13131a/333?text=?"
+                    }
                     alt={actor.name}
                     className="mdp-cast-photo"
                     loading="lazy"
                   />
                   <div className="mdp-cast-info">
                     <p className="mdp-cast-name">{actor.name}</p>
-                    <p className="mdp-cast-char">{actor.character || actor.job}</p>
+                    <p className="mdp-cast-char">
+                      {actor.character || actor.job}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -527,7 +661,9 @@ const MovieDetailPage = () => {
           </div>
           {visibleRelatedCount < relatedMovies.length && (
             <div className="mdp-load-more-wrap">
-              <button className="mdp-load-more" onClick={handleLoadMore}>Load More</button>
+              <button className="mdp-load-more" onClick={handleLoadMore}>
+                Load More
+              </button>
             </div>
           )}
         </div>
@@ -535,7 +671,10 @@ const MovieDetailPage = () => {
 
       <VideoModal
         show={showVideoModal}
-        handleClose={() => { setShowVideoModal(false); setVideoKey(null); }}
+        handleClose={() => {
+          setShowVideoModal(false);
+          setVideoKey(null);
+        }}
         videoKey={videoKey}
       />
       <WatchMovieModal

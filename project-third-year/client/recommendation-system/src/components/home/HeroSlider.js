@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Autoplay, EffectFade } from "swiper/modules";
 import WatchMovieModal from "../movie/WatchMovieModal";
+import { toMovieSlug } from "../../utils/movieSlug";
 
 import "swiper/css";
 import "swiper/css/pagination";
@@ -54,7 +55,7 @@ const HeroSlider = ({
 
   const handleInfoClick = useCallback(() => {
     const movie = getCurrentMovie();
-    if (movie) navigate(`/movie/${movie.id}`);
+    if (movie) navigate(`/movie/${toMovieSlug(movie)}`);
   }, [getCurrentMovie, navigate]);
 
   const closeWatchModal = useCallback(() => {
@@ -81,7 +82,6 @@ const HeroSlider = ({
         autoplay={{ delay: 6000, disableOnInteraction: false }}
       >
         {sliderMovies.map((movie, index) => {
-          
           const isInWatchlist = watchlist.includes(movie.id);
           const rating = movie.vote_average
             ? movie.vote_average.toFixed(1)

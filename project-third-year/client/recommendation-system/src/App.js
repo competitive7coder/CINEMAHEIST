@@ -138,7 +138,7 @@ function App() {
               >
                 <Route path="/home" element={<HomePage />} />
                 <Route path="/genre/:genreId" element={<GenrePage />} />
-                <Route path="/movie/:movieId" element={<MovieDetailPage />} />
+                <Route path="/movie/:slug" element={<MovieDetailPage />} />
                 <Route path="/search" element={<SearchPage />} />
                 <Route path="/contact" element={<ContactUs />} />
                 <Route path="/about" element={<AboutUs />} />

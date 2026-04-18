@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import WatchMovieModal from "./WatchMovieModal";
+import { toMovieSlug } from "../../utils/movieSlug";
+
 
 if (typeof document !== "undefined" && !document.getElementById("mc-styles")) {
   const tag = document.createElement("style");
@@ -222,7 +224,7 @@ const MovieCard = ({
 
   return (
     <>
-      <div className="mc" onClick={() => navigate(`/movie/${movie.id}`)}>
+      <div className="mc" onClick={() => navigate(`/movie/${toMovieSlug(movie)}`)}>
         <img
           src={`https://image.tmdb.org/t/p/w185${movie.poster_path}`}
           srcSet={`

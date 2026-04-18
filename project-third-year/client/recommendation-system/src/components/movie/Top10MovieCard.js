@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import WatchMovieModal from "./WatchMovieModal";
+import { toMovieSlug } from "../../utils/movieSlug";
 
 if (
   typeof document !== "undefined" &&
@@ -184,7 +185,7 @@ const Top10MovieCard = ({
 
   return (
     <>
-      <div className="t10-card" onClick={() => navigate(`/movie/${movie.id}`)}>
+      <div className="t10-card" onClick={() =>navigate(`/movie/${toMovieSlug(movie)}`)}>
         <img
           src={`https://image.tmdb.org/t/p/w185${movie.poster_path}`}
           srcSet={`

@@ -488,3 +488,28 @@ async def stream_homepage_sections():
         yield 'data: {"done": true}\n\n'
 
     return StreamingResponse(stream_live(), media_type="text/event-stream")
+
+
+
+@router.get("/by-slug/{slug}")
+async def get_movie_by_slug(slug: str):
+    # slug = "the-shawshank-redemption-1994"
+    # extract year from end
+    parts = slug.rsplit("-", 1)
+    if len(parts) != 2 or not parts[1].isdigit():
+        raise HTTPException(status_code=400, detail="Invalid slug")
+    
+    title = parts[0].replace("-", " ")
+    year  = parts[1]
+
+    data = await fetch_tmdb("/search/movie", {
+        "query": title,
+        "year": year,
+        "language": "en-US",
+    })
+
+    results = data.get("results", [])
+    if not results:
+        raise HTTPException(status_code=404, detail="Movie not found")
+
+    return {"id": results[0]["id"]}

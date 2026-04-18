@@ -153,10 +153,12 @@ async def lifespan(app: FastAPI):
         # Ping MongoDB every 4 minutes — prevents Atlas free tier idle timeout
         import asyncio as _asyncio
         from app.models.user import User as _User
+        from app.cache.redis import set_cache      
         while True:
             try:
                 await _asyncio.sleep(240)
                 await _User.find_one()
+                await set_cache("keepalive", "1", 300)
             except Exception:
                 pass
 

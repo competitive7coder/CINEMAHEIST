@@ -158,6 +158,7 @@ async def lifespan(app: FastAPI):
             try:
                 await _asyncio.sleep(240)
                 await _User.find_one()
+                # Pings Redis (Upstash) too — keeps connection alive 
                 await set_cache("keepalive", "1", 300)
             except Exception:
                 pass

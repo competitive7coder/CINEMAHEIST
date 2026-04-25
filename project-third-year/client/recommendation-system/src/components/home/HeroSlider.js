@@ -10,9 +10,9 @@ import "swiper/css/pagination";
 import "swiper/css/effect-fade";
 
 const TMDB = "https://image.tmdb.org/t/p";
-const getDesktopSrc = (movie) => `${TMDB}/w1280${movie.backdrop_path}`;
+const getDesktopSrc   = (movie) => `${TMDB}/w1280${movie.backdrop_path}`;
 const getDesktopSrcSm = (movie) => `${TMDB}/w780${movie.backdrop_path}`;
-const getMobileSrc = (movie) => `${TMDB}/w342${movie.poster_path}`;
+const getMobileSrc    = (movie) => `${TMDB}/w342${movie.poster_path}`;
 
 const HeroSlider = ({
   movies,
@@ -20,47 +20,29 @@ const HeroSlider = ({
   onWatchTrailerClick,
   onAddToWatchlist,
 }) => {
-  const navigate = useNavigate();
-  const swiperRef = useRef(null);
+  const navigate   = useNavigate();
+  const swiperRef  = useRef(null);
 
   const [activeIndex, setActiveIndex] = useState(0);
-  const [watchModal, setWatchModal] = useState({
-    show: false,
-    tmdbId: null,
-    title: "",
-  });
+  const [animKey, setAnimKey]         = useState(0); 
+  const [watchModal, setWatchModal]   = useState({ show: false, tmdbId: null, title: "" });
 
   const sliderMovies = movies.slice(0, 10);
 
   const handleSlideChange = useCallback((swiper) => {
     setActiveIndex(swiper.realIndex);
+    setAnimKey((k) => k + 1); 
   }, []);
 
-  // Always reads live from swiper ref — no stale closure
   const getCurrentMovie = useCallback(() => {
     const realIndex = swiperRef.current?.realIndex ?? 0;
     return sliderMovies[realIndex] ?? sliderMovies[0];
   }, [sliderMovies]);
 
-  const handleTrailerClick = useCallback(() => {
-    const movie = getCurrentMovie();
-    if (movie) onWatchTrailerClick(movie);
-  }, [getCurrentMovie, onWatchTrailerClick]);
-
-  const handleWatchNowClick = useCallback(() => {
-    const movie = getCurrentMovie();
-    if (movie)
-      setWatchModal({ show: true, tmdbId: movie.id, title: movie.title });
-  }, [getCurrentMovie]);
-
-  const handleInfoClick = useCallback(() => {
-    const movie = getCurrentMovie();
-    if (movie) navigate(`/movie/${toMovieSlug(movie)}`);
-  }, [getCurrentMovie, navigate]);
-
-  const closeWatchModal = useCallback(() => {
-    setWatchModal({ show: false, tmdbId: null, title: "" });
-  }, []);
+  const handleTrailerClick   = useCallback(() => { const m = getCurrentMovie(); if (m) onWatchTrailerClick(m); }, [getCurrentMovie, onWatchTrailerClick]);
+  const handleWatchNowClick  = useCallback(() => { const m = getCurrentMovie(); if (m) setWatchModal({ show: true, tmdbId: m.id, title: m.title }); }, [getCurrentMovie]);
+  const handleInfoClick      = useCallback(() => { const m = getCurrentMovie(); if (m) navigate(`/movie/${toMovieSlug(m)}`); }, [getCurrentMovie, navigate]);
+  const closeWatchModal      = useCallback(() => setWatchModal({ show: false, tmdbId: null, title: "" }), []);
 
   return (
     <div className="hero-slider">
@@ -75,39 +57,22 @@ const HeroSlider = ({
         loop={false}
         effect="fade"
         fadeEffect={{ crossFade: true }}
-        onSwiper={(swiper) => {
-          swiperRef.current = swiper;
-        }}
+        onSwiper={(swiper) => { swiperRef.current = swiper; }}
         onSlideChange={handleSlideChange}
         autoplay={{ delay: 6000, disableOnInteraction: false }}
       >
         {sliderMovies.map((movie, index) => {
           const isInWatchlist = watchlist.includes(movie.id);
-          const rating = movie.vote_average
-            ? movie.vote_average.toFixed(1)
-            : null;
-          const year = movie.release_date
-            ? movie.release_date.slice(0, 4)
-            : null;
+          const rating = movie.vote_average ? movie.vote_average.toFixed(1) : null;
+          const year   = movie.release_date ? movie.release_date.slice(0, 4) : null;
 
           return (
-            <SwiperSlide
-              key={movie.id}
-              style={{ height: "100%", position: "relative" }}
-            >
+            <SwiperSlide key={movie.id} style={{ height: "100%", position: "relative" }}>
               <div className="hero-slide-inner">
                 <div className="hero-bg-wrap">
                   <picture>
-                    <source
-                      media="(max-width: 480px)"
-                      srcSet={getMobileSrc(movie)}
-                      type="image/jpeg"
-                    />
-                    <source
-                      media="(max-width: 1024px)"
-                      srcSet={getDesktopSrcSm(movie)}
-                      type="image/jpeg"
-                    />
+                    <source media="(max-width: 480px)"  srcSet={getMobileSrc(movie)}    type="image/jpeg" />
+                    <source media="(max-width: 1024px)" srcSet={getDesktopSrcSm(movie)} type="image/jpeg" />
                     <img
                       className="hero-bg-img"
                       src={getDesktopSrc(movie)}
@@ -122,42 +87,34 @@ const HeroSlider = ({
                 <div className="hero-overlay-main" />
                 <div className="hero-overlay-accent" />
 
-                <div className="hero-content">
-                  <div className="hero-meta">
-                    <span className="hero-badge hero-badge-new">
-                      ✦ Trending
-                    </span>
-                    {rating && (
-                      <span className="hero-badge hero-badge-rating">
-                        ★ {rating}
-                      </span>
-                    )}
-                    {year && (
-                      <span className="hero-badge hero-badge-year">{year}</span>
-                    )}
+                {/* key=animKey forces remount → CSS animation replays on every slide */}
+                <div className="hero-content" key={animKey}>
+                  <div className="hero-meta hero-anim-item" style={{ "--delay": "0ms" }}>
+                    <span className="hero-badge hero-badge-new">✦ Trending</span>
+                    {rating && <span className="hero-badge hero-badge-rating">★ {rating}</span>}
+                    {year   && <span className="hero-badge hero-badge-year">{year}</span>}
                   </div>
 
-                  <h1 className="hero-title">{movie.title}</h1>
-                  <div className="hero-title-accent" />
+                  <h1 className="hero-title hero-anim-item" style={{ "--delay": "80ms" }}>
+                    {movie.title}
+                  </h1>
+
+                  <div className="hero-title-accent hero-anim-item" style={{ "--delay": "160ms" }} />
 
                   {movie.overview && (
-                    <p className="hero-overview">{movie.overview}</p>
+                    <p className="hero-overview hero-anim-item" style={{ "--delay": "220ms" }}>
+                      {movie.overview}
+                    </p>
                   )}
 
-                  <div className="hero-buttons">
-                    <button
-                      className="hero-btn hero-btn-watchnow"
-                      onClick={handleWatchNowClick}
-                    >
+                  <div className="hero-buttons hero-anim-item" style={{ "--delay": "300ms" }}>
+                    <button className="hero-btn hero-btn-watchnow" onClick={handleWatchNowClick}>
                       <span className="play-icon">▶</span>
                       Watch Now
                     </button>
 
                     <div className="hero-secondary-actions">
-                      <button
-                        className="hero-action-btn"
-                        onClick={handleTrailerClick}
-                      >
+                      <button className="hero-action-btn" onClick={handleTrailerClick}>
                         <span className="hero-action-icon">🎬</span>
                         <span className="hero-action-label">Trailer</span>
                       </button>
@@ -168,28 +125,19 @@ const HeroSlider = ({
                         className={`hero-action-btn ${isInWatchlist ? "hero-action-saved" : ""}`}
                         onClick={() => onAddToWatchlist(movie)}
                       >
-                        <span className="hero-action-icon">
-                          {isInWatchlist ? "✓" : "+"}
-                        </span>
-                        <span className="hero-action-label">
-                          {isInWatchlist ? "Saved" : "My List"}
-                        </span>
+                        <span className="hero-action-icon">{isInWatchlist ? "✓" : "+"}</span>
+                        <span className="hero-action-label">{isInWatchlist ? "Saved" : "My List"}</span>
                       </button>
 
                       <div className="hero-action-divider" />
 
-                      <button
-                        className="hero-action-btn"
-                        onClick={handleInfoClick}
-                      >
+                      <button className="hero-action-btn" onClick={handleInfoClick}>
                         <span className="hero-action-icon">ℹ</span>
                         <span className="hero-action-label">Info</span>
                       </button>
                     </div>
 
-                    <button className="hero-btn-info" onClick={handleInfoClick}>
-                      More Info ›
-                    </button>
+                    <button className="hero-btn-info" onClick={handleInfoClick}>More Info ›</button>
                   </div>
                 </div>
 
@@ -217,6 +165,27 @@ const HeroSlider = ({
 };
 
 const STYLES = `
+  /* ── slide-in animation ── */
+  @keyframes heroSlideInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-48px);
+      filter: blur(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+      filter: blur(0px);
+    }
+  }
+
+  .hero-anim-item {
+    opacity: 0;
+    animation: heroSlideInLeft 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: var(--delay, 0ms);
+  }
+
+  /* ── rest of styles (unchanged) ── */
   .hero-slider {
     height: 100vh;
     min-height: 520px;
@@ -250,9 +219,7 @@ const STYLES = `
   }
 
   @media (min-width: 769px) {
-    .hero-bg-wrap {
-      animation: heroKenBurns 20s ease-in-out infinite alternate;
-    }
+    .hero-bg-wrap { animation: heroKenBurns 20s ease-in-out infinite alternate; }
   }
 
   @keyframes heroKenBurns {
@@ -261,47 +228,25 @@ const STYLES = `
   }
 
   .hero-bg-img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
     object-fit: cover;
     object-position: center center;
     display: block;
   }
 
   .hero-overlay-main {
-    position: absolute;
-    inset: 0;
+    position: absolute; inset: 0;
     background:
-      linear-gradient(to top,
-        rgba(4,4,4,1)    0%,
-        rgba(4,4,4,0.85) 20%,
-        rgba(4,4,4,0.4)  45%,
-        rgba(4,4,4,0.08) 70%,
-        rgba(4,4,4,0.0)  100%
-      ),
-      linear-gradient(to bottom,
-        rgba(4,4,4,0.55) 0%,
-        rgba(4,4,4,0.0)  22%
-      ),
-      linear-gradient(to right,
-        rgba(4,4,4,0.85) 0%,
-        rgba(4,4,4,0.5)  30%,
-        rgba(4,4,4,0.1)  55%,
-        transparent      75%
-      );
+      linear-gradient(to top,    rgba(4,4,4,1) 0%, rgba(4,4,4,0.85) 20%, rgba(4,4,4,0.4) 45%, rgba(4,4,4,0.08) 70%, rgba(4,4,4,0.0) 100%),
+      linear-gradient(to bottom, rgba(4,4,4,0.55) 0%, rgba(4,4,4,0.0) 22%),
+      linear-gradient(to right,  rgba(4,4,4,0.85) 0%, rgba(4,4,4,0.5) 30%, rgba(4,4,4,0.1) 55%, transparent 75%);
     z-index: 1;
   }
 
   .hero-overlay-accent {
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(
-      ellipse 80% 60% at 10% 100%,
-      rgba(200,0,0,0.07) 0%,
-      transparent 60%
-    );
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 10% 100%, rgba(200,0,0,0.07) 0%, transparent 60%);
     z-index: 2;
     pointer-events: none;
   }
@@ -313,12 +258,6 @@ const STYLES = `
     max-width: 560px;
     width: 100%;
     align-self: flex-end;
-    animation: heroFadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-
-  @keyframes heroFadeUp {
-    from { opacity: 0; transform: translateY(24px); }
-    to   { opacity: 1; transform: translateY(0); }
   }
 
   .hero-meta {
@@ -358,8 +297,7 @@ const STYLES = `
 
   .hero-title-accent {
     display: block;
-    width: 50px;
-    height: 3px;
+    width: 50px; height: 3px;
     background: linear-gradient(to right, #ff0000, transparent);
     border-radius: 2px;
     margin: 10px 0 14px;
@@ -445,29 +383,14 @@ const STYLES = `
     font-family: 'DM Sans', sans-serif;
     border-radius: 40px;
   }
-  .hero-action-btn:hover {
-    color: #fff;
-    background: rgba(255,255,255,0.1);
-  }
+  .hero-action-btn:hover { color: #fff; background: rgba(255,255,255,0.1); }
   .hero-action-btn.hero-action-saved .hero-action-icon,
-  .hero-action-btn.hero-action-saved .hero-action-label {
-    color: #4ade80;
-  }
+  .hero-action-btn.hero-action-saved .hero-action-label { color: #4ade80; }
 
   .hero-action-icon  { font-size: 1rem; line-height: 1; }
-  .hero-action-label {
-    font-size: 0.6rem;
-    font-weight: 700;
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-  }
+  .hero-action-label { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; }
 
-  .hero-action-divider {
-    width: 1px;
-    height: 28px;
-    background: rgba(255,255,255,0.1);
-    flex-shrink: 0;
-  }
+  .hero-action-divider { width: 1px; height: 28px; background: rgba(255,255,255,0.1); flex-shrink: 0; }
 
   .hero-btn-info {
     background: transparent;
@@ -543,53 +466,23 @@ const STYLES = `
 
   @media (max-width: 480px) {
     .hero-slider { height: 100svh; min-height: 100svh; }
-    .hero-bg-img {
-      object-fit: contain;
-      object-position: top center;
-      background-color: #040404;
-    }
+    .hero-bg-img { object-fit: contain; object-position: top center; background-color: #040404; }
     .hero-slide-inner { position: absolute; inset: 0; align-items: flex-end; }
     .hero-overlay-main {
       background:
-        linear-gradient(to top,
-          rgba(4,4,4,1)    0%,
-          rgba(4,4,4,1)    30%,
-          rgba(4,4,4,0.7)  52%,
-          rgba(4,4,4,0.15) 72%,
-          rgba(4,4,4,0.0)  100%
-        ),
-        linear-gradient(to bottom,
-          rgba(4,4,4,0.6)  0%,
-          transparent      22%
-        );
+        linear-gradient(to top, rgba(4,4,4,1) 0%, rgba(4,4,4,1) 30%, rgba(4,4,4,0.7) 52%, rgba(4,4,4,0.15) 72%, rgba(4,4,4,0.0) 100%),
+        linear-gradient(to bottom, rgba(4,4,4,0.6) 0%, transparent 22%);
     }
     .hero-content { padding: 0 1.2rem 2.5rem; width: 100%; }
     .hero-meta { gap: 6px; margin-bottom: 10px; flex-wrap: nowrap; }
     .hero-badge { font-size: 0.56rem; padding: 3px 8px; letter-spacing: 0.8px; }
-    .hero-title {
-      font-size: clamp(1.75rem, 9vw, 2.4rem);
-      line-height: 1.05;
-      letter-spacing: 1px;
-      margin-bottom: 4px;
-    }
+    .hero-title { font-size: clamp(1.75rem, 9vw, 2.4rem); line-height: 1.05; letter-spacing: 1px; margin-bottom: 4px; }
     .hero-title-accent { width: 34px; height: 2px; margin: 7px 0 14px; }
     .hero-overview { display: none; }
     .hero-buttons { flex-direction: column; align-items: stretch; gap: 9px; width: 100%; }
-    .hero-btn-watchnow {
-      width: 100%;
-      justify-content: center;
-      padding: 16px;
-      font-size: 0.95rem;
-      border-radius: 50px;
-      letter-spacing: 0.5px;
-    }
+    .hero-btn-watchnow { width: 100%; justify-content: center; padding: 16px; font-size: 0.95rem; border-radius: 50px; letter-spacing: 0.5px; }
     .hero-btn-watchnow .play-icon { display: flex; width: 22px; height: 22px; font-size: 9px; }
-    .hero-secondary-actions {
-      width: 100%;
-      justify-content: space-around;
-      border-radius: 50px;
-      padding: 5px;
-    }
+    .hero-secondary-actions { width: 100%; justify-content: space-around; border-radius: 50px; padding: 5px; }
     .hero-action-btn { flex: 1; padding: 10px 4px; gap: 5px; }
     .hero-action-icon { font-size: 1.1rem; }
     .hero-action-label { font-size: 0.58rem; letter-spacing: 0.5px; }

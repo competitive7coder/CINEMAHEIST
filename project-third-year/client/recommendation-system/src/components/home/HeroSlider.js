@@ -24,14 +24,14 @@ const HeroSlider = ({
   const swiperRef  = useRef(null);
 
   const [activeIndex, setActiveIndex] = useState(0);
-  const [animKey, setAnimKey]         = useState(0); 
+  const [animKey, setAnimKey]         = useState(0);
   const [watchModal, setWatchModal]   = useState({ show: false, tmdbId: null, title: "" });
 
   const sliderMovies = movies.slice(0, 10);
 
   const handleSlideChange = useCallback((swiper) => {
     setActiveIndex(swiper.realIndex);
-    setAnimKey((k) => k + 1); 
+    setAnimKey((k) => k + 1);
   }, []);
 
   const getCurrentMovie = useCallback(() => {
@@ -89,25 +89,30 @@ const HeroSlider = ({
 
                 {/* key=animKey forces remount → CSS animation replays on every slide */}
                 <div className="hero-content" key={animKey}>
-                  <div className="hero-meta hero-anim-item" style={{ "--delay": "0ms" }}>
+                  {/* Badges: slide in from TOP */}
+                  <div className="hero-meta hero-anim-from-top" style={{ "--delay": "0ms" }}>
                     <span className="hero-badge hero-badge-new">✦ Trending</span>
                     {rating && <span className="hero-badge hero-badge-rating">★ {rating}</span>}
                     {year   && <span className="hero-badge hero-badge-year">{year}</span>}
                   </div>
 
-                  <h1 className="hero-title hero-anim-item" style={{ "--delay": "80ms" }}>
+                  {/* Title: slide in from LEFT */}
+                  <h1 className="hero-title hero-anim-from-left" style={{ "--delay": "120ms" }}>
                     {movie.title}
                   </h1>
 
-                  <div className="hero-title-accent hero-anim-item" style={{ "--delay": "160ms" }} />
+                  {/* Accent line: slide in from LEFT */}
+                  <div className="hero-title-accent hero-anim-from-left" style={{ "--delay": "240ms" }} />
 
+                  {/* Overview: slide in from LEFT */}
                   {movie.overview && (
-                    <p className="hero-overview hero-anim-item" style={{ "--delay": "220ms" }}>
+                    <p className="hero-overview hero-anim-from-left" style={{ "--delay": "340ms" }}>
                       {movie.overview}
                     </p>
                   )}
 
-                  <div className="hero-buttons hero-anim-item" style={{ "--delay": "300ms" }}>
+                  {/* Buttons: slide in from BOTTOM */}
+                  <div className="hero-buttons hero-anim-from-bottom" style={{ "--delay": "460ms" }}>
                     <button className="hero-btn hero-btn-watchnow" onClick={handleWatchNowClick}>
                       <span className="play-icon">▶</span>
                       Watch Now
@@ -165,25 +170,36 @@ const HeroSlider = ({
 };
 
 const STYLES = `
-  /* ── slide-in animation ── */
-  @keyframes heroSlideInLeft {
-    from {
-      opacity: 0;
-      transform: translateX(-48px);
-      filter: blur(4px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-      filter: blur(0px);
-    }
+  /* ── directional animations (transform+opacity only — no blur, no crashes) ── */
+  @keyframes heroFromTop {
+    from { opacity: 0; transform: translateY(-28px); }
+    to   { opacity: 1; transform: translateY(0);     }
   }
 
-  .hero-anim-item {
+  @keyframes heroFromLeft {
+    from { opacity: 0; transform: translateX(-40px); }
+    to   { opacity: 1; transform: translateX(0);     }
+  }
+
+  @keyframes heroFromBottom {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0);    }
+  }
+
+  .hero-anim-from-top,
+  .hero-anim-from-left,
+  .hero-anim-from-bottom {
     opacity: 0;
-    animation: heroSlideInLeft 0.65s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    will-change: transform, opacity;
+    animation-duration: 0.9s;
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    animation-fill-mode: forwards;
     animation-delay: var(--delay, 0ms);
   }
+
+  .hero-anim-from-top    { animation-name: heroFromTop;    }
+  .hero-anim-from-left   { animation-name: heroFromLeft;   }
+  .hero-anim-from-bottom { animation-name: heroFromBottom; }
 
   /* ── rest of styles (unchanged) ── */
   .hero-slider {

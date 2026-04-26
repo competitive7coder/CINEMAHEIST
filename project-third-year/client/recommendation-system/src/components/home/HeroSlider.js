@@ -13,11 +13,11 @@ const getDesktopSrc   = (movie) => `${TMDB}/w1280${movie.backdrop_path}`;
 const getDesktopSrcSm = (movie) => `${TMDB}/w780${movie.backdrop_path}`;
 const getMobileSrc    = (movie) => `${TMDB}/w342${movie.poster_path}`;
 
-// Slide sweep duration 
+// Slide sweep duration — slow & cinematic
 const SLIDE_SPEED = 1100;
 
 // [badges, title, accent, overview, buttons]
-const STAGGER = [0, 160, 300, 440, 600];
+const STAGGER = [300, 520, 700, 880, 1100];
 
 const replayAnim = (el, delay) => {
   if (!el) return;
@@ -269,8 +269,8 @@ const STYLES = `
   .hero-anim-from-bottom {
     opacity: 0;
     will-change: transform, opacity;
-    animation-duration: 1.0s;
-    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    animation-duration: 1.2s;
+    animation-timing-function: cubic-bezier(0.12, 1, 0.2, 1);
     animation-fill-mode: forwards;
     animation-delay: var(--delay, 0ms);
   }

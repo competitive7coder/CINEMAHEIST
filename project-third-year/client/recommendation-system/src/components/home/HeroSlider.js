@@ -13,22 +13,23 @@ const getDesktopSrc   = (movie) => `${TMDB}/w1280${movie.backdrop_path}`;
 const getDesktopSrcSm = (movie) => `${TMDB}/w780${movie.backdrop_path}`;
 const getMobileSrc    = (movie) => `${TMDB}/w342${movie.poster_path}`;
 
-// Slide sweep duration — slow & cinematic
 const SLIDE_SPEED = 1100;
 
 // [badges, title, accent, overview, buttons]
-const STAGGER = [300, 520, 700, 880, 1100];
+const STAGGER = [40, 150, 250, 340, 450];
 
 const replayAnim = (el, delay) => {
   if (!el) return;
-  el.style.animation = "none";
-  el.style.opacity   = "0";
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      el.style.animation = "";
-      el.style.setProperty("--delay", `${delay}ms`);
-    });
-  });
+  const animClass = el.dataset.animClass;
+  if (!animClass) return;
+
+  el.classList.remove("hero-anim-from-top", "hero-anim-from-left", "hero-anim-from-bottom");
+  el.style.opacity = "0";
+
+  void el.offsetHeight;
+
+  el.style.setProperty("--delay", `${delay}ms`);
+  el.classList.add(animClass);
 };
 
 const HeroSlider = ({
@@ -55,19 +56,20 @@ const HeroSlider = ({
   const handleSlideChange = useCallback((swiper) => {
     clearTimeout(timerRef.current);
     const idx = swiper.realIndex;
-
     const refs = animRefsMap.current[idx] || [];
     refs.forEach((el) => {
       if (!el) return;
-      el.style.animation = "none";
-      el.style.opacity   = "0";
+      const animClass = el.dataset.animClass;
+      if (animClass) {
+        el.classList.remove("hero-anim-from-top", "hero-anim-from-left", "hero-anim-from-bottom");
+      }
+      el.style.opacity = "0";
     });
   }, []);
 
   const handleTransitionEnd = useCallback((swiper) => {
     const idx = swiper.realIndex;
     setActiveIndex(idx);
-
     clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
       const refs = animRefsMap.current[idx] || [];
@@ -75,7 +77,17 @@ const HeroSlider = ({
     }, 60);
   }, []);
 
-  const getCurrentMovie  = useCallback(() => {
+  const handleSwiper = useCallback((swiper) => {
+    swiperRef.current = swiper;
+    requestAnimationFrame(() => {
+      timerRef.current = setTimeout(() => {
+        const refs = animRefsMap.current[0] || [];
+        refs.forEach((el, i) => replayAnim(el, STAGGER[i]));
+      }, 100);
+    });
+  }, []);
+
+  const getCurrentMovie = useCallback(() => {
     const ri = swiperRef.current?.realIndex ?? 0;
     return sliderMovies[ri] ?? sliderMovies[0];
   }, [sliderMovies]);
@@ -95,9 +107,9 @@ const HeroSlider = ({
         spaceBetween={0}
         slidesPerView={1}
         pagination={{ clickable: true }}
-        loop={false}
+        loop={true}
         speed={SLIDE_SPEED}
-        onSwiper={(swiper) => { swiperRef.current = swiper; }}
+        onSwiper={handleSwiper}
         onSlideChange={handleSlideChange}
         onTransitionEnd={handleTransitionEnd}
         autoplay={{ delay: 5000, disableOnInteraction: false }}
@@ -131,9 +143,10 @@ const HeroSlider = ({
 
                 <div className="hero-content">
 
-                  {/* [0] Badges → from TOP */}
+                  {/* [0] Badges  from TOP */}
                   <div
                     ref={r(0)}
+                    data-anim-class="hero-anim-from-top"
                     className="hero-meta hero-anim-from-top"
                     style={{ "--delay": `${STAGGER[0]}ms` }}
                   >
@@ -142,36 +155,40 @@ const HeroSlider = ({
                     {year   && <span className="hero-badge hero-badge-year">{year}</span>}
                   </div>
 
-                  {/* [1] Title → RIGHT to LEFT */}
+                  {/* [1] Title  LEFT to RIGHT */}
                   <h1
                     ref={r(1)}
-                    className="hero-title hero-anim-from-right"
+                    data-anim-class="hero-anim-from-left"
+                    className="hero-title hero-anim-from-left"
                     style={{ "--delay": `${STAGGER[1]}ms` }}
                   >
                     {movie.title}
                   </h1>
 
-                  {/* [2] Accent → RIGHT to LEFT */}
+                  {/* [2] Accent  LEFT to RIGHT */}
                   <div
                     ref={r(2)}
-                    className="hero-title-accent hero-anim-from-right"
+                    data-anim-class="hero-anim-from-left"
+                    className="hero-title-accent hero-anim-from-left"
                     style={{ "--delay": `${STAGGER[2]}ms` }}
                   />
 
-                  {/* [3] Overview → RIGHT to LEFT */}
+                  {/* [3] Overview  LEFT to RIGHT */}
                   {movie.overview && (
                     <p
                       ref={r(3)}
-                      className="hero-overview hero-anim-from-right"
+                      data-anim-class="hero-anim-from-left"
+                      className="hero-overview hero-anim-from-left"
                       style={{ "--delay": `${STAGGER[3]}ms` }}
                     >
                       {movie.overview}
                     </p>
                   )}
 
-                  {/* [4] Buttons → from BOTTOM */}
+                  {/* [4] Buttons → BOTTOM to TOP */}
                   <div
                     ref={r(4)}
+                    data-anim-class="hero-anim-from-bottom"
                     className="hero-buttons hero-anim-from-bottom"
                     style={{ "--delay": `${STAGGER[4]}ms` }}
                   >
@@ -233,13 +250,12 @@ const HeroSlider = ({
 
 const STYLES = `
   /* ─────────────────────────────────────
-     SLIDE SWEEP: right → left
+     SLIDE SWEEP: right to left
   ───────────────────────────────────── */
   .hero-slider .swiper-wrapper {
     transition-timing-function: cubic-bezier(0.77, 0, 0.18, 1) !important;
   }
 
-  /* Each slide fills full height */
   .hero-slider .swiper-slide {
     height: 100% !important;
     width: 100% !important;
@@ -247,37 +263,58 @@ const STYLES = `
   }
 
   /* ─────────────────────────────────────
-     CONTENT ANIMATIONS — after slide lands
+     KEYFRAMES
   ───────────────────────────────────── */
   @keyframes heroFromTop {
-    from { opacity: 0; transform: translateY(-28px); }
-    to   { opacity: 1; transform: translateY(0);     }
+    0%   { opacity: 0;   transform: translateY(-40px); }
+    40%  { opacity: 0.4; transform: translateY(-18px); }
+    100% { opacity: 1;   transform: translateY(0);     }
   }
 
-  @keyframes heroFromRight {
-    from { opacity: 0; transform: translateX(56px); }
-    to   { opacity: 1; transform: translateX(0);    }
+  @keyframes heroFromLeft {
+    0%   { opacity: 0;   transform: translateX(-60px); }
+    30%  { opacity: 0.2; transform: translateX(-36px); }
+    100% { opacity: 1;   transform: translateX(0);     }
   }
 
   @keyframes heroFromBottom {
-    from { opacity: 0; transform: translateY(28px); }
-    to   { opacity: 1; transform: translateY(0);    }
+    0%   { opacity: 0;   transform: translateY(40px); }
+    40%  { opacity: 0.4; transform: translateY(18px); }
+    100% { opacity: 1;   transform: translateY(0);    }
   }
 
-  .hero-anim-from-top,
-  .hero-anim-from-right,
-  .hero-anim-from-bottom {
+  /* ─────────────────────────────────────
+     ANIMATION CLASSES
+  ───────────────────────────────────── */
+  .hero-anim-from-top {
     opacity: 0;
     will-change: transform, opacity;
-    animation-duration: 1.2s;
-    animation-timing-function: cubic-bezier(0.12, 1, 0.2, 1);
+    animation-name: heroFromTop;
+    animation-duration: 0.6s;
+    animation-timing-function: linear;
     animation-fill-mode: forwards;
     animation-delay: var(--delay, 0ms);
   }
 
-  .hero-anim-from-top    { animation-name: heroFromTop;    }
-  .hero-anim-from-right  { animation-name: heroFromRight;  }
-  .hero-anim-from-bottom { animation-name: heroFromBottom; }
+  .hero-anim-from-left {
+    opacity: 0;
+    will-change: transform, opacity;
+    animation-name: heroFromLeft;
+    animation-duration: 0.7s;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+    animation-delay: var(--delay, 0ms);
+  }
+
+  .hero-anim-from-bottom {
+    opacity: 0;
+    will-change: transform, opacity;
+    animation-name: heroFromBottom;
+    animation-duration: 0.6s;
+    animation-timing-function: linear;
+    animation-fill-mode: forwards;
+    animation-delay: var(--delay, 0ms);
+  }
 
   /* ─────────────────────────────────────
      BASE LAYOUT
@@ -386,9 +423,20 @@ const STYLES = `
     font-weight: 400;
     letter-spacing: 2px;
     line-height: 1.05;
-    color: #fff;
-    text-shadow: 0 2px 40px rgba(0,0,0,0.8);
     margin: 0 0 10px;
+    background: linear-gradient(
+      135deg,
+      #ff6ec7 0%,
+      #ff2d55 20%,
+      #ff9500 40%,
+      #ffffff 55%,
+      #00c8ff 75%,
+      #bf5af2 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 2px 20px rgba(255, 46, 85, 0.35));
   }
 
   .hero-title-accent {

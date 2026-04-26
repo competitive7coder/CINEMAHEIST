@@ -1,18 +1,35 @@
 import React, { useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, Autoplay, EffectFade } from "swiper/modules";
+import { Pagination, Autoplay } from "swiper/modules";
 import WatchMovieModal from "../movie/WatchMovieModal";
 import { toMovieSlug } from "../../utils/movieSlug";
 
 import "swiper/css";
 import "swiper/css/pagination";
-import "swiper/css/effect-fade";
 
 const TMDB = "https://image.tmdb.org/t/p";
 const getDesktopSrc   = (movie) => `${TMDB}/w1280${movie.backdrop_path}`;
 const getDesktopSrcSm = (movie) => `${TMDB}/w780${movie.backdrop_path}`;
 const getMobileSrc    = (movie) => `${TMDB}/w342${movie.poster_path}`;
+
+// Slide sweep duration 
+const SLIDE_SPEED = 1100;
+
+// [badges, title, accent, overview, buttons]
+const STAGGER = [0, 160, 300, 440, 600];
+
+const replayAnim = (el, delay) => {
+  if (!el) return;
+  el.style.animation = "none";
+  el.style.opacity   = "0";
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      el.style.animation = "";
+      el.style.setProperty("--delay", `${delay}ms`);
+    });
+  });
+};
 
 const HeroSlider = ({
   movies,
@@ -20,29 +37,53 @@ const HeroSlider = ({
   onWatchTrailerClick,
   onAddToWatchlist,
 }) => {
-  const navigate   = useNavigate();
-  const swiperRef  = useRef(null);
+  const navigate      = useNavigate();
+  const swiperRef     = useRef(null);
+  const animRefsMap   = useRef({});
+  const timerRef      = useRef(null);
 
   const [activeIndex, setActiveIndex] = useState(0);
-  const [animKey, setAnimKey]         = useState(0);
   const [watchModal, setWatchModal]   = useState({ show: false, tmdbId: null, title: "" });
 
   const sliderMovies = movies.slice(0, 10);
 
-  const handleSlideChange = useCallback((swiper) => {
-    setActiveIndex(swiper.realIndex);
-    setAnimKey((k) => k + 1);
+  const setAnimRef = useCallback((el, slideIndex, i) => {
+    if (!animRefsMap.current[slideIndex]) animRefsMap.current[slideIndex] = [];
+    animRefsMap.current[slideIndex][i] = el;
   }, []);
 
-  const getCurrentMovie = useCallback(() => {
-    const realIndex = swiperRef.current?.realIndex ?? 0;
-    return sliderMovies[realIndex] ?? sliderMovies[0];
+  const handleSlideChange = useCallback((swiper) => {
+    clearTimeout(timerRef.current);
+    const idx = swiper.realIndex;
+
+    const refs = animRefsMap.current[idx] || [];
+    refs.forEach((el) => {
+      if (!el) return;
+      el.style.animation = "none";
+      el.style.opacity   = "0";
+    });
+  }, []);
+
+  const handleTransitionEnd = useCallback((swiper) => {
+    const idx = swiper.realIndex;
+    setActiveIndex(idx);
+
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      const refs = animRefsMap.current[idx] || [];
+      refs.forEach((el, i) => replayAnim(el, STAGGER[i]));
+    }, 60);
+  }, []);
+
+  const getCurrentMovie  = useCallback(() => {
+    const ri = swiperRef.current?.realIndex ?? 0;
+    return sliderMovies[ri] ?? sliderMovies[0];
   }, [sliderMovies]);
 
-  const handleTrailerClick   = useCallback(() => { const m = getCurrentMovie(); if (m) onWatchTrailerClick(m); }, [getCurrentMovie, onWatchTrailerClick]);
-  const handleWatchNowClick  = useCallback(() => { const m = getCurrentMovie(); if (m) setWatchModal({ show: true, tmdbId: m.id, title: m.title }); }, [getCurrentMovie]);
-  const handleInfoClick      = useCallback(() => { const m = getCurrentMovie(); if (m) navigate(`/movie/${toMovieSlug(m)}`); }, [getCurrentMovie, navigate]);
-  const closeWatchModal      = useCallback(() => setWatchModal({ show: false, tmdbId: null, title: "" }), []);
+  const handleTrailerClick  = useCallback(() => { const m = getCurrentMovie(); if (m) onWatchTrailerClick(m); }, [getCurrentMovie, onWatchTrailerClick]);
+  const handleWatchNowClick = useCallback(() => { const m = getCurrentMovie(); if (m) setWatchModal({ show: true, tmdbId: m.id, title: m.title }); }, [getCurrentMovie]);
+  const handleInfoClick     = useCallback(() => { const m = getCurrentMovie(); if (m) navigate(`/movie/${toMovieSlug(m)}`); }, [getCurrentMovie, navigate]);
+  const closeWatchModal     = useCallback(() => setWatchModal({ show: false, tmdbId: null, title: "" }), []);
 
   return (
     <div className="hero-slider">
@@ -50,24 +91,25 @@ const HeroSlider = ({
 
       <Swiper
         style={{ height: "100%", width: "100%" }}
-        modules={[Pagination, Autoplay, EffectFade]}
+        modules={[Pagination, Autoplay]}
         spaceBetween={0}
         slidesPerView={1}
         pagination={{ clickable: true }}
         loop={false}
-        effect="fade"
-        fadeEffect={{ crossFade: true }}
+        speed={SLIDE_SPEED}
         onSwiper={(swiper) => { swiperRef.current = swiper; }}
         onSlideChange={handleSlideChange}
-        autoplay={{ delay: 6000, disableOnInteraction: false }}
+        onTransitionEnd={handleTransitionEnd}
+        autoplay={{ delay: 5000, disableOnInteraction: false }}
       >
-        {sliderMovies.map((movie, index) => {
+        {sliderMovies.map((movie, slideIndex) => {
           const isInWatchlist = watchlist.includes(movie.id);
           const rating = movie.vote_average ? movie.vote_average.toFixed(1) : null;
           const year   = movie.release_date ? movie.release_date.slice(0, 4) : null;
+          const r = (i) => (el) => setAnimRef(el, slideIndex, i);
 
           return (
-            <SwiperSlide key={movie.id} style={{ height: "100%", position: "relative" }}>
+            <SwiperSlide key={movie.id}>
               <div className="hero-slide-inner">
                 <div className="hero-bg-wrap">
                   <picture>
@@ -77,9 +119,9 @@ const HeroSlider = ({
                       className="hero-bg-img"
                       src={getDesktopSrc(movie)}
                       alt={movie.title}
-                      fetchPriority={index === 0 ? "high" : "low"}
-                      loading={index === 0 ? "eager" : "lazy"}
-                      decoding={index === 0 ? "sync" : "async"}
+                      fetchPriority={slideIndex === 0 ? "high" : "low"}
+                      loading={slideIndex === 0 ? "eager" : "lazy"}
+                      decoding={slideIndex === 0 ? "sync" : "async"}
                     />
                   </picture>
                 </div>
@@ -87,32 +129,52 @@ const HeroSlider = ({
                 <div className="hero-overlay-main" />
                 <div className="hero-overlay-accent" />
 
-                {/* key=animKey forces remount → CSS animation replays on every slide */}
-                <div className="hero-content" key={animKey}>
-                  {/* Badges: slide in from TOP */}
-                  <div className="hero-meta hero-anim-from-top" style={{ "--delay": "0ms" }}>
+                <div className="hero-content">
+
+                  {/* [0] Badges → from TOP */}
+                  <div
+                    ref={r(0)}
+                    className="hero-meta hero-anim-from-top"
+                    style={{ "--delay": `${STAGGER[0]}ms` }}
+                  >
                     <span className="hero-badge hero-badge-new">✦ Trending</span>
                     {rating && <span className="hero-badge hero-badge-rating">★ {rating}</span>}
                     {year   && <span className="hero-badge hero-badge-year">{year}</span>}
                   </div>
 
-                  {/* Title: slide in from LEFT */}
-                  <h1 className="hero-title hero-anim-from-left" style={{ "--delay": "120ms" }}>
+                  {/* [1] Title → RIGHT to LEFT */}
+                  <h1
+                    ref={r(1)}
+                    className="hero-title hero-anim-from-right"
+                    style={{ "--delay": `${STAGGER[1]}ms` }}
+                  >
                     {movie.title}
                   </h1>
 
-                  {/* Accent line: slide in from LEFT */}
-                  <div className="hero-title-accent hero-anim-from-left" style={{ "--delay": "240ms" }} />
+                  {/* [2] Accent → RIGHT to LEFT */}
+                  <div
+                    ref={r(2)}
+                    className="hero-title-accent hero-anim-from-right"
+                    style={{ "--delay": `${STAGGER[2]}ms` }}
+                  />
 
-                  {/* Overview: slide in from LEFT */}
+                  {/* [3] Overview → RIGHT to LEFT */}
                   {movie.overview && (
-                    <p className="hero-overview hero-anim-from-left" style={{ "--delay": "340ms" }}>
+                    <p
+                      ref={r(3)}
+                      className="hero-overview hero-anim-from-right"
+                      style={{ "--delay": `${STAGGER[3]}ms` }}
+                    >
                       {movie.overview}
                     </p>
                   )}
 
-                  {/* Buttons: slide in from BOTTOM */}
-                  <div className="hero-buttons hero-anim-from-bottom" style={{ "--delay": "460ms" }}>
+                  {/* [4] Buttons → from BOTTOM */}
+                  <div
+                    ref={r(4)}
+                    className="hero-buttons hero-anim-from-bottom"
+                    style={{ "--delay": `${STAGGER[4]}ms` }}
+                  >
                     <button className="hero-btn hero-btn-watchnow" onClick={handleWatchNowClick}>
                       <span className="play-icon">▶</span>
                       Watch Now
@@ -170,15 +232,31 @@ const HeroSlider = ({
 };
 
 const STYLES = `
-  /* ── directional animations (transform+opacity only — no blur, no crashes) ── */
+  /* ─────────────────────────────────────
+     SLIDE SWEEP: right → left
+  ───────────────────────────────────── */
+  .hero-slider .swiper-wrapper {
+    transition-timing-function: cubic-bezier(0.77, 0, 0.18, 1) !important;
+  }
+
+  /* Each slide fills full height */
+  .hero-slider .swiper-slide {
+    height: 100% !important;
+    width: 100% !important;
+    will-change: transform;
+  }
+
+  /* ─────────────────────────────────────
+     CONTENT ANIMATIONS — after slide lands
+  ───────────────────────────────────── */
   @keyframes heroFromTop {
     from { opacity: 0; transform: translateY(-28px); }
     to   { opacity: 1; transform: translateY(0);     }
   }
 
-  @keyframes heroFromLeft {
-    from { opacity: 0; transform: translateX(-40px); }
-    to   { opacity: 1; transform: translateX(0);     }
+  @keyframes heroFromRight {
+    from { opacity: 0; transform: translateX(56px); }
+    to   { opacity: 1; transform: translateX(0);    }
   }
 
   @keyframes heroFromBottom {
@@ -187,21 +265,23 @@ const STYLES = `
   }
 
   .hero-anim-from-top,
-  .hero-anim-from-left,
+  .hero-anim-from-right,
   .hero-anim-from-bottom {
     opacity: 0;
     will-change: transform, opacity;
-    animation-duration: 0.9s;
+    animation-duration: 1.0s;
     animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
     animation-fill-mode: forwards;
     animation-delay: var(--delay, 0ms);
   }
 
   .hero-anim-from-top    { animation-name: heroFromTop;    }
-  .hero-anim-from-left   { animation-name: heroFromLeft;   }
+  .hero-anim-from-right  { animation-name: heroFromRight;  }
   .hero-anim-from-bottom { animation-name: heroFromBottom; }
 
-  /* ── rest of styles (unchanged) ── */
+  /* ─────────────────────────────────────
+     BASE LAYOUT
+  ───────────────────────────────────── */
   .hero-slider {
     height: 100vh;
     min-height: 520px;
@@ -212,15 +292,15 @@ const STYLES = `
   }
 
   .hero-slider .swiper,
-  .hero-slider .swiper-wrapper,
-  .hero-slider .swiper-slide {
+  .hero-slider .swiper-wrapper {
     height: 100% !important;
     width: 100% !important;
   }
 
   .hero-slide-inner {
-    position: absolute;
-    inset: 0;
+    position: relative;
+    height: 100%;
+    width: 100%;
     overflow: hidden;
     display: flex;
     align-items: flex-end;
@@ -483,7 +563,7 @@ const STYLES = `
   @media (max-width: 480px) {
     .hero-slider { height: 100svh; min-height: 100svh; }
     .hero-bg-img { object-fit: contain; object-position: top center; background-color: #040404; }
-    .hero-slide-inner { position: absolute; inset: 0; align-items: flex-end; }
+    .hero-slide-inner { align-items: flex-end; }
     .hero-overlay-main {
       background:
         linear-gradient(to top, rgba(4,4,4,1) 0%, rgba(4,4,4,1) 30%, rgba(4,4,4,0.7) 52%, rgba(4,4,4,0.15) 72%, rgba(4,4,4,0.0) 100%),

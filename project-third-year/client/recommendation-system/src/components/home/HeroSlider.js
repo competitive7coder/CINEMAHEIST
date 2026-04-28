@@ -76,15 +76,22 @@ const HeroSlider = ({
     }, 60);
   }, []);
 
-  const handleSwiper = useCallback((swiper) => {
-    swiperRef.current = swiper;
-    requestAnimationFrame(() => {
-      timerRef.current = setTimeout(() => {
-        const refs = animRefsMap.current[0] || [];
-        refs.forEach((el, i) => replayAnim(el, STAGGER[i]));
-      }, 100);
-    });
-  }, []);
+ const handleSwiper = useCallback((swiper) => {
+  swiperRef.current = swiper;
+
+  requestAnimationFrame(() => {
+    timerRef.current = setTimeout(() => {
+      const realIndex = swiper.realIndex || 0;
+
+      const refs = animRefsMap.current[realIndex] || [];
+
+      refs.forEach((el, i) => {
+        if (!el) return;
+        replayAnim(el, STAGGER[i]);
+      });
+    }, 120);
+  });
+}, []);
 
   const getCurrentMovie = useCallback(() => {
     const ri = swiperRef.current?.realIndex ?? 0;

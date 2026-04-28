@@ -7,26 +7,26 @@
 ========================================================================
   Model                                      P@10     R@10   NDCG@10  vs Base
   --------------------------------------------------------------------
-  Random Baseline                          0.0071   0.0012    0.0068  -31.28%
-  Popularity-Based                         0.0000   0.0000    0.0000  -31.99%
-  TF-IDF Content Only                      0.0592   0.0184    0.0681  -26.06%
-  SVD Collaborative Only                   0.6057   0.2190    0.6631  +28.58%
-  Base Hybrid (TF-IDF + SVD)               0.3199   0.1319    0.3381 baseline
-  + OTT Signal Weighting (C2)              0.3199   0.1319    0.3381    0.00%
-  + Temporal Watchlist Decay (C1)          0.3195   0.1320    0.3378   -0.04%
-  Full System (C1 + C2) [OURS]             0.3195   0.1320    0.3378   -0.04% ◄ OURS
+  Random Baseline                          0.0063   0.0012    0.0064  -31.86%
+  Popularity-Based                         0.0000   0.0000    0.0000  -32.49%
+  TF-IDF Content Only                      0.0588   0.0184    0.0686  -26.61%
+  SVD Collaborative Only                   0.6086   0.2187    0.6679  +28.37%
+  Base Hybrid (TF-IDF + SVD)               0.3249   0.1329    0.3401 baseline
+  + OTT Signal Weighting (C2)              0.3249   0.1329    0.3401    0.00%
+  + Temporal Watchlist Decay (C1)          0.3241   0.1329    0.3394   -0.09%
+  Full System (C1 + C2) [OURS]             0.3241   0.1329    0.3394   -0.09% ◄ OURS
   --------------------------------------------------------------------
 
   KEY FINDINGS (copy into paper Section 7):
   --------------------------------------------------------------------
-  C1 Temporal Watchlist Decay : -0.04% Precision@10
+  C1 Temporal Watchlist Decay : -0.09% Precision@10
   C2 OTT Signal Weighting     : +0.00% Precision@10
-  Full System vs Base Hybrid  : -0.04% Precision@10
+  Full System vs Base Hybrid  : -0.09% Precision@10
 
   Full System:
-    Precision@10 = 0.3195
-    Recall@10    = 0.1320
-    NDCG@10      = 0.3378
+    Precision@10 = 0.3241
+    Recall@10    = 0.1329
+    NDCG@10      = 0.3394
 
   PAPER DISCLOSURE (add to Section 6):
   --------------------------------------------------------------------

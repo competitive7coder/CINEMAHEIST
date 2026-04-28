@@ -15,7 +15,6 @@ const getMobileSrc    = (movie) => `${TMDB}/w342${movie.poster_path}`;
 
 const SLIDE_SPEED = 1100;
 
-// [badges, title, accent, overview, buttons]
 const STAGGER = [40, 150, 250, 340, 450];
 
 const replayAnim = (el, delay) => {
@@ -185,7 +184,7 @@ const HeroSlider = ({
                     </p>
                   )}
 
-                  {/* [4] Buttons → BOTTOM to TOP */}
+                  {/* [4] Buttons  BOTTOM to TOP */}
                   <div
                     ref={r(4)}
                     data-anim-class="hero-anim-from-bottom"
@@ -644,5 +643,4 @@ const STYLES = `
     .hero-action-btn { padding: 9px 2px; }
   }
 `;
-
 export default HeroSlider;

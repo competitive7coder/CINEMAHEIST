@@ -52,19 +52,32 @@ const HeroSlider = ({
     animRefsMap.current[slideIndex][i] = el;
   }, []);
 
-  const handleSlideChange = useCallback((swiper) => {
-    clearTimeout(timerRef.current);
-    const idx = swiper.realIndex;
-    const refs = animRefsMap.current[idx] || [];
-    refs.forEach((el) => {
-      if (!el) return;
-      const animClass = el.dataset.animClass;
-      if (animClass) {
-        el.classList.remove("hero-anim-from-top", "hero-anim-from-left", "hero-anim-from-bottom");
-      }
-      el.style.opacity = "0";
-    });
-  }, []);
+ const handleSlideChange = useCallback((swiper) => {
+  // Skip reset on first mount
+  if (!swiper || swiper.destroyed) return;
+
+  if (swiper.previousIndex === undefined) return;
+
+  clearTimeout(timerRef.current);
+
+  const idx = swiper.realIndex;
+  const refs = animRefsMap.current[idx] || [];
+
+  refs.forEach((el) => {
+    if (!el) return;
+
+    const animClass = el.dataset.animClass;
+    if (animClass) {
+      el.classList.remove(
+        "hero-anim-from-top",
+        "hero-anim-from-left",
+        "hero-anim-from-bottom"
+      );
+    }
+
+    el.style.opacity = "0";
+  });
+}, []);
 
   const handleTransitionEnd = useCallback((swiper) => {
     const idx = swiper.realIndex;
@@ -76,21 +89,19 @@ const HeroSlider = ({
     }, 60);
   }, []);
 
- const handleSwiper = useCallback((swiper) => {
+const handleSwiper = useCallback((swiper) => {
   swiperRef.current = swiper;
 
-  requestAnimationFrame(() => {
-    timerRef.current = setTimeout(() => {
-      const realIndex = swiper.realIndex || 0;
+  //wait until loop clones + DOM ready
+  setTimeout(() => {
+    const idx = swiper.realIndex ?? 0;
+    const refs = animRefsMap.current[idx] || [];
 
-      const refs = animRefsMap.current[realIndex] || [];
-
-      refs.forEach((el, i) => {
-        if (!el) return;
-        replayAnim(el, STAGGER[i]);
-      });
-    }, 120);
-  });
+    refs.forEach((el, i) => {
+      if (!el) return;
+      replayAnim(el, STAGGER[i]);
+    });
+  }, 250); 
 }, []);
 
   const getCurrentMovie = useCallback(() => {

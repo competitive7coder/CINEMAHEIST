@@ -10,26 +10,25 @@ import api from "../services/api";
 import { toast } from "react-toastify";
 import HeroSlider from "../components/home/HeroSlider";
 
-const VideoModal   = lazy(() => import("../components/common/VideoModal"));
+const VideoModal = lazy(() => import("../components/common/VideoModal"));
 const Top10Section = lazy(() => import("../components/movie/Top10Section"));
-const MovieRow     = lazy(() => import("../components/movie/MovieRow"));
+const MovieRow = lazy(() => import("../components/movie/MovieRow"));
 
 const GENRE_ORDER = [
-  { id: 28,    name: "Action Packed" },
-  { id: 878,   name: "Science Fiction" },
+  { id: 28, name: "Action Packed" },
+  { id: 878, name: "Science Fiction" },
   { id: 10749, name: "Romantic Movies" },
-  { id: 53,    name: "Thriller Tales" },
-  { id: 12,    name: "Adventure" },
-  { id: 16,    name: "Animation" },
-  { id: 35,    name: "Comedy Movies" },
-  { id: 80,    name: "Crime" },
-  { id: 18,    name: "Drama" },
-  { id: 27,    name: "Horror Flicks" },
+  { id: 53, name: "Thriller Tales" },
+  { id: 12, name: "Adventure" },
+  { id: 16, name: "Animation" },
+  { id: 35, name: "Comedy Movies" },
+  { id: 80, name: "Crime" },
+  { id: 18, name: "Drama" },
+  { id: 27, name: "Horror Flicks" },
 ];
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL;
 
-// Safely extract an array from any API response shape
 const toArray = (data) => {
   if (Array.isArray(data)) return data;
   if (data && Array.isArray(data.results)) return data.results;
@@ -47,7 +46,14 @@ const skeletonStyle = (w, h) => ({
 
 const RowSkeleton = () => (
   <div style={{ marginBottom: "2.5rem" }}>
-    <div style={{ display: "flex", alignItems: "center", marginBottom: 14, gap: 12 }}>
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        marginBottom: 14,
+        gap: 12,
+      }}
+    >
       <div style={skeletonStyle(180, 20)} />
     </div>
     <div style={{ display: "flex", gap: 12, overflow: "hidden" }}>
@@ -68,19 +74,19 @@ const RowSkeleton = () => (
 
 const HomePage = () => {
   const [trendingMovies, setTrendingMovies] = useState([]);
-  const [heroReady, setHeroReady]           = useState(false);
-  const [top10Movies, setTop10Movies]       = useState([]);
-  const [newReleases, setNewReleases]       = useState([]);
-  const [watchlist, setWatchlist]           = useState([]);
-  const [moviesByGenre, setMoviesByGenre]   = useState({});
-  const [streamDone, setStreamDone]         = useState(false);
-  const [loadedCount, setLoadedCount]       = useState(0);
+  const [heroReady, setHeroReady] = useState(false);
+  const [top10Movies, setTop10Movies] = useState([]);
+  const [newReleases, setNewReleases] = useState([]);
+  const [watchlist, setWatchlist] = useState([]);
+  const [moviesByGenre, setMoviesByGenre] = useState({});
+  const [streamDone, setStreamDone] = useState(false);
+  const [loadedCount, setLoadedCount] = useState(0);
   const [showVideoModal, setShowVideoModal] = useState(false);
-  const [videoKey, setVideoKey]             = useState(null);
+  const [videoKey, setVideoKey] = useState(null);
 
   const esRef = useRef(null);
 
-  // ── Phase 1a: Hero ────────────────────────────────────────────────────────
+  // ── Phase 1a: Hero 
   useEffect(() => {
     let cancelled = false;
 
@@ -95,7 +101,7 @@ const HomePage = () => {
         }
 
         const prefetch = window.__trendingPrefetch;
-        const data     = prefetch ? await prefetch : null;
+        const data = prefetch ? await prefetch : null;
         if (cancelled) return;
 
         if (data?.results?.length) {
@@ -116,13 +122,15 @@ const HomePage = () => {
     };
 
     load();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  // ── Phase 1b: Secondary data ──────────────────────────────────────────────
+  // ── Phase 1b: Secondary data 
   useEffect(() => {
     let cancelled = false;
-    const token   = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
     Promise.all([
       api.get("/movies/top-rated-in"),
@@ -133,7 +141,7 @@ const HomePage = () => {
     ])
       .then(([top10Res, newRelRes, wlRes]) => {
         if (cancelled) return;
-        // Both endpoints return plain arrays (confirmed from API responses)
+        // Both endpoints return plain arrays 
         setTop10Movies(toArray(top10Res.data).slice(0, 10));
         setNewReleases(toArray(newRelRes.data));
         setWatchlist(toArray(wlRes.data));
@@ -144,14 +152,16 @@ const HomePage = () => {
         toast.error("Failed to load some content.");
       });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  // ── Phase 2: SSE genre rows ───────────────────────────────────────────────
+  // ── Phase 2: SSE genre rows
   useEffect(() => {
     if (!heroReady) return;
 
-    let es         = null;
+    let es = null;
     let timerFired = false;
 
     const openSSE = () => {
@@ -160,7 +170,9 @@ const HomePage = () => {
         esRef.current = null;
       }
 
-      es            = new EventSource(`${SOCKET_URL}/api/v1/movies/homepage-sections/stream`);
+      es = new EventSource(
+        `${SOCKET_URL}/api/v1/movies/homepage-sections/stream`,
+      );
       esRef.current = es;
 
       es.onmessage = (e) => {
@@ -175,7 +187,9 @@ const HomePage = () => {
           const movies = Array.isArray(data.movies) ? data.movies : [];
           setMoviesByGenre((prev) => ({ ...prev, [data.name]: movies }));
           setLoadedCount((prev) => prev + 1);
-        } catch { /* ignore malformed frames */ }
+        } catch {
+          /* ignore malformed frames */
+        }
       };
 
       es.onerror = () => {
@@ -200,7 +214,9 @@ const HomePage = () => {
           }
         });
         observer.observe({ type: "largest-contentful-paint", buffered: true });
-      } catch { /* unsupported — fallback timer handles it */ }
+      } catch {
+        
+      }
     }
 
     return () => {
@@ -213,23 +229,25 @@ const HomePage = () => {
     };
   }, [heroReady]);
 
-  // ── Activity log ──────────────────────────────────────────────────────────
+  // ── Activity log
   const logActivity = useCallback(async (movie, actionType) => {
     if (!movie) return;
     try {
       await api.post("/activity/log", {
-        action_type:       actionType,
-        movie_id:          movie.id,
-        movie_title:       movie.title || movie.name,
+        action_type: actionType,
+        movie_id: movie.id,
+        movie_title: movie.title || movie.name,
         movie_poster_path: movie.poster_path,
       });
-    } catch { /* non-critical */ }
+    } catch {
+      /* non-critical */
+    }
   }, []);
 
-  // ── Trailer ───────────────────────────────────────────────────────────────
+  // ── Trailer 
   const handleWatchTrailerClick = useCallback(
     async (movieOrId) => {
-      const movie   = typeof movieOrId === "object" ? movieOrId : null;
+      const movie = typeof movieOrId === "object" ? movieOrId : null;
       const movieId = movie ? movie.id : movieOrId;
       if (!movieId) return;
       if (movie) logActivity(movie, "trailer_watch");
@@ -238,10 +256,10 @@ const HomePage = () => {
       setVideoKey(null);
 
       try {
-        const res     = await api.get(`/movies/${movieId}/videos`);
+        const res = await api.get(`/movies/${movieId}/videos`);
         const trailer =
           res.data?.results?.find(
-            (v) => v.type === "Trailer" && v.site === "YouTube"
+            (v) => v.type === "Trailer" && v.site === "YouTube",
           ) || res.data;
         setVideoKey(trailer?.key || null);
       } catch {
@@ -250,10 +268,10 @@ const HomePage = () => {
 
       setShowVideoModal(true);
     },
-    [logActivity]
+    [logActivity],
   );
 
-  // ── Watchlist ─────────────────────────────────────────────────────────────
+  // ── Watchlist 
   const handleWatchlistToggle = useCallback(
     async (movie) => {
       const token = localStorage.getItem("token");
@@ -267,7 +285,7 @@ const HomePage = () => {
       const inList = watchlist.includes(movie.id);
 
       setWatchlist((prev) =>
-        inList ? prev.filter((id) => id !== movie.id) : [...prev, movie.id]
+        inList ? prev.filter((id) => id !== movie.id) : [...prev, movie.id],
       );
 
       try {
@@ -282,12 +300,12 @@ const HomePage = () => {
         }
       } catch {
         setWatchlist((prev) =>
-          inList ? [...prev, movie.id] : prev.filter((id) => id !== movie.id)
+          inList ? [...prev, movie.id] : prev.filter((id) => id !== movie.id),
         );
         toast.error("Could not update watchlist.");
       }
     },
-    [watchlist, logActivity]
+    [watchlist, logActivity],
   );
 
   const progressPct = streamDone
@@ -295,58 +313,112 @@ const HomePage = () => {
     : Math.round((loadedCount / GENRE_ORDER.length) * 100);
 
   return (
-    <div style={{ backgroundColor: "#000", minHeight: "100vh" }}>
+    <div className="home-page">
       <style>{`
-        @keyframes shimmer {
-          0%   { background-position: 100% 0; }
-          100% { background-position: -100% 0; }
-        }
-        .stream-progress {
-          position: fixed; top: 0; left: 0; right: 0; height: 3px;
-          background: rgba(255,255,255,0.05); z-index: 9999;
-        }
-        .stream-progress-bar {
-          height: 100%;
-          background: linear-gradient(90deg, #e50914, #ff6b35);
-          transition: width 0.35s ease;
-          border-radius: 0 2px 2px 0;
-        }
-        /* AFTER */
-.hero-wrapper {
-  position: relative;
-  height: 100vh;
-  min-height: 520px;
-  background: linear-gradient(90deg,#0e0e0e 25%,#1a1a1a 50%,#0e0e0e 75%);
-  background-size: 400% 100%;
-}
-.hero-wrapper.loading { animation: shimmer 1.5s infinite; }
+      @keyframes shimmer {
+        0%   { background-position: 100% 0; }
+        100% { background-position: -100% 0; }
+      }
 
-@media (max-width: 768px) {
-  .hero-wrapper { height: 70vh; min-height: 440px; }
+      /* HERO NORMAL  */
+      .hero-wrapper {
+        position: relative;
+        height: 100svh;
+        min-height: 520px;
+      }
+
+      .hero-wrapper .hero-inner {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        transition: opacity 0.4s ease;
+      }
+
+      .hero-wrapper.ready .hero-inner {
+        opacity: 1;
+      }
+
+      /* HERO BACKGROUND */
+      .fixed-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100svh;
+  z-index: 0;
+
+  background-image: url("https://i.pinimg.com/736x/08/c7/84/08c7841dfeec2437071c0a3b21aad528.jpg");
+  background-size: cover;
+  background-position: center;
+  background-attachment: scroll;
+
+  pointer-events: none;
+  will-change: transform;
 }
 
-@media (max-width: 480px) {
-  .hero-wrapper { height: 100svh; min-height: 100svh; }
+.fixed-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
 }
-        .hero-wrapper .hero-inner {
-          position: absolute;
-          inset: 0;
-          opacity: 0;
-          transition: opacity 0.4s ease;
-          pointer-events: none;
-        }
-        .hero-wrapper.ready .hero-inner {
-          opacity: 1;
-          pointer-events: auto;
-        }
-      `}</style>
 
+.fixed-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  pointer-events: none;
+}
+
+      /*  CONTENT SCROLLS ABOVE BG */
+      .content-wrapper {
+        position: relative;
+        z-index: 2;
+        background: transparent;
+      }
+
+      /* smooth transition after hero */
+      .content-wrapper::before {
+        content: "";
+        position: absolute;
+        top: -120px;
+        left: 0;
+        width: 100%;
+        height: 120px;
+       background: linear-gradient(
+  to top,
+  rgba(0,0,0,0.6),
+  transparent
+);
+        z-index: 2;
+      }
+
+      .stream-progress {
+        position: fixed; top: 0; left: 0; right: 0; height: 3px;
+        background: rgba(255,255,255,0.05); z-index: 9999;
+      }
+
+      .stream-progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, #e50914, #ff6b35);
+        transition: width 0.35s ease;
+      }
+    `}</style>
+
+      <div className="fixed-bg" />
+
+      {/* progress */}
       {!streamDone && (
         <div className="stream-progress">
-          <div className="stream-progress-bar" style={{ width: `${progressPct}%` }} />
+          <div
+            className="stream-progress-bar"
+            style={{ width: `${progressPct}%` }}
+          />
         </div>
       )}
 
+      {/* HERO */}
       <div className={`hero-wrapper ${heroReady ? "ready" : "loading"}`}>
         <div className="hero-inner">
           {trendingMovies.length > 0 && (
@@ -360,7 +432,8 @@ const HomePage = () => {
         </div>
       </div>
 
-      <div className="container-fluid pt-5">
+      {/*  CONTENT OVERLAY */}
+      <div className="content-wrapper container-fluid pt-5">
         {top10Movies.length > 0 && (
           <Suspense fallback={<RowSkeleton />}>
             <Top10Section
@@ -389,6 +462,7 @@ const HomePage = () => {
           const movies = moviesByGenre[genre.name];
           if (!movies) return <RowSkeleton key={genre.name} />;
           if (movies.length === 0) return null;
+
           return (
             <Suspense key={genre.name} fallback={<RowSkeleton />}>
               <MovieRow

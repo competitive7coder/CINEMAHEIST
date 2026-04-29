@@ -86,7 +86,7 @@ const HomePage = () => {
 
   const esRef = useRef(null);
 
-  // ── Phase 1a: Hero 
+  //Hero 
   useEffect(() => {
     let cancelled = false;
 
@@ -127,7 +127,7 @@ const HomePage = () => {
     };
   }, []);
 
-  // ── Phase 1b: Secondary data 
+  //  Secondary data 
   useEffect(() => {
     let cancelled = false;
     const token = localStorage.getItem("token");
@@ -157,7 +157,7 @@ const HomePage = () => {
     };
   }, []);
 
-  // ── Phase 2: SSE genre rows
+  //  SSE genre rows
   useEffect(() => {
     if (!heroReady) return;
 
@@ -229,7 +229,7 @@ const HomePage = () => {
     };
   }, [heroReady]);
 
-  // ── Activity log
+  // Activity log
   const logActivity = useCallback(async (movie, actionType) => {
     if (!movie) return;
     try {
@@ -244,7 +244,7 @@ const HomePage = () => {
     }
   }, []);
 
-  // ── Trailer 
+  //  Trailer 
   const handleWatchTrailerClick = useCallback(
     async (movieOrId) => {
       const movie = typeof movieOrId === "object" ? movieOrId : null;
@@ -271,7 +271,7 @@ const HomePage = () => {
     [logActivity],
   );
 
-  // ── Watchlist 
+  //  Watchlist 
   const handleWatchlistToggle = useCallback(
     async (movie) => {
       const token = localStorage.getItem("token");

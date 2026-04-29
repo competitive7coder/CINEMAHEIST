@@ -86,7 +86,7 @@ const HomePage = () => {
 
   const esRef = useRef(null);
 
-  //Hero 
+  //Hero
   useEffect(() => {
     let cancelled = false;
 
@@ -127,7 +127,7 @@ const HomePage = () => {
     };
   }, []);
 
-  //  Secondary data 
+  //  Secondary data
   useEffect(() => {
     let cancelled = false;
     const token = localStorage.getItem("token");
@@ -141,7 +141,7 @@ const HomePage = () => {
     ])
       .then(([top10Res, newRelRes, wlRes]) => {
         if (cancelled) return;
-        // Both endpoints return plain arrays 
+        // Both endpoints return plain arrays
         setTop10Movies(toArray(top10Res.data).slice(0, 10));
         setNewReleases(toArray(newRelRes.data));
         setWatchlist(toArray(wlRes.data));
@@ -214,9 +214,7 @@ const HomePage = () => {
           }
         });
         observer.observe({ type: "largest-contentful-paint", buffered: true });
-      } catch {
-        
-      }
+      } catch {}
     }
 
     return () => {
@@ -244,7 +242,7 @@ const HomePage = () => {
     }
   }, []);
 
-  //  Trailer 
+  //  Trailer
   const handleWatchTrailerClick = useCallback(
     async (movieOrId) => {
       const movie = typeof movieOrId === "object" ? movieOrId : null;
@@ -271,7 +269,7 @@ const HomePage = () => {
     [logActivity],
   );
 
-  //  Watchlist 
+  //  Watchlist
   const handleWatchlistToggle = useCallback(
     async (movie) => {
       const token = localStorage.getItem("token");
@@ -339,7 +337,7 @@ const HomePage = () => {
       }
 
       /* HERO BACKGROUND */
-      .fixed-bg {
+     .fixed-bg {
   position: fixed;
   top: 0;
   left: 0;
@@ -347,10 +345,10 @@ const HomePage = () => {
   height: 100svh;
   z-index: 0;
 
-  background-image: url("https://i.pinimg.com/736x/08/c7/84/08c7841dfeec2437071c0a3b21aad528.jpg");
-  background-size: cover;
+  background-image: url("/moviecard_bg_image.jpg");
+  background-size: cover;          
   background-position: center;
-  background-attachment: scroll;
+  background-repeat: no-repeat;   
 
   pointer-events: none;
   will-change: transform;

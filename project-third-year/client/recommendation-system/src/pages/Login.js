@@ -304,8 +304,11 @@ const Login = ({ setIsLoggedIn }) => {
       const res = await api.post("/auth/login", { email, password });
 
       if (res.data && res.data.access_token) {
-        // 1. Save the token
+        // 1. Save the tokens
         localStorage.setItem("token", res.data.access_token);
+        if (res.data.refresh_token) {
+          localStorage.setItem("refresh_token", res.data.refresh_token);
+        }
 
         
         setIsLoggedIn(true);

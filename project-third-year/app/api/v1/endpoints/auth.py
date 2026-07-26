@@ -7,7 +7,9 @@ from slowapi.util import get_remote_address
 from app.models.user import User
 from app.schemas.user import UserCreate, UserOut
 from app.schemas.token import Token
-from app.security import get_password_hash, verify_password, create_access_token
+from app.security import get_password_hash, verify_password, create_access_token, create_refresh_token
+from app.config import settings
+from jose import jwt, JWTError
 from app.utils.email import send_reset_email
 
 router = APIRouter()
@@ -64,13 +66,55 @@ async def login(request: Request, credentials: dict = Body(...)):
     if not user or not verify_password(password, user.password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    token = create_access_token(subject=user.id)
+    access_token = create_access_token(subject=user.id)
+    refresh_token = create_refresh_token(subject=user.id)
 
     return {
-        "access_token": token,
-        "token": token,
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token": access_token,
         "token_type": "bearer"
     }
+
+
+@router.post("/refresh")
+async def refresh(payload: dict = Body(...)):
+    ref_token = payload.get("refresh_token")
+    if not ref_token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Refresh token required",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    try:
+        decoded = jwt.decode(
+            ref_token,
+            settings.JWT_SECRET,
+            algorithms=[settings.ALGORITHM]
+        )
+        user_data = decoded.get("user")
+        if not user_data or not user_data.get("id"):
+            raise HTTPException(status_code=401, detail="Invalid refresh token")
+        
+        user_id = user_data.get("id")
+        user = await User.get(user_id)
+        if not user:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        # Issue new access + refresh tokens (rotation)
+        new_access = create_access_token(subject=user.id)
+        new_refresh = create_refresh_token(subject=user.id)
+        return {
+            "access_token": new_access,
+            "refresh_token": new_refresh,
+            "token": new_access,
+        }
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Expired or invalid refresh token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
 
 @router.post("/forgot-password")

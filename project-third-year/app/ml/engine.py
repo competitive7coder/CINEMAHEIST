@@ -579,3 +579,103 @@ def get_mood_recommendations(mood: str, n: int = 20) -> list:
     except Exception as e:
         print(f"[ML Engine] get_mood_recommendations error: {e}")
         return []
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# RETRAINING CONTROLS & MONITORING
+# ═════════════════════════════════════════════════════════════════════════════
+import asyncio
+import pickle
+
+_is_training = False
+_last_training_logs = []
+
+def get_training_status():
+    global _is_training, _last_training_logs
+    return {
+        "is_training": _is_training,
+        "logs": list(_last_training_logs)
+    }
+
+def log_training_event(msg: str):
+    timestamp = datetime.datetime.now().strftime("%H:%M:%S")
+    _last_training_logs.append(f"[{timestamp}] {msg}")
+    print(f"[ML Engine] {msg}")
+
+async def retrain_recommendation_model():
+    global _is_training, _last_training_logs
+    if _is_training:
+        return False
+    _is_training = True
+    _last_training_logs = []
+
+    try:
+        log_training_event("Initializing SVD model retraining...")
+        from app.models.activity import Activity
+        import app.ml.engine as engine_module
+
+        # 1. Fetch real activity logs
+        log_training_event("Querying real user activities from MongoDB Atlas...")
+        logs = await Activity.find_all().to_list()
+        real_logs = [
+            {
+                "user_id":     str(a.user_id.ref.id) if hasattr(a.user_id, 'ref') else str(a.user_id),
+                "movie_id":    a.movie_id,
+                "action_type": a.action_type,
+            }
+            for a in logs
+        ]
+        log_training_event(f"Loaded {len(real_logs)} user activities from DB.")
+
+        # 2. Fetch MovieLens logs
+        ml_logs_path = Path("app/ml/ml_activity_logs.csv")
+        if ml_logs_path.exists():
+            log_training_event("Loading MovieLens 25M baseline interactions...")
+            loop = asyncio.get_running_loop()
+            ml_df = await loop.run_in_executor(None, pd.read_csv, ml_logs_path)
+            ml_logs = ml_df.to_dict("records")
+            log_training_event(f"Loaded {len(ml_logs):,} MovieLens baseline interactions.")
+        else:
+            ml_logs = []
+            log_training_event("Warning: ml_activity_logs.csv not found, proceeding with real logs.")
+
+        all_logs = real_logs + ml_logs
+        if not all_logs:
+            log_training_event("Aborted: No logs found to train the model.")
+            _is_training = False
+            return False
+
+        log_training_event(f"Total interactions compiled: {len(all_logs):,}")
+        log_training_event("Decomposing matrix with SVD (Singular Value Decomposition)...")
+        
+        loop = asyncio.get_running_loop()
+        await loop.run_in_executor(None, build_collaborative_model, all_logs)
+
+        # 3. Cache factors to disk
+        MODEL_DIR = Path("app/ml/model_cache")
+        MODEL_DIR.mkdir(exist_ok=True)
+        CACHE_FILE = MODEL_DIR / "svd_model.npz"
+        INDEX_FILE = MODEL_DIR / "svd_index.pkl"
+
+        if engine_module._collab_user_factors is not None:
+            log_training_event("Saving SVD latent factor matrices to disk cache...")
+            np.savez_compressed(
+                CACHE_FILE,
+                user_factors=engine_module._collab_user_factors,
+                movie_factors=engine_module._collab_movie_factors,
+            )
+            with open(INDEX_FILE, "wb") as f:
+                pickle.dump({
+                    "user_index":  engine_module._collab_user_index,
+                    "movie_index": engine_module._collab_movie_index,
+                }, f)
+            log_training_event(f"SVD model successfully cached → {CACHE_FILE.name}")
+        
+        log_training_event("Success: Collaborative recommendation SVD model retraining completed!")
+        _is_training = False
+        return True
+
+    except Exception as e:
+        log_training_event(f"Error during retraining: {str(e)}")
+        _is_training = False
+        return False

@@ -6,17 +6,22 @@ import { Table, Button, Form, Card, Row, Col, Badge, Spinner } from "react-boots
 import { toast } from "react-toastify";
 import { 
   BsShieldLock, BsPeople, BsTrash, BsShieldCheck, BsShieldSlash, 
-  BsArrowLeftRight, BsListTask, BsCpu, BsSearch 
+  BsArrowLeftRight, BsListTask, BsCpu, BsSearch, BsGearFill 
 } from "react-icons/bs";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("users");
   const [users, setUsers] = useState([]);
   const [activities, setActivities] = useState([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [loadingActivity, setLoadingActivity] = useState(true);
   const [userSearch, setUserSearch] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
+
+  // SVD ML retrain states
+  const [mlStatus, setMlStatus] = useState({ is_training: false, logs: [] });
+  const [pollingStatus, setPollingStatus] = useState(false);
 
   // Stats
   const [stats, setStats] = useState({
@@ -26,6 +31,7 @@ const AdminDashboard = () => {
   });
 
   const socketRef = useRef(null);
+  const consoleBottomRef = useRef(null);
 
   useEffect(() => {
     // 1. Authenticate admin access
@@ -81,7 +87,21 @@ const AdminDashboard = () => {
 
     fetchAdminData();
 
-    // 3. Connect Socket for global activities
+    // 3. Fetch SVD model status on mount
+    const checkMlEngine = async () => {
+      try {
+        const res = await api.get("/admin/ml/status");
+        setMlStatus(res.data);
+        if (res.data.is_training) {
+          setPollingStatus(true);
+        }
+      } catch (err) {
+        console.error("Failed to query ML engine status", err);
+      }
+    };
+    checkMlEngine();
+
+    // 4. Connect Socket for global activities
     const socketUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
     const socket = io(socketUrl, {
       transports: ["websocket"],
@@ -108,6 +128,35 @@ const AdminDashboard = () => {
     };
 
   }, [currentUser]);
+
+  // SVD Retraining status polling
+  useEffect(() => {
+    let intervalId;
+    if (pollingStatus) {
+      intervalId = setInterval(async () => {
+        try {
+          const res = await api.get("/admin/ml/status");
+          setMlStatus(res.data);
+          if (!res.data.is_training) {
+            setPollingStatus(false);
+            toast.success("SVD Model retrained successfully!");
+          }
+        } catch (err) {
+          console.error("Error polling SVD status", err);
+        }
+      }, 2000);
+    }
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [pollingStatus]);
+
+  // Scroll console terminal automatically on new logs
+  useEffect(() => {
+    if (consoleBottomRef.current) {
+      consoleBottomRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [mlStatus.logs]);
 
   const handleToggleAdmin = async (targetUser) => {
     if (targetUser.id === currentUser.id) {
@@ -155,6 +204,17 @@ const AdminDashboard = () => {
       }));
     } catch (err) {
       toast.error(err.response?.data?.detail || "Delete operation failed");
+    }
+  };
+
+  const handleRetrainSvd = async () => {
+    try {
+      const res = await api.post("/admin/ml/retrain");
+      toast.success(res.data.msg || "SVD retraining started");
+      setPollingStatus(true);
+      setMlStatus(prev => ({ ...prev, is_training: true }));
+    } catch (err) {
+      toast.error(err.response?.data?.detail || "Retrain request failed");
     }
   };
 
@@ -220,6 +280,16 @@ const AdminDashboard = () => {
           letter-spacing: 1.5px;
           color: #64748b;
           font-weight: 700;
+        }
+
+        /* Nav tabs */
+        .admin-tab-btn {
+          border-radius: 30px !important;
+          padding: 10px 24px !important;
+          font-weight: 700 !important;
+          font-size: 0.85rem !important;
+          letter-spacing: 0.5px !important;
+          transition: all 0.2s ease !important;
         }
 
         /* Users table styles */
@@ -330,6 +400,30 @@ const AdminDashboard = () => {
           transform: translateY(-50%);
           color: #64748b;
         }
+
+        /* Console Terminal Style */
+        .terminal-box {
+          background: #030406;
+          border: 1px solid rgba(255,255,255,0.06);
+          border-radius: 16px;
+          padding: 1.5rem;
+          font-family: 'Fira Code', 'Courier New', Courier, monospace;
+          font-size: 0.85rem;
+          color: #10b981;
+          height: 380px;
+          overflow-y: auto;
+          box-shadow: inset 0 4px 20px rgba(0,0,0,0.8);
+        }
+        .terminal-line {
+          margin-bottom: 6px;
+          line-height: 1.5;
+          letter-spacing: 0.2px;
+          animation: blinkText 0.1s ease-out;
+        }
+        .terminal-prompt {
+          color: #64748b;
+          margin-right: 8px;
+        }
       `}</style>
 
       <div className="mx-auto" style={{ maxWidth: "1400px" }}>
@@ -345,7 +439,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Stats Row */}
-        <Row className="g-4 mb-5">
+        <Row className="g-4 mb-4">
           <Col md={4}>
             <div className="glass-card stat-card">
               <div className="stat-icon-wrapper">
@@ -375,149 +469,237 @@ const AdminDashboard = () => {
           </Col>
         </Row>
 
-        <Row className="g-4">
-          {/* User Directory */}
-          <Col lg={8}>
-            <div className="glass-card">
-              <div className="d-flex justify-content-between align-items-center mb-4">
-                <h4 className="fw-bold m-0 text-white">User Management</h4>
-                <div className="search-wrapper">
-                  <input
-                    type="text"
-                    placeholder="Search username or email..."
-                    value={userSearch}
-                    onChange={(e) => setUserSearch(e.target.value)}
-                    className="form-control"
-                  />
-                  <BsSearch className="search-icon" />
-                </div>
-              </div>
+        {/* Tab Navigation */}
+        <div className="d-flex gap-3 mb-4">
+          <Button
+            variant={activeTab === "users" ? "primary" : "outline-secondary"}
+            onClick={() => setActiveTab("users")}
+            className="admin-tab-btn d-flex align-items-center gap-2"
+          >
+            <BsPeople />
+            <span>Users & Activities</span>
+          </Button>
+          <Button
+            variant={activeTab === "ml" ? "primary" : "outline-secondary"}
+            onClick={() => setActiveTab("ml")}
+            className="admin-tab-btn d-flex align-items-center gap-2"
+          >
+            <BsGearFill />
+            <span>ML Engine Control</span>
+          </Button>
+        </div>
 
-              {loadingUsers ? (
-                <div className="text-center py-5">
-                  <Spinner animation="border" variant="primary" />
+        {activeTab === "users" ? (
+          <Row className="g-4">
+            {/* User Directory */}
+            <Col lg={8}>
+              <div className="glass-card">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                  <h4 className="fw-bold m-0 text-white">User Management</h4>
+                  <div className="search-wrapper">
+                    <input
+                      type="text"
+                      placeholder="Search username or email..."
+                      value={userSearch}
+                      onChange={(e) => setUserSearch(e.target.value)}
+                      className="form-control"
+                    />
+                    <BsSearch className="search-icon" />
+                  </div>
                 </div>
-              ) : (
-                <div className="table-responsive">
-                  <Table className="custom-table" variant="dark">
-                    <thead>
-                      <tr>
-                        <th>Profile</th>
-                        <th>Username</th>
-                        <th>Email Address</th>
-                        <th>Role</th>
-                        <th className="text-center">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredUsers.map((u) => (
-                        <tr key={u.id}>
-                          <td>
-                            <img
-                              src={u.profile_picture || "https://placehold.co/40"}
-                              alt={u.username}
-                              className="user-avatar"
-                            />
-                          </td>
-                          <td className="fw-semibold text-white">{u.username}</td>
-                          <td>{u.email}</td>
-                          <td>
-                            {u.is_admin ? (
-                              <Badge bg="danger" className="text-uppercase" style={{ fontSize: "0.65rem", padding: "5px 8px" }}>Admin</Badge>
-                            ) : (
-                              <Badge bg="secondary" className="text-uppercase" style={{ fontSize: "0.65rem", padding: "5px 8px" }}>User</Badge>
-                            )}
-                          </td>
-                          <td>
-                            <div className="d-flex gap-2 justify-content-center">
-                              <Button
-                                size="sm"
-                                variant={u.is_admin ? "outline-warning" : "outline-success"}
-                                onClick={() => handleToggleAdmin(u)}
-                                disabled={u.id === currentUser?.id}
-                                title={u.is_admin ? "Demote to User" : "Promote to Admin"}
-                                style={{ borderRadius: "8px", display: "flex", alignItems: "center", gap: 5 }}
-                              >
-                                {u.is_admin ? <BsShieldSlash /> : <BsShieldCheck />}
-                                <span>{u.is_admin ? "Demote" : "Promote"}</span>
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="outline-danger"
-                                onClick={() => handleDeleteUser(u)}
-                                disabled={u.id === currentUser?.id}
-                                title="Delete Account"
-                                style={{ borderRadius: "8px", display: "flex", alignItems: "center", gap: 5 }}
-                              >
-                                <BsTrash />
-                                <span>Delete</span>
-                              </Button>
-                            </div>
-                          </td>
+
+                {loadingUsers ? (
+                  <div className="text-center py-5">
+                    <Spinner animation="border" variant="primary" />
+                  </div>
+                ) : (
+                  <div className="table-responsive">
+                    <Table className="custom-table" variant="dark">
+                      <thead>
+                        <tr>
+                          <th>Profile</th>
+                          <th>Username</th>
+                          <th>Email Address</th>
+                          <th>Role</th>
+                          <th className="text-center">Actions</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </Table>
-                </div>
-              )}
-            </div>
-          </Col>
+                      </thead>
+                      <tbody>
+                        {filteredUsers.map((u) => (
+                          <tr key={u.id}>
+                            <td>
+                              <img
+                                src={u.profile_picture || "https://placehold.co/40"}
+                                alt={u.username}
+                                className="user-avatar"
+                              />
+                            </td>
+                            <td className="fw-semibold text-white">{u.username}</td>
+                            <td>{u.email}</td>
+                            <td>
+                              {u.is_admin ? (
+                                <Badge bg="danger" className="text-uppercase" style={{ fontSize: "0.65rem", padding: "5px 8px" }}>Admin</Badge>
+                              ) : (
+                                <Badge bg="secondary" className="text-uppercase" style={{ fontSize: "0.65rem", padding: "5px 8px" }}>User</Badge>
+                              )}
+                            </td>
+                            <td>
+                              <div className="d-flex gap-2 justify-content-center">
+                                <Button
+                                  size="sm"
+                                  variant={u.is_admin ? "outline-warning" : "outline-success"}
+                                  onClick={() => handleToggleAdmin(u)}
+                                  disabled={u.id === currentUser?.id}
+                                  title={u.is_admin ? "Demote to User" : "Promote to Admin"}
+                                  style={{ borderRadius: "8px", display: "flex", alignItems: "center", gap: 5 }}
+                                >
+                                  {u.is_admin ? <BsShieldSlash /> : <BsShieldCheck />}
+                                  <span>{u.is_admin ? "Demote" : "Promote"}</span>
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline-danger"
+                                  onClick={() => handleDeleteUser(u)}
+                                  disabled={u.id === currentUser?.id}
+                                  title="Delete Account"
+                                  style={{ borderRadius: "8px", display: "flex", alignItems: "center", gap: 5 }}
+                                >
+                                  <BsTrash />
+                                  <span>Delete</span>
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </Table>
+                  </div>
+                )}
+              </div>
+            </Col>
 
-          {/* Real-time Activity feed */}
-          <Col lg={4}>
-            <div className="glass-card">
-              <h4 className="fw-bold mb-4 text-white d-flex align-items-center gap-2">
-                <BsCpu className="text-primary" />
-                <span>Live Event Stream</span>
-              </h4>
+            {/* Real-time Activity feed */}
+            <Col lg={4}>
+              <div className="glass-card">
+                <h4 className="fw-bold mb-4 text-white d-flex align-items-center gap-2">
+                  <BsCpu className="text-primary" />
+                  <span>Live Event Stream</span>
+                </h4>
 
-              {loadingActivity ? (
-                <div className="text-center py-5">
-                  <Spinner animation="border" variant="primary" />
-                </div>
-              ) : (
-                <div className="activity-feed-scroll">
-                  {activities.length > 0 ? (
-                    activities.map((act) => {
-                      let typeClass = "act-watch";
-                      let actionDesc = "viewed movie";
-                      
-                      if (act.action_type === "added_to_watchlist") {
-                        typeClass = "act-add";
-                        actionDesc = "added to watchlist";
-                      } else if (act.action_type === "removed_from_watchlist") {
-                        typeClass = "act-rem";
-                        actionDesc = "removed from watchlist";
-                      } else if (act.action_type === "trailer_watch") {
-                        typeClass = "act-watch";
-                        actionDesc = "watched trailer of";
-                      }
+                {loadingActivity ? (
+                  <div className="text-center py-5">
+                    <Spinner animation="border" variant="primary" />
+                  </div>
+                ) : (
+                  <div className="activity-feed-scroll">
+                    {activities.length > 0 ? (
+                      activities.map((act) => {
+                        let typeClass = "act-watch";
+                        let actionDesc = "viewed movie";
+                        
+                        if (act.action_type === "added_to_watchlist") {
+                          typeClass = "act-add";
+                          actionDesc = "added to watchlist";
+                        } else if (act.action_type === "removed_from_watchlist") {
+                          typeClass = "act-rem";
+                          actionDesc = "removed from watchlist";
+                        } else if (act.action_type === "trailer_watch") {
+                          typeClass = "act-watch";
+                          actionDesc = "watched trailer of";
+                        }
 
-                      return (
-                        <div key={act.id} className="activity-item">
-                          <div className={`act-icon ${typeClass}`} />
-                          <div className="flex-grow-1">
-                            <span className="fw-bold text-white d-block" style={{ fontSize: "0.8rem" }}>
-                              {act.username}
-                            </span>
-                            <span className="text-muted" style={{ fontSize: "0.75rem" }}>
-                              {actionDesc} <span className="text-light fw-medium">"{act.movie_title}"</span>
+                        return (
+                          <div key={act.id} className="activity-item">
+                            <div className={`act-icon ${typeClass}`} />
+                            <div className="flex-grow-1">
+                              <span className="fw-bold text-white d-block" style={{ fontSize: "0.8rem" }}>
+                                {act.username}
+                              </span>
+                              <span className="text-muted" style={{ fontSize: "0.75rem" }}>
+                                {actionDesc} <span className="text-light fw-medium">"{act.movie_title}"</span>
+                              </span>
+                            </div>
+                            <span className="text-muted" style={{ fontSize: "0.65rem", flexShrink: 0 }}>
+                              {new Date(act.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
                             </span>
                           </div>
-                          <span className="text-muted" style={{ fontSize: "0.65rem", flexShrink: 0 }}>
-                            {new Date(act.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-                          </span>
-                        </div>
-                      );
-                    })
+                        );
+                      })
+                    ) : (
+                      <div className="text-center py-5 text-muted">No recent activities logged in system.</div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </Col>
+          </Row>
+        ) : (
+          <Row className="g-4">
+            {/* ML Engine controls */}
+            <Col lg={12}>
+              <div className="glass-card">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                  <div>
+                    <h4 className="fw-bold m-0 text-white">🤖 SVD Collaborative Training</h4>
+                    <span className="text-muted" style={{ fontSize: "0.8rem" }}>Configure and execute recommender matrix retrains</span>
+                  </div>
+                  <Button
+                    variant="danger"
+                    disabled={mlStatus.is_training}
+                    onClick={handleRetrainSvd}
+                    style={{ borderRadius: "30px", fontWeight: "700" }}
+                  >
+                    {mlStatus.is_training ? (
+                      <>
+                        <Spinner size="sm" animation="border" className="me-2" />
+                        <span>Training in progress...</span>
+                      </>
+                    ) : (
+                      <span>Retrain SVD Model</span>
+                    )}
+                  </Button>
+                </div>
+
+                <div className="mb-4 d-flex align-items-center gap-3">
+                  <span className="fw-semibold text-muted text-uppercase" style={{ fontSize: "0.7rem", letterSpacing: "1px" }}>Engine Status:</span>
+                  {mlStatus.is_training ? (
+                    <Badge bg="warning" className="text-dark py-2 px-3 fw-bold" style={{ borderRadius: "6px" }}>
+                      ACTIVE TRAINING
+                    </Badge>
                   ) : (
-                    <div className="text-center py-5 text-muted">No recent activities logged in system.</div>
+                    <Badge bg="success" className="py-2 px-3 fw-bold" style={{ borderRadius: "6px" }}>
+                      IDLE (READY)
+                    </Badge>
                   )}
                 </div>
-              )}
-            </div>
-          </Col>
-        </Row>
+
+                {/* Console Terminal */}
+                <div className="terminal-box">
+                  {mlStatus.logs && mlStatus.logs.length > 0 ? (
+                    mlStatus.logs.map((log, idx) => (
+                      <div key={idx} className="terminal-line">
+                        <span className="terminal-prompt">$</span>
+                        <span>{log}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="terminal-line text-muted">
+                      <span className="terminal-prompt">$</span>
+                      <span>Ready to trigger training. SVD matrix parameters will compile here...</span>
+                    </div>
+                  )}
+                  {mlStatus.is_training && (
+                    <div className="terminal-line">
+                      <span className="terminal-prompt">$</span>
+                      <span className="text-warning">Waiting for next step compiling... █</span>
+                    </div>
+                  )}
+                  <div ref={consoleBottomRef} />
+                </div>
+              </div>
+            </Col>
+          </Row>
+        )}
       </div>
     </div>
   );

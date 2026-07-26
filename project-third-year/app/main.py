@@ -99,50 +99,10 @@ async def lifespan(app: FastAPI):
 
             # ── Slow path: train from scratch + save cache ────────────────────
             # Only runs ONCE — after that always uses cache above
-            print("ℹ️  No model cache found — training from scratch (one-time, ~2 min)...")
-
-            logs      = await Activity.find_all().to_list()
-            real_logs = [
-                {
-                    "user_id":     str(a.user_id.ref.id) if hasattr(a.user_id, 'ref') else str(a.user_id),
-                    "movie_id":    a.movie_id,
-                    "action_type": a.action_type,
-                }
-                for a in logs
-            ]
-            print(f"ℹ️  Real user logs: {len(real_logs)}")
-
-            ml_logs_path = Path("app/ml/ml_activity_logs.csv")
-            if ml_logs_path.exists():
-                ml_df   = pd.read_csv(ml_logs_path)
-                ml_logs = ml_df.to_dict("records")
-                print(f"ℹ️  MovieLens logs: {len(ml_logs):,}")
-            else:
-                ml_logs = []
-                print("⚠️  ml_activity_logs.csv not found — run movielens_to_streamhub.py")
-
-            all_logs = real_logs + ml_logs
-            if all_logs:
-                build_collaborative_model(all_logs)
-
-                # Save trained model to disk so next startup is instant
-                if engine_module._collab_user_factors is not None:
-                    import pickle
-                    np.savez_compressed(
-                        CACHE_FILE,
-                        user_factors=engine_module._collab_user_factors,
-                        movie_factors=engine_module._collab_movie_factors,
-                    )
-                    with open(INDEX_FILE, "wb") as f:
-                        pickle.dump({
-                            "user_index":  engine_module._collab_user_index,
-                            "movie_index": engine_module._collab_movie_index,
-                        }, f)
-                    print(f"✅ SVD model cached to disk → {CACHE_FILE}")
-                    print("ℹ️  Next restart will load instantly from cache")
-            else:
-                print("ℹ️  No activity data — collaborative model skipped")
-
+            print("ℹ️  No SVD model cache found — initiating background training...")
+            from app.ml.engine import retrain_recommendation_model
+            asyncio.create_task(retrain_recommendation_model())
+            
         except Exception as e:
             print(f"⚠️  ML training failed: {e}")
 

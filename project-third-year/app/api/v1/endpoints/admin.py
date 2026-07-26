@@ -88,3 +88,31 @@ async def get_system_activity(
             "timestamp": act.timestamp.isoformat()
         })
     return result
+
+
+from fastapi import BackgroundTasks
+from app.ml.engine import get_training_status, retrain_recommendation_model
+
+@router.get("/ml/status")
+async def get_ml_status(
+    current_admin: User = Depends(get_current_admin)
+):
+    """
+    Get the status and training logs of the SVD model.
+    """
+    return get_training_status()
+
+@router.post("/ml/retrain")
+async def trigger_ml_retrain(
+    background_tasks: BackgroundTasks,
+    current_admin: User = Depends(get_current_admin)
+):
+    """
+    Trigger SVD model retraining in a background thread.
+    """
+    status = get_training_status()
+    if status["is_training"]:
+        raise HTTPException(status_code=400, detail="SVD retraining is already active")
+    
+    background_tasks.add_task(retrain_recommendation_model)
+    return {"msg": "SVD model retraining triggered successfully"}

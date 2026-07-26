@@ -324,7 +324,6 @@ const Dashboard = ({ setIsLoggedIn }) => {
   };
 
   // ── Render ───────────────────────────────────────────────────────────────────
-  if (loading) return <LoadingSpinner />;
 
   return (
     <div className="modern-dashboard">
@@ -440,7 +439,15 @@ const Dashboard = ({ setIsLoggedIn }) => {
             {/* ── WATCHLIST TAB ── */}
             {activeTab === "watchlist" && (
               <div className="grid-reveal">
-                {watchlistMovies.length > 0 ? (
+                {loading ? (
+                  <div className="movie-grid-refined">
+                    {Array.from({ length: 7 }).map((_, i) => (
+                      <div key={i} className="grid-item-refined">
+                        <div className="skeleton-card" />
+                      </div>
+                    ))}
+                  </div>
+                ) : watchlistMovies.length > 0 ? (
                   <div className="movie-grid-refined">
                     {watchlistMovies.map((movie) => (
                       <div key={movie.id} className="grid-item-refined">
@@ -478,42 +485,16 @@ const Dashboard = ({ setIsLoggedIn }) => {
             {/* ── RECOMMENDATIONS TAB ── */}
             {activeTab === "recommendations" && (
               <div className="fade-in-section">
-                {recsLoading && (
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      padding: "5rem 0",
-                      gap: 16,
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: 42,
-                        height: 42,
-                        border: "3px solid rgba(255,255,255,0.06)",
-                        borderTopColor: "#e50914",
-                        borderRadius: "50%",
-                        animation: "rec-spin 0.8s linear infinite",
-                      }}
-                    />
-                    <p
-                      style={{
-                        color: "rgba(255,255,255,0.3)",
-                        fontFamily: "Poppins",
-                        fontSize: "0.82rem",
-                        margin: 0,
-                      }}
-                    >
-                      Finding your perfect movies...
-                    </p>
-                    <style>{`@keyframes rec-spin { to { transform: rotate(360deg); } }`}</style>
+                {recsLoading ? (
+                  <div className="movie-grid-refined">
+                    {Array.from({ length: 7 }).map((_, i) => (
+                      <div key={i} className="grid-item-refined">
+                        <div className="skeleton-card" />
+                      </div>
+                    ))}
                   </div>
-                )}
-                {recsLoaded &&
-                  !recsLoading &&
+                ) : (
+                  recsLoaded &&
                   (!showAllRecommendations ? (
                     <MovieRow
                       title="Tailored Discovery"
@@ -548,7 +529,8 @@ const Dashboard = ({ setIsLoggedIn }) => {
                         </div>
                       ))}
                     </div>
-                  ))}
+                  ))
+                )}
               </div>
             )}
 
@@ -676,6 +658,21 @@ const Dashboard = ({ setIsLoggedIn }) => {
           --border:       rgba(255,255,255,0.05);
           --text-muted:   #64748b;
           --danger:       #ef4444;
+        }
+
+        /* ── SKELETON CARD ── */
+        .skeleton-card {
+          width: 100%;
+          aspect-ratio: 154 / 231;
+          border-radius: 14px;
+          background: linear-gradient(90deg, rgba(255,255,255,0.015) 25%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.015) 75%);
+          background-size: 200% 100%;
+          animation: shimmer 1.5s infinite;
+          border: 1px solid rgba(255,255,255,0.03);
+        }
+        @keyframes shimmer {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
         }
 
         *, *::before, *::after { box-sizing: border-box; }

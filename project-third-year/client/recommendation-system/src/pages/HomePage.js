@@ -337,37 +337,16 @@ const HomePage = () => {
       }
 
       /* HERO BACKGROUND */
-     .fixed-bg {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100svh;
-  z-index: 0;
-
-  background-image: url("/moviecard_bg_image.jpg");
-  background-size: cover;          
-  background-position: center;
-  background-repeat: no-repeat;   
-
-  pointer-events: none;
-  will-change: transform;
-}
-
-.fixed-bg::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-}
-
-.fixed-bg::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.6);
-  pointer-events: none;
-}
+      .fixed-bg {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100svh;
+        z-index: 0;
+        background: radial-gradient(circle at 50% 50%, #0e111a 0%, #050609 100%);
+        pointer-events: none;
+      }
 
       /*  CONTENT SCROLLS ABOVE BG */
       .content-wrapper {

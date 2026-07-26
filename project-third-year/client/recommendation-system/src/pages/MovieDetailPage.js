@@ -281,7 +281,7 @@ useEffect(() => {
       text-transform: uppercase; padding: 4px 11px; border-radius: 4px;
     }
     .mdp-badge-brand   { background: #e50914; color: #fff; }
-    .mdp-badge-meta    { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); }
+    .mdp-badge-meta    { background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.3); color: #fbbf24; }
 
     /* Title */
     .mdp-title {
@@ -308,10 +308,10 @@ useEffect(() => {
     .mdp-genre {
       font-size: 0.65rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
       padding: 4px 13px; border-radius: 20px;
-      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
-      color: rgba(255,255,255,0.6); transition: all 0.2s;
+      background: rgba(229,9,20,0.08); border: 1px solid rgba(229,9,20,0.35);
+      color: #ff5f5f; transition: all 0.2s;
     }
-    .mdp-genre:hover { background: rgba(229,9,20,0.1); border-color: rgba(229,9,20,0.3); color: #ff6b6b; }
+    .mdp-genre:hover { transform: scale(1.03); }
 
     .mdp-crew { display: flex; gap: 16px; margin-bottom: 0.85rem; flex-wrap: wrap; }
     .mdp-crew-item { font-size: 0.78rem; color: rgba(255,255,255,0.35); }

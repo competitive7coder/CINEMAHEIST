@@ -41,6 +41,7 @@ StreamHub is a full-stack OTT recommendation system built from scratch with a no
 | 👤 Session Security | JWT Access/Refresh Token Rotation with silent background refresh |
 | ⚡ Progressive Shell | Shimmer skeleton loading cards replacing blocking spinners |
 | 🖼️ Avatar Upload | Direct profile picture upload via Cloudinary from settings |
+| 👑 Admin Panel | Command center for user directory administration and global real-time event monitoring |
 | 📊 Activity Feed | Real-time activity updates via Socket.IO |
 | 🌙 Mood Filter | Recommendations by mood (intense, happy, romantic, scary) |
 | 🏆 Genre Pages | Browse movies by genre with infinite scroll |

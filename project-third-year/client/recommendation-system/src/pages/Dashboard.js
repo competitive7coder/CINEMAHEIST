@@ -46,6 +46,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
   const [recsLoading, setRecsLoading] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [triggerDelete, setTriggerDelete] = useState(false);
+  const fileInputRef = React.useRef(null);
 
   // ── Fetch helpers ────────────────────────────────────────────────────────────
   const fetchWatchlist = useCallback(async () => {
@@ -277,6 +278,45 @@ const Dashboard = ({ setIsLoggedIn }) => {
     }
   };
 
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be under 5MB");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("profile_picture", file);
+
+    const toastId = toast.loading("Uploading new profile picture...");
+    try {
+      const res = await api.put("/profile/update-avatar", formData);
+      setUserProfilePicture(res.data.profile_picture);
+      toast.update(toastId, {
+        render: "Profile picture updated successfully! ✨",
+        type: "success",
+        isLoading: false,
+        autoClose: 3000,
+      });
+    } catch (err) {
+      toast.update(toastId, {
+        render: err.response?.data?.detail || "Failed to upload image",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
+    } finally {
+      e.target.value = null;
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     setIsLoggedIn(false);
@@ -382,12 +422,17 @@ const Dashboard = ({ setIsLoggedIn }) => {
         >
           <header className="content-header-refined">
             <div className="header-left">
-              <span className="breadcrumb-mini">Pages / {activeTab}</span>
+              <span className="breadcrumb-mini">{activeTab === "watchlist" ? "Library" : activeTab}</span>
               <h1>
                 {activeTab === "watchlist"
-                  ? "Your Collection"
+                  ? `Welcome back, ${userName || "User"} 👋`
                   : activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
               </h1>
+              {activeTab === "watchlist" && (
+                <p className="header-subtitle-refined">
+                  Here is your handpicked collection of movies.
+                </p>
+              )}
             </div>
           </header>
 
@@ -473,6 +518,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
                     <MovieRow
                       title="Tailored Discovery"
                       movies={recommendations}
+                      watchlist={watchlistMovies}
                       onWatchTrailerClick={handleWatchTrailerClick}
                       onSeeAllClick={() => setShowAllRecommendations(true)}
                       onWatchlistClick={(m) =>
@@ -522,7 +568,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
               <div className="settings-bento-grid fade-in-section">
                 <div className="settings-sidebar-card">
                   <div className="profile-edit-header">
-                    <div className="avatar-upload-wrapper">
+                    <div className="avatar-upload-wrapper" onClick={() => fileInputRef.current?.click()} style={{ cursor: "pointer" }}>
                       <img
                         src={userProfilePicture || "https://placehold.co/120"}
                         alt="User"
@@ -533,6 +579,13 @@ const Dashboard = ({ setIsLoggedIn }) => {
                       </button>
                     </div>
                     <h3 className="settings-username">{userName}</h3>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      onChange={handleAvatarUpload}
+                      accept="image/*"
+                      style={{ display: "none" }}
+                    />
                     <p className="settings-status-pill">Member Since 2026</p>
                   </div>
 
@@ -617,10 +670,10 @@ const Dashboard = ({ setIsLoggedIn }) => {
 
         :root {
           --accent:       #3a7bd5;
-          --accent-glow:  rgba(58,123,213,0.35);
-          --sidebar-bg:   rgba(8,9,13,0.92);
-          --card-bg:      rgba(255,255,255,0.03);
-          --border:       rgba(255,255,255,0.07);
+          --accent-glow:  rgba(58,123,213,0.25);
+          --sidebar-bg:   rgba(10,12,19,0.7);
+          --card-bg:      rgba(255,255,255,0.02);
+          --border:       rgba(255,255,255,0.05);
           --text-muted:   #64748b;
           --danger:       #ef4444;
         }
@@ -629,22 +682,24 @@ const Dashboard = ({ setIsLoggedIn }) => {
 
         /* ── SHELL ── */
         .modern-dashboard {
-          background: #08090d; color: #e2e8f0;
+          background: radial-gradient(circle at 50% 50%, #0e111a 0%, #050609 100%);
+          color: #e2e8f0;
           font-family: 'Plus Jakarta Sans', sans-serif;
           height: 100dvh; overflow: hidden; position: relative;
         }
-        .bg-glow     { position:absolute; top:-10%; right:-5%; width:45%; height:50%; background:radial-gradient(circle,rgba(58,123,213,0.1) 0%,transparent 70%); z-index:0; pointer-events:none; }
-        .bg-glow-alt { position:absolute; bottom:-10%; left:-5%; width:40%; height:40%; background:radial-gradient(circle,rgba(91,58,213,0.07) 0%,transparent 70%); z-index:0; pointer-events:none; }
+        .bg-glow     { position:absolute; top:-10%; right:-5%; width:45%; height:50%; background:radial-gradient(circle,rgba(58,123,213,0.08) 0%,transparent 70%); z-index:0; pointer-events:none; }
+        .bg-glow-alt { position:absolute; bottom:-10%; left:-5%; width:40%; height:40%; background:radial-gradient(circle,rgba(91,58,213,0.05) 0%,transparent 70%); z-index:0; pointer-events:none; }
         .dashboard-layout { display:flex; height:100%; position:relative; z-index:1; }
 
         /* ── SIDEBAR ── */
         .sidebar-glass {
           width: 260px; flex-shrink: 0;
           background: var(--sidebar-bg);
-          backdrop-filter: blur(30px);
+          backdrop-filter: blur(40px);
+          -webkit-backdrop-filter: blur(40px);
           border-right: 1px solid var(--border);
           display: flex; flex-direction: column;
-          padding: 2rem 1.25rem;
+          padding: 2.25rem 1.25rem;
           transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
         }
         .sidebar-close-btn { display: none; }
@@ -659,21 +714,23 @@ const Dashboard = ({ setIsLoggedIn }) => {
         .brand-text { font-size:1.35rem; font-weight:800; letter-spacing:-1px; margin:0; }
         .brand-text span { color:var(--accent); }
 
-        .main-nav  { display:flex; flex-direction:column; gap:4px; flex-grow:1; }
-        .nav-label { font-size:0.65rem; text-transform:uppercase; letter-spacing:1.8px; color:#334155; margin-bottom:0.75rem; padding-left:1rem; font-weight:700; }
+        .main-nav  { display:flex; flex-direction:column; gap:6px; flex-grow:1; }
+        .nav-label { font-size:0.65rem; text-transform:uppercase; letter-spacing:1.8px; color:#475569; margin-bottom:0.75rem; padding-left:1rem; font-weight:700; }
 
         .nav-btn {
           background: transparent; border: none; color: #64748b;
           display: flex; align-items: center; gap: 13px;
           padding: 13px 16px; border-radius: 12px;
-          transition: all 0.2s ease; text-align: left;
+          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+          text-align: left;
           position: relative; cursor: pointer; font-size: 0.9rem; font-weight: 600;
           width: 100%;
         }
-        .nav-btn:hover { color: #cbd5e1; background: rgba(255,255,255,0.04); }
+        .nav-btn:hover { color: #f1f5f9; background: rgba(255,255,255,0.035); }
         .nav-btn.active {
           color: #fff;
-          background: linear-gradient(90deg, rgba(58,123,213,0.18) 0%, rgba(58,123,213,0.04) 100%);
+          background: linear-gradient(90deg, rgba(58,123,213,0.15) 0%, rgba(58,123,213,0.03) 100%);
+          border: 0.5px solid rgba(58,123,213,0.15);
         }
         .active-indicator {
           position:absolute; left:0; top:22%; bottom:22%;
@@ -684,8 +741,8 @@ const Dashboard = ({ setIsLoggedIn }) => {
 
         /* ── PROFILE FOOTER ── */
         .profile-footer-card {
-          background: rgba(255,255,255,0.025); border:1px solid var(--border);
-          border-radius:18px; padding:1rem; margin-top:1.5rem;
+          background: rgba(255,255,255,0.015); border:1px solid var(--border);
+          border-radius:18px; padding:1.15rem; margin-top:1.5rem;
         }
         .profile-top { display:flex; align-items:center; gap:10px; margin-bottom:1rem; }
         .profile-top img { width:40px; height:40px; border-radius:11px; object-fit:cover; border:1.5px solid var(--border); flex-shrink:0; }
@@ -693,7 +750,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
         .user-status { font-size:0.62rem; color:#10b981; font-weight:600; display:flex; align-items:center; gap:4px; }
         .user-status::before { content:''; width:5px; height:5px; background:#10b981; border-radius:50%; display:inline-block; }
         .logout-btn-refined {
-          width:100%; background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.18);
+          width:100%; background:rgba(239,68,68,0.05); border:1px solid rgba(239,68,68,0.12);
           color:#ef4444; padding:9px; border-radius:10px; font-size:0.82rem; font-weight:700;
           display:flex; align-items:center; justify-content:center; gap:8px;
           transition:all 0.2s; cursor:pointer;
@@ -727,10 +784,29 @@ const Dashboard = ({ setIsLoggedIn }) => {
         }
 
         /* ── CONTENT HUB ── */
-        .content-hub { flex-grow:1; overflow-y:auto; padding:2.25rem 3rem; min-width:0; }
+        .content-hub { flex-grow:1; overflow-y:auto; padding:2.5rem 3.5rem; min-width:0; }
         .content-header-refined { margin-bottom:2.5rem; }
-        .breadcrumb-mini { font-size:0.72rem; color:var(--text-muted); margin-bottom:4px; display:block; font-weight:500; }
-        .header-left h1 { font-size:2.2rem; font-weight:800; letter-spacing:-1.5px; margin:0; }
+        .breadcrumb-mini {
+          font-size: 0.65rem;
+          background: rgba(58,123,213,0.12);
+          padding: 4px 10px;
+          border-radius: 100px;
+          color: var(--accent);
+          display: inline-block;
+          margin-bottom: 8px;
+          font-weight: 700;
+          letter-spacing: 0.8px;
+          text-transform: uppercase;
+          border: 0.5px solid rgba(58,123,213,0.25);
+        }
+        .header-left h1 { font-size:2.4rem; font-weight:800; letter-spacing:-1.5px; margin:0; }
+        .header-subtitle-refined {
+          font-size: 0.9rem;
+          color: var(--text-muted);
+          margin-top: 6px;
+          margin-bottom: 0;
+          font-weight: 500;
+        }
 
         /* ── MOVIE GRID ── */
         .movie-grid-refined {
@@ -756,22 +832,25 @@ const Dashboard = ({ setIsLoggedIn }) => {
         }
 
         /* Forward the card's hover shadow onto the wrapper instead */
-        .grid-item-refined:has(.card:hover) {
-          box-shadow: 0 25px 60px rgba(0,0,0,0.7), 0 0 40px rgba(229,9,20,0.35);
+        .grid-item-refined:has(.card:hover),
+        .grid-item-refined:has(.mc:hover) {
+          box-shadow: 0 25px 60px rgba(0,0,0,0.7), 0 0 40px var(--accent-glow);
           overflow: visible;
           z-index: 2;
         }
 
         /* Make the card fill the wrapper cell completely */
-        .grid-item-refined .card {
+        .grid-item-refined .card,
+        .grid-item-refined .mc {
           width: 100% !important;
-          height: 100% !important;
-          aspect-ratio: 270 / 380;
+          height: auto !important;
+          aspect-ratio: 154 / 231;
           position: relative;
         }
 
         /* On hover scale, keep within cell by clamping transform origin */
-        .grid-item-refined .card:hover {
+        .grid-item-refined .card:hover,
+        .grid-item-refined .mc:hover {
           transform: translateY(-8px) scale(1.04);
         }
 
@@ -803,9 +882,9 @@ const Dashboard = ({ setIsLoggedIn }) => {
         .empty-state-refined {
           display:flex; flex-direction:column; align-items:center;
           justify-content:center; text-align:center;
-          padding:5rem 2rem;
-          background:rgba(255,255,255,0.015);
-          border:2px dashed rgba(255,255,255,0.05);
+          padding:6rem 2rem;
+          background:rgba(255,255,255,0.01);
+          border:1px dashed rgba(255,255,255,0.08);
           border-radius:32px; margin-top:1rem;
         }
         .empty-icon {
@@ -874,11 +953,11 @@ const Dashboard = ({ setIsLoggedIn }) => {
 
           /* Sidebar → slide-in drawer */
           .sidebar-glass {
-  position:fixed; top:20; left:0; height:100dvh; width:270px;
-  z-index:200; transform:translateX(-100%); padding:1.5rem 1.25rem;
-}
+            position:fixed; top:0; left:0; height:100dvh; width:270px;
+            z-index:200; transform:translateX(-100%); padding:1.5rem 1.25rem;
+          }
           .sidebar-glass.sidebar-open { transform:translateX(0); }
-.sidebar-overlay { display:block; z-index:199; }
+          .sidebar-overlay { display:block; z-index:199; }
 
           /* Close btn */
           .sidebar-close-btn {
@@ -890,7 +969,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
           }
 
           /* Mobile top bar */
-       .mobile-topbar { display: none; }
+          .mobile-topbar { display: none; }
 
           /* Main content area */
           .content-hub {
@@ -908,7 +987,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
             border-top:1px solid var(--border); height:58px; z-index:50;
             padding:0 0.5rem;
           }
-            .brand-zone { display: none; }
+          .brand-zone { display: none; }
 
           /* Grid — 2 columns, tight */
           .movie-grid-refined { grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }

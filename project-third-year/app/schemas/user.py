@@ -17,6 +17,8 @@ class UserOut(BaseModel):
     email: EmailStr
     username: str
     watchlist: List[int] = []
+    profile_picture: Optional[str] = ""
+    bio: Optional[str] = ""
 
     class Config:
         from_attributes = True

@@ -103,6 +103,69 @@ if (typeof document !== "undefined" && !document.getElementById("mc-styles")) {
       white-space: nowrap;
     }
 
+    .mc-watchlist-btn {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 0.5px solid rgba(255, 255, 255, 0.18);
+      border-radius: 50%;
+      color: #cbd5e1;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      padding: 0;
+      opacity: 0.9;
+    }
+
+    .mc-watchlist-btn:hover {
+      transform: scale(1.15);
+      color: #fff;
+      opacity: 1;
+    }
+
+    /* Add to watchlist hover */
+    .mc-watchlist-btn:not(.is-in-watchlist):hover {
+      background: rgba(58, 123, 213, 0.9);
+      border-color: rgba(58, 123, 213, 0.4);
+      box-shadow: 0 4px 12px rgba(58, 123, 213, 0.4);
+    }
+
+    /* Green saved state */
+    .mc-watchlist-btn.is-in-watchlist {
+      background: rgba(16, 185, 129, 0.85);
+      border-color: rgba(16, 185, 129, 0.4);
+      color: #fff;
+    }
+
+    /* Show checkmark by default, hide cross */
+    .mc-watchlist-btn.is-in-watchlist .icon-close {
+      display: none;
+    }
+    .mc-watchlist-btn.is-in-watchlist .icon-check {
+      display: block;
+    }
+
+    /* Red remove state on hover */
+    .mc-watchlist-btn.is-in-watchlist:hover {
+      background: rgba(239, 68, 68, 0.95);
+      border-color: rgba(239, 68, 68, 0.4);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+    }
+    .mc-watchlist-btn.is-in-watchlist:hover .icon-check {
+      display: none;
+    }
+    .mc-watchlist-btn.is-in-watchlist:hover .icon-close {
+      display: block;
+    }
+
     @media (max-width: 768px) { .mc { width: 120px; height: 180px; } }
     @media (max-width: 400px) { .mc { width: 110px; height: 165px; } }
   `;
@@ -121,6 +184,10 @@ const MovieCard = ({
 
   const rating = typeof movie.vote_average === "number" ? movie.vote_average.toFixed(1) : "N/A";
 
+  const isInWatchlist = isInWatchlistProp !== null
+    ? isInWatchlistProp
+    : (Array.isArray(watchlist) && watchlist.some(m => m === movie.id || (typeof m === 'object' && m !== null && m.id === movie.id)));
+
   return (
     <div className="mc" onClick={() => navigate(`/movie/${toMovieSlug(movie)}`)}>
       <img
@@ -136,6 +203,34 @@ const MovieCard = ({
         decoding="async"
       />
       <div className="mc-gloss" />
+
+      {onWatchlistClick && (
+        <button
+          className={`mc-watchlist-btn${isInWatchlist ? " is-in-watchlist" : ""}`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onWatchlistClick(movie);
+          }}
+          title={isInWatchlist ? "Remove from Watchlist" : "Add to Watchlist"}
+        >
+          {isInWatchlist ? (
+            <>
+              <svg className="icon-check" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <svg className="icon-close" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </>
+          ) : (
+            <svg className="icon-plus" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          )}
+        </button>
+      )}
 
       {rating !== "N/A" && (
         <div className="mc-rating">

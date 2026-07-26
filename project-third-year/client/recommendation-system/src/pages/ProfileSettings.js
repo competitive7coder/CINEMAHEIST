@@ -253,18 +253,62 @@ const ProfileSettings = ({
   };
 
   const card = {
-    background: "#1e1e1e",
-    borderRadius: "16px",
-    padding: "2rem",
+    background: "rgba(255, 255, 255, 0.015)",
+    border: "1px solid rgba(255, 255, 255, 0.05)",
+    backdropFilter: "blur(24px)",
+    borderRadius: "24px",
+    padding: "2.5rem",
     marginBottom: "2rem",
     color: "#fff",
+    boxShadow: "0 20px 40px rgba(0,0,0,0.3)",
   };
 
   const input = {
-    backgroundColor: "#121212",
-    border: "1px solid #333",
+    backgroundColor: "rgba(255, 255, 255, 0.03)",
+    border: "1px solid rgba(255, 255, 255, 0.08)",
     color: "#fff",
+    borderRadius: "12px",
+    padding: "12px 16px",
+    fontSize: "0.95rem",
+    transition: "all 0.25s ease",
   };
+
+  // Inject styles once
+  if (typeof document !== "undefined" && !document.getElementById("settings-styles")) {
+    const style = document.createElement("style");
+    style.id = "settings-styles";
+    style.textContent = `
+      .settings-btn {
+        background: #3a7bd5 !important;
+        border: none !important;
+        border-radius: 12px !important;
+        padding: 10px 22px !important;
+        font-weight: 700 !important;
+        font-size: 0.9rem !important;
+        box-shadow: 0 8px 20px rgba(58,123,213,0.2) !important;
+        transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+        color: #fff !important;
+      }
+      .settings-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 28px rgba(58,123,213,0.35) !important;
+        background: #4facfe !important;
+      }
+      .settings-input:focus {
+        border-color: #3a7bd5 !important;
+        background-color: rgba(58, 123, 213, 0.06) !important;
+        box-shadow: 0 0 0 3px rgba(58, 123, 213, 0.15) !important;
+        color: #fff !important;
+      }
+      .form-label {
+        color: #cbd5e1 !important;
+        font-weight: 600 !important;
+        font-size: 0.88rem !important;
+        letter-spacing: 0.3px !important;
+      }
+    `;
+    document.head.appendChild(style);
+  }
 
   return (
     <div>
@@ -273,36 +317,42 @@ const ProfileSettings = ({
 
       {activeSubTab === "profile" && <div style={card}>
 
-        <h4>Public Profile</h4>
+        <h4 className="mb-4 fw-bold">Public Profile</h4>
 
-        <img
-          src={localAvatar || userProfilePicture || "https://placehold.co/100"}
-          alt="profile"
-          className="rounded-circle mb-3"
-          style={{ width: 100, height: 100, objectFit: "cover", opacity: isUploading ? 0.6 : 1 }}
-        />
-
-        <Form.Control
-          type="file"
-          accept="image/*"
-          onChange={handlePictureChange}
-          style={input}
-        />
-
-        {isUploading && <Spinner size="sm" className="mt-2" />}
+        <div className="d-flex align-items-center gap-4 mb-4">
+          <img
+            src={localAvatar || userProfilePicture || "https://placehold.co/100"}
+            alt="profile"
+            className="rounded-circle"
+            style={{ width: 100, height: 100, objectFit: "cover", opacity: isUploading ? 0.6 : 1, border: "3px solid rgba(58, 123, 213, 0.2)" }}
+          />
+          <div className="flex-grow-1">
+            <Form.Label className="mb-2 text-muted fw-semibold" style={{ fontSize: "0.85rem" }}>Change Avatar</Form.Label>
+            <Form.Control
+              type="file"
+              accept="image/*"
+              onChange={handlePictureChange}
+              style={input}
+              className="settings-input"
+            />
+            {isUploading && <Spinner size="sm" className="mt-2 text-primary" />}
+          </div>
+        </div>
 
         <Form onSubmit={updateName} className="mt-4">
 
-          <Form.Label>Name</Form.Label>
+          <Form.Group className="mb-3">
+            <Form.Label className="text-muted fw-semibold" style={{ fontSize: "0.85rem" }}>Name</Form.Label>
+            <Form.Control
+              name="name"
+              value={nameData.name}
+              onChange={handleNameChange}
+              style={input}
+              className="settings-input"
+            />
+          </Form.Group>
 
-          <Form.Control
-            name="name"
-            value={nameData.name}
-            onChange={handleNameChange}
-            style={input}
-          />
-
-          <Button type="submit" className="mt-3">
+          <Button type="submit" className="settings-btn mt-2">
             Update Name
           </Button>
 
@@ -310,18 +360,20 @@ const ProfileSettings = ({
 
         <Form onSubmit={updateBio} className="mt-4">
 
-          <Form.Label>Bio</Form.Label>
+          <Form.Group className="mb-3">
+            <Form.Label className="text-muted fw-semibold" style={{ fontSize: "0.85rem" }}>Bio</Form.Label>
+            <Form.Control
+              as="textarea"
+              rows={3}
+              name="bio"
+              value={bioData.bio}
+              onChange={handleBioChange}
+              style={input}
+              className="settings-input"
+            />
+          </Form.Group>
 
-          <Form.Control
-            as="textarea"
-            rows={3}
-            name="bio"
-            value={bioData.bio}
-            onChange={handleBioChange}
-            style={input}
-          />
-
-          <Button type="submit" className="mt-3">
+          <Button type="submit" className="settings-btn mt-2">
             Update Bio
           </Button>
 
@@ -333,31 +385,35 @@ const ProfileSettings = ({
 
       {activeSubTab === "security" && <div style={card}>
 
-        <h4>Password</h4>
+        <h4 className="mb-4 fw-bold">Password & Security</h4>
 
         <Form onSubmit={updatePassword}>
 
-          <Form.Label>Current Password</Form.Label>
+          <Form.Group className="mb-3">
+            <Form.Label className="text-muted fw-semibold" style={{ fontSize: "0.85rem" }}>Current Password</Form.Label>
+            <Form.Control
+              type="password"
+              name="currentPassword"
+              value={passwordData.currentPassword}
+              onChange={handlePasswordChange}
+              style={input}
+              className="settings-input"
+            />
+          </Form.Group>
 
-          <Form.Control
-            type="password"
-            name="currentPassword"
-            value={passwordData.currentPassword}
-            onChange={handlePasswordChange}
-            style={input}
-          />
+          <Form.Group className="mb-3">
+            <Form.Label className="text-muted fw-semibold" style={{ fontSize: "0.85rem" }}>New Password</Form.Label>
+            <Form.Control
+              type="password"
+              name="newPassword"
+              value={passwordData.newPassword}
+              onChange={handlePasswordChange}
+              style={input}
+              className="settings-input"
+            />
+          </Form.Group>
 
-          <Form.Label className="mt-3">New Password</Form.Label>
-
-          <Form.Control
-            type="password"
-            name="newPassword"
-            value={passwordData.newPassword}
-            onChange={handlePasswordChange}
-            style={input}
-          />
-
-          <Button type="submit" className="mt-3">
+          <Button type="submit" className="settings-btn mt-2">
             Update Password
           </Button>
 
@@ -475,17 +531,22 @@ const ProfileSettings = ({
 const modalOverlay = {
   position: "fixed",
   inset: 0,
-  background: "rgba(0,0,0,0.7)",
+  background: "rgba(3, 4, 7, 0.75)",
+  backdropFilter: "blur(20px)",
+  WebkitBackdropFilter: "blur(20px)",
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
+  zIndex: 1000,
 };
 
 const modalBox = {
-  background: "#1e1e1e",
-  padding: "30px",
-  borderRadius: "12px",
-  width: "350px",
+  background: "rgba(255, 255, 255, 0.02)",
+  border: "1px solid rgba(255, 255, 255, 0.08)",
+  boxShadow: "0 30px 60px rgba(0,0,0,0.5)",
+  padding: "35px 30px",
+  borderRadius: "24px",
+  width: "380px",
   textAlign: "center",
   color: "#fff",
 };

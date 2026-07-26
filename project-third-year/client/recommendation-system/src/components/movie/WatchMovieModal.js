@@ -2,16 +2,12 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Modal } from "react-bootstrap";
 import api from "../../services/api";
 import {
-  BsTranslate,
-  BsBadgeCc,
   BsBoxArrowUpRight,
-  BsKeyboard,
   BsXLg,
   BsFullscreenExit,
 } from "react-icons/bs";
 
 const modalStyles = `
-
 /* ── Base Modal ── */
 .watch-modal .modal-dialog { max-width: 1160px; width: 98vw; margin: 10px auto; }
 .watch-modal .modal-content {
@@ -26,19 +22,6 @@ const modalStyles = `
 /* Theater mode */
 .watch-modal.theater-mode .modal-dialog { max-width: 100vw; width: 100vw; margin: 0; }
 .watch-modal.theater-mode .modal-content { border-radius: 0; border: none; min-height: 100vh; }
-
-/* Mini player */
-.watch-modal.minimized .modal-dialog {
-  position: fixed; bottom: 20px; right: 20px;
-  max-width: 370px; width: 370px; margin: 0; z-index: 9999;
-}
-.watch-modal.minimized .modal-content { border-radius: 12px; box-shadow: 0 16px 50px rgba(0,0,0,0.8); }
-.watch-modal.minimized .watch-frame { height: 208px !important; }
-.watch-modal.minimized .wm-caption-panel,
-.watch-modal.minimized .wm-shortcuts-panel,
-.watch-modal.minimized .wm-hindi-na,
-.watch-modal.minimized .wm-controls,
-.watch-modal.minimized .wm-notice { display: none; }
 
 /* ── Top Bar ── */
 .wm-topbar {
@@ -57,7 +40,7 @@ const modalStyles = `
   animation: wm-pulse 1.5s ease-in-out infinite;
 }
 @keyframes wm-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
-.wm-controls { display: flex; gap: 6px; align-items: center; flex: 1; flex-wrap: wrap; justify-content: center; }
+.wm-controls { display: flex; gap: 8px; align-items: center; flex: 1; flex-wrap: wrap; justify-content: center; }
 
 /* Server tabs */
 .wm-tab-group {
@@ -78,21 +61,6 @@ const modalStyles = `
 .wm-tab-sub { font-size: 0.52rem; font-weight: 400; opacity: 0.75; }
 .wm-tab.active .wm-tab-sub { opacity: 0.9; }
 .wm-tab-verified { position: absolute; top: 3px; right: 3px; width: 5px; height: 5px; background: #4ade80; border-radius: 50%; }
-.wm-sep { width: 1px; height: 22px; background: rgba(255,255,255,0.08); flex-shrink: 0; margin: 0 2px; }
-
-/* Language selector */
-.wm-lang-wrap { position: relative; display: flex; align-items: center; }
-.wm-lang-icon { position: absolute; left: 8px; font-size: 0.72rem; color: rgba(255,255,255,0.4); pointer-events: none; z-index: 1; }
-.wm-lang-select {
-  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 8px; padding: 5px 26px 5px 26px; color: rgba(255,255,255,0.75);
-  font-family: 'Poppins',sans-serif; font-size: 0.65rem; font-weight: 600;
-  cursor: pointer; outline: none; transition: all 0.2s; appearance: none; -webkit-appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='rgba(255,255,255,0.4)' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat; background-position: right 8px center;
-}
-.wm-lang-select:hover { border-color: rgba(255,255,255,0.22); color: #fff; background-color: rgba(255,255,255,0.08); }
-.wm-lang-select option { background: #1a1a1a; color: #fff; }
 
 /* Action buttons */
 .wm-action-btn {
@@ -105,18 +73,6 @@ const modalStyles = `
 .wm-action-btn:hover { background: rgba(255,255,255,0.1); color: #fff; border-color: rgba(255,255,255,0.2); }
 .wm-action-btn.active { background: rgba(229,9,20,0.15); border-color: rgba(229,9,20,0.35); color: #ff6060; }
 .wm-action-btn.theater-active { background: rgba(245,158,11,0.15); border-color: rgba(245,158,11,0.35); color: #f59e0b; }
-.wm-action-btn i { font-size: 0.8rem; }
-.wm-action-btn .wm-tooltip {
-  position: absolute; bottom: calc(100% + 6px); left: 50%; transform: translateX(-50%);
-  background: rgba(0,0,0,0.9); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px;
-  padding: 4px 8px; font-size: 0.6rem; color: #fff; white-space: nowrap;
-  pointer-events: none; opacity: 0; transition: opacity 0.15s; z-index: 100;
-}
-.wm-action-btn:hover .wm-tooltip { opacity: 1; }
-.wm-shortcut-badge {
-  display: inline-block; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 3px; padding: 1px 4px; font-size: 0.5rem; color: rgba(255,255,255,0.4); margin-left: 2px;
-}
 
 /* Close */
 .wm-close {
@@ -143,14 +99,18 @@ const modalStyles = `
 .wm-quality-badge.hd  { color: #60a5fa; border-color: rgba(96,165,250,0.3);  background: rgba(96,165,250,0.08); }
 .wm-quality-badge.fhd { color: #4ade80; border-color: rgba(74,222,128,0.3);  background: rgba(74,222,128,0.08); }
 .wm-quality-badge.uhd { color: #f59e0b; border-color: rgba(245,158,11,0.3);  background: rgba(245,158,11,0.08); }
-.wm-lang-badge {
-  background: rgba(249,115,22,0.1); border: 1px solid rgba(249,115,22,0.25);
-  border-radius: 4px; padding: 2px 8px; font-size: 0.6rem; font-weight: 600;
-  color: #fb923c; letter-spacing: 0.3px; font-family: 'Poppins',sans-serif;
-}
 
 /* ── Player ── */
-.wm-player-wrapper { position: relative; width: 100%; background: #000; }
+.wm-player-wrapper { 
+  position: relative; 
+  width: 100%; 
+  background: #000; 
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.9);
+  transition: box-shadow 0.4s ease;
+}
+.wm-player-wrapper:hover {
+  box-shadow: 0 0 50px rgba(229, 9, 20, 0.18);
+}
 .wm-player-wrapper.fullscreen-active { position: fixed; inset: 0; z-index: 99999; border-radius: 0; }
 .watch-frame { width: 100%; height: 560px; border: none; display: block; background: #000; }
 .watch-modal.theater-mode .watch-frame { height: calc(100vh - 110px) !important; }
@@ -187,60 +147,6 @@ const modalStyles = `
 }
 .wm-fs-mini-btn:hover { background: rgba(229,9,20,0.35); border-color: rgba(229,9,20,0.4); }
 
-/* ── Hindi Not Available ── */
-.wm-hindi-na {
-  width: 100%; padding: 40px 20px;
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 12px; text-align: center; background: #000;
-  border-top: 1px solid rgba(255,255,255,0.05);
-  animation: slideDown 0.2s ease;
-}
-@keyframes slideDown { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
-.wm-hindi-na-icon { font-size: 3rem; }
-.wm-hindi-na-title { font-family: 'Poppins',sans-serif; font-size: 1.1rem; font-weight: 700; color: #fff; margin: 0; }
-.wm-hindi-na-sub { font-family: 'Poppins',sans-serif; font-size: 0.8rem; color: rgba(255,255,255,0.4); margin: 0; max-width: 400px; line-height: 1.7; }
-.wm-hindi-na-hint { font-family: 'Poppins',sans-serif; font-size: 0.7rem; color: rgba(255,255,255,0.2); margin: 0; }
-.wm-hindi-na-actions { display: flex; gap: 10px; margin-top: 6px; }
-.wm-hindi-na-eng-btn {
-  padding: 9px 22px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12);
-  border-radius: 8px; color: rgba(255,255,255,0.7); font-family: 'Poppins',sans-serif;
-  font-size: 0.8rem; font-weight: 600; cursor: pointer; transition: all 0.2s;
-}
-.wm-hindi-na-eng-btn:hover { background: rgba(255,255,255,0.13); color: #fff; }
-
-/* ── Subtitles Panel ── */
-.wm-caption-panel {
-  background: #0f0f0f; border-top: 1px solid rgba(255,255,255,0.06);
-  padding: 12px 16px; animation: slideDown 0.2s ease;
-}
-.wm-caption-title {
-  font-family: 'Poppins',sans-serif; font-size: 0.65rem; font-weight: 700;
-  letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 10px;
-}
-.wm-caption-langs { display: flex; gap: 6px; flex-wrap: wrap; }
-.wm-caption-btn {
-  padding: 5px 13px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 6px; color: rgba(255,255,255,0.5); font-family: 'Poppins',sans-serif;
-  font-size: 0.65rem; font-weight: 600; cursor: pointer; transition: all 0.18s;
-}
-.wm-caption-btn:hover { background: rgba(255,255,255,0.08); color: #fff; }
-.wm-caption-btn.active { background: rgba(96,165,250,0.15); border-color: rgba(96,165,250,0.35); color: #60a5fa; }
-.wm-caption-note { margin-top: 10px; font-family: 'Poppins',sans-serif; font-size: 0.62rem; color: rgba(255,255,255,0.2); }
-
-/* ── Shortcuts Panel ── */
-.wm-shortcuts-panel {
-  background: #0f0f0f; border-top: 1px solid rgba(255,255,255,0.06);
-  padding: 14px 18px; animation: slideDown 0.2s ease;
-}
-.wm-shortcuts-title {
-  font-family: 'Poppins',sans-serif; font-size: 0.65rem; font-weight: 700;
-  letter-spacing: 1.5px; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 10px;
-}
-.wm-shortcuts-grid { display: grid; grid-template-columns: repeat(auto-fill,minmax(160px,1fr)); gap: 6px; }
-.wm-shortcut-item { display: flex; align-items: center; gap: 8px; padding: 5px 8px; background: rgba(255,255,255,0.03); border-radius: 6px; }
-.wm-shortcut-key { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 5px; padding: 2px 7px; font-family: monospace; font-size: 0.65rem; color: rgba(255,255,255,0.6); min-width: 28px; text-align: center; flex-shrink: 0; }
-.wm-shortcut-label { font-family: 'Poppins',sans-serif; font-size: 0.62rem; color: rgba(255,255,255,0.35); }
-
 /* ── Loading ── */
 .wm-loading {
   width: 100%; height: 560px; display: flex; flex-direction: column;
@@ -253,7 +159,6 @@ const modalStyles = `
 }
 @keyframes wm-spin { to { transform: rotate(360deg); } }
 .wm-loading p { font-family: 'Poppins',sans-serif; font-size: 0.8rem; color: rgba(255,255,255,0.3); margin: 0; }
-.wm-loading small { font-family: 'Poppins',sans-serif; font-size: 0.65rem; color: rgba(255,255,255,0.14); }
 
 /* ── Error ── */
 .wm-error { width: 100%; height: 320px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; background: #000; }
@@ -291,40 +196,8 @@ const modalStyles = `
   .wm-controls { gap: 4px; }
   .wm-tab { padding: 4px 8px; font-size: 0.6rem; }
   .wm-action-btn { padding: 4px 8px; font-size: 0.6rem; }
-  .wm-lang-select { font-size: 0.6rem; }
-  .wm-shortcuts-grid { grid-template-columns: repeat(2,1fr); }
 }
 `;
-
-const LANGUAGES = [
-  { code: "en", label: "🇺🇸 English" },
-  { code: "hi", label: "🇮🇳 Hindi" },
-];
-
-const CAPTION_LANGS = [
-  "English",
-  "Hindi",
-  "Spanish",
-  "French",
-  "German",
-  "Arabic",
-  "Japanese",
-  "Korean",
-  "Portuguese",
-  "Chinese",
-  "Italian",
-  "Russian",
-];
-
-const KEYBOARD_SHORTCUTS = [
-  { key: "F", label: "Fullscreen" },
-  { key: "T", label: "Theater mode" },
-  { key: "M", label: "Mini player" },
-  { key: "C", label: "Subtitles" },
-  { key: "K", label: "Shortcuts" },
-  { key: "Esc", label: "Exit fullscreen" },
-  { key: "← →", label: "Switch server" },
-];
 
 const getQualityBadgeClass = (q) => {
   if (!q) return "";
@@ -340,25 +213,17 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
   const [isTheater, setIsTheater] = useState(false);
-  const [showCaptions, setShowCaptions] = useState(false);
-  const [showShortcuts, setShowShortcuts] = useState(false);
-  const [activeCaption, setActiveCaption] = useState(null);
-  const [language, setLanguage] = useState("en");
   const playerRef = useRef(null);
 
   // ── Fetch sources from backend ──
   const fetchSources = useCallback(
-    async (lang) => {
+    async () => {
       if (!tmdbId) return;
-      const selectedLang = lang || language;
       setLoading(true);
       setError(false);
       try {
-        const res = await api.get(
-          `/stream/sources/${tmdbId}?language=${selectedLang}`,
-        );
+        const res = await api.get(`/stream/sources/${tmdbId}`);
         setSources(res.data);
         setActiveIndex(0);
       } catch (err) {
@@ -368,7 +233,7 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
         setLoading(false);
       }
     },
-    [tmdbId, language],
+    [tmdbId],
   );
 
   // Reset + fetch on open
@@ -378,22 +243,10 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
       setSources(null);
       setError(false);
       setIsFullscreen(false);
-      setIsMinimized(false);
       setIsTheater(false);
-      setShowCaptions(false);
-      setShowShortcuts(false);
-      setActiveCaption(null);
-      setLanguage("en");
-      fetchSources("en");
+      fetchSources();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show, tmdbId]);
-
-  // Re-fetch when language changes
-  useEffect(() => {
-    if (show && sources) fetchSources(language);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [show, language]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -404,23 +257,10 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
       switch (e.key.toLowerCase()) {
         case "f":
           setIsFullscreen((v) => !v);
-          setIsMinimized(false);
           break;
         case "t":
           setIsTheater((v) => !v);
-          setIsMinimized(false);
           setIsFullscreen(false);
-          break;
-        case "m":
-          setIsMinimized((v) => !v);
-          setIsFullscreen(false);
-          setIsTheater(false);
-          break;
-        case "c":
-          setShowCaptions((v) => !v);
-          break;
-        case "k":
-          setShowShortcuts((v) => !v);
           break;
         case "escape":
           if (isFullscreen) setIsFullscreen(false);
@@ -437,7 +277,6 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show, isFullscreen]);
 
   // Combine embed + direct streams into one server list
@@ -460,19 +299,14 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
 
   const handleFullscreen = () => {
     setIsFullscreen((v) => !v);
-    setIsMinimized(false);
     setIsTheater(false);
   };
+  
   const handleTheater = () => {
     setIsTheater((v) => !v);
-    setIsMinimized(false);
     setIsFullscreen(false);
   };
-  const handleMinimize = () => {
-    setIsMinimized((v) => !v);
-    setIsFullscreen(false);
-    setIsTheater(false);
-  };
+  
   const handleOpenNewTab = () => {
     if (currentSource?.url)
       window.open(currentSource.url, "_blank", "noopener,noreferrer");
@@ -480,8 +314,7 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
 
   const modalClass = [
     "watch-modal",
-    isMinimized ? "minimized" : "",
-    isTheater && !isMinimized ? "theater-mode" : "",
+    isTheater ? "theater-mode" : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -492,9 +325,9 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
       <Modal
         show={show}
         onHide={handleClose}
-        centered={!isMinimized && !isTheater}
+        centered={!isTheater}
         className={modalClass}
-        backdrop={isMinimized ? false : true}
+        backdrop={true}
         keyboard={false}
       >
         {/* ── Top Bar ── */}
@@ -534,41 +367,8 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
               </span>
             )}
 
-            {/* Language selector */}
-            {!loading && allServers.length > 0 && (
-              <div className="wm-lang-wrap">
-                <BsTranslate className="wm-lang-icon" />
-
-                <select
-                  className="wm-lang-select"
-                  value={language}
-                  onChange={(e) => setLanguage(e.target.value)}
-                >
-                  {LANGUAGES.map((l) => (
-                    <option key={l.code} value={l.code}>
-                      {l.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            {/* Subtitles */}
-            {!loading && (
-              <button
-                className={`wm-action-btn ${showCaptions ? "active" : ""}`}
-                onClick={() => setShowCaptions((v) => !v)}
-              >
-                <BsBadgeCc />
-                CC
-                <span className="wm-tooltip">
-                  Subtitles <span className="wm-shortcut-badge">C</span>
-                </span>
-              </button>
-            )}
-
             {/* Theater */}
-            {!loading && !isMinimized && (
+            {!loading && (
               <button
                 className={`wm-action-btn ${isTheater ? "theater-active" : ""}`}
                 onClick={handleTheater}
@@ -577,40 +377,14 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
                   className={`bi ${isTheater ? "bi-layout-sidebar" : "bi-easel"}`}
                 />
                 {isTheater ? "Exit" : "Theater"}
-                <span className="wm-tooltip">
-                  Theater <span className="wm-shortcut-badge">T</span>
-                </span>
               </button>
             )}
 
             {/* New tab */}
             <button className="wm-action-btn" onClick={handleOpenNewTab}>
               <BsBoxArrowUpRight />
-
-              <span className="wm-tooltip">Open in new tab</span>
+              <span>Open in new tab</span>
             </button>
-
-            {/* Mini player */}
-            <button className="wm-action-btn" onClick={handleMinimize}>
-              <i className={`bi ${isMinimized ? "bi-pip-fill" : "bi-pip"}`} />
-              <span className="wm-tooltip">
-                Mini player <span className="wm-shortcut-badge">M</span>
-              </span>
-            </button>
-
-            {/* Shortcuts */}
-            {!loading && (
-              <button
-                className={`wm-action-btn ${showShortcuts ? "active" : ""}`}
-                onClick={() => setShowShortcuts((v) => !v)}
-              >
-                <BsKeyboard />
-
-                <span className="wm-tooltip">
-                  Shortcuts <span className="wm-shortcut-badge">K</span>
-                </span>
-              </button>
-            )}
           </div>
 
           <button className="wm-close" onClick={handleClose}>
@@ -625,16 +399,9 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
               <span>💡</span>
               {currentSource.isDirect
                 ? "Direct stream — guaranteed correct movie."
-                : currentSource.name === "AutoEmbed"
-                  ? "🇮🇳 Dual audio — select Hindi track inside the player."
-                  : currentSource.name === "LetsEmbed"
-                    ? "🇮🇳 Hindi dubbed server — availability varies by movie."
-                    : "Wrong movie or buffering? Switch server above."}
+                : "Wrong movie or buffering? Switch server above. Click the CC icon inside the player for subtitles."}
             </div>
             <div className="wm-notice-badges">
-              {language === "hi" && (
-                <span className="wm-lang-badge">🇮🇳 Hindi</span>
-              )}
               {currentSource.quality && (
                 <span
                   className={`wm-quality-badge ${getQualityBadgeClass(currentSource.quality)}`}
@@ -652,11 +419,6 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
             <div className="wm-loading">
               <div className="wm-spinner-ring" />
               <p>Finding best sources...</p>
-              <small>
-                {language === "hi"
-                  ? "Searching Hindi dubbed servers..."
-                  : "Loading servers..."}
-              </small>
             </div>
           ) : error ? (
             <div className="wm-error">
@@ -664,7 +426,7 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
               <p>Could not load sources for this movie.</p>
               <button
                 className="wm-retry-btn"
-                onClick={() => fetchSources(language)}
+                onClick={fetchSources}
               >
                 Try Again
               </button>
@@ -697,32 +459,6 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
             </div>
           ) : currentSource ? (
             <>
-              {/* ── Hindi dubbed not available banner ── */}
-              {language === "hi" && sources?.hindi_not_available && (
-                <div className="wm-hindi-na">
-                  <div className="wm-hindi-na-icon">🇮🇳</div>
-                  <h4 className="wm-hindi-na-title">
-                    Hindi Dubbed Not Available
-                  </h4>
-                  <p className="wm-hindi-na-sub">
-                    <strong style={{ color: "#fff" }}>{movieTitle}</strong> does
-                    not have a Hindi dubbed version available right now. Servers
-                    above may play the English version only.
-                  </p>
-                  <p className="wm-hindi-na-hint">
-                    Try switching to English for the best experience.
-                  </p>
-                  <div className="wm-hindi-na-actions">
-                    <button
-                      className="wm-hindi-na-eng-btn"
-                      onClick={() => setLanguage("en")}
-                    >
-                      Switch to English
-                    </button>
-                  </div>
-                </div>
-              )}
-
               {/* ── Video Player ── */}
               <div
                 className={`wm-player-wrapper ${isFullscreen ? "fullscreen-active" : ""}`}
@@ -756,12 +492,6 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
                     <span className="wm-fs-bottom-title">🎬 {movieTitle}</span>
                     <button
                       className="wm-fs-mini-btn"
-                      onClick={() => setShowCaptions((v) => !v)}
-                    >
-                      <i className="bi bi-badge-cc" /> CC
-                    </button>
-                    <button
-                      className="wm-fs-mini-btn"
                       onClick={handleFullscreen}
                     >
                       <BsFullscreenExit />
@@ -772,7 +502,7 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
 
                 {currentSource.type === "direct" ? (
                   <video
-                    key={`${tmdbId}-${activeIndex}-${language}`}
+                    key={`${tmdbId}-${activeIndex}`}
                     src={currentSource.url}
                     className="watch-frame"
                     controls
@@ -781,7 +511,7 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
                   />
                 ) : (
                   <iframe
-                    key={`${tmdbId}-${activeIndex}-${language}`}
+                    key={`${tmdbId}-${activeIndex}`}
                     src={currentSource.url}
                     className="watch-frame"
                     allowFullScreen
@@ -793,48 +523,6 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
               </div>
             </>
           ) : null}
-
-          {/* ── Subtitles Panel ── */}
-          {showCaptions && !loading && !sources?.not_available && (
-            <div className="wm-caption-panel">
-              <p className="wm-caption-title">Subtitles / Captions</p>
-              <div className="wm-caption-langs">
-                <button
-                  className={`wm-caption-btn ${activeCaption === null ? "active" : ""}`}
-                  onClick={() => setActiveCaption(null)}
-                >
-                  Off
-                </button>
-                {CAPTION_LANGS.map((lang) => (
-                  <button
-                    key={lang}
-                    className={`wm-caption-btn ${activeCaption === lang ? "active" : ""}`}
-                    onClick={() => setActiveCaption(lang)}
-                  >
-                    {lang}
-                  </button>
-                ))}
-              </div>
-              <p className="wm-caption-note">
-                💡 Subtitles are provided by the embed player.
-              </p>
-            </div>
-          )}
-
-          {/* ── Keyboard Shortcuts Panel ── */}
-          {showShortcuts && !loading && (
-            <div className="wm-shortcuts-panel">
-              <p className="wm-shortcuts-title">Keyboard Shortcuts</p>
-              <div className="wm-shortcuts-grid">
-                {KEYBOARD_SHORTCUTS.map(({ key, label }) => (
-                  <div key={key} className="wm-shortcut-item">
-                    <span className="wm-shortcut-key">{key}</span>
-                    <span className="wm-shortcut-label">{label}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </Modal.Body>
       </Modal>
     </>

@@ -7,29 +7,46 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 // ===============================
-// Lazy-loaded routes (grouped)
+// Lazy-loaded routes (with deployment update retry wrapper)
 // ===============================
-const PublicHome      = lazy(() => import('./pages/PublicHome'));
-const HomePage        = lazy(() => import('./pages/HomePage'));
-const MovieDetailPage = lazy(() => import('./pages/MovieDetailPage'));
+const lazyWithRetry = (componentImport) => 
+  lazy(async () => {
+    const hasRetried = window.sessionStorage.getItem('retry-lazy');
+    try {
+      const result = await componentImport();
+      window.sessionStorage.removeItem('retry-lazy');
+      return result;
+    } catch (error) {
+      if (!hasRetried) {
+        window.sessionStorage.setItem('retry-lazy', 'true');
+        window.location.reload();
+        return new Promise(() => {}); // Pause execution while reloading page
+      }
+      throw error;
+    }
+  });
 
-const Login           = lazy(() => import('./pages/Login'));
-const Signup          = lazy(() => import('./pages/Signup'));
-const ResetPassword   = lazy(() => import('./components/auth/ResetPassword'));
+const PublicHome      = lazyWithRetry(() => import('./pages/PublicHome'));
+const HomePage        = lazyWithRetry(() => import('./pages/HomePage'));
+const MovieDetailPage = lazyWithRetry(() => import('./pages/MovieDetailPage'));
 
-const Dashboard       = lazy(() => import('./pages/Dashboard'));
-const GenrePage       = lazy(() => import('./pages/GenrePage'));
-const SearchPage      = lazy(() => import('./pages/SearchPage'));
-const AdminDashboard  = lazy(() => import('./pages/AdminDashboard'));
+const Login           = lazyWithRetry(() => import('./pages/Login'));
+const Signup          = lazyWithRetry(() => import('./pages/Signup'));
+const ResetPassword   = lazyWithRetry(() => import('./components/auth/ResetPassword'));
 
-const ContactUs       = lazy(() => import('./pages/ContactUs'));
-const AboutUs         = lazy(() => import('./pages/AboutUs'));
+const Dashboard       = lazyWithRetry(() => import('./pages/Dashboard'));
+const GenrePage       = lazyWithRetry(() => import('./pages/GenrePage'));
+const SearchPage      = lazyWithRetry(() => import('./pages/SearchPage'));
+const AdminDashboard  = lazyWithRetry(() => import('./pages/AdminDashboard'));
 
-const FAQ             = lazy(() => import('./footer/FAQ'));
-const DMCA            = lazy(() => import('./footer/Dmca'));
-const PrivacyPolicy   = lazy(() => import('./footer/PrivacyPolicy'));
-const TermsOfUse      = lazy(() => import('./footer/Termsofuse'));
-const Disclaimer      = lazy(() => import('./footer/Disclaimer'));
+const ContactUs       = lazyWithRetry(() => import('./pages/ContactUs'));
+const AboutUs         = lazyWithRetry(() => import('./pages/AboutUs'));
+
+const FAQ             = lazyWithRetry(() => import('./footer/FAQ'));
+const DMCA            = lazyWithRetry(() => import('./footer/Dmca'));
+const PrivacyPolicy   = lazyWithRetry(() => import('./footer/PrivacyPolicy'));
+const TermsOfUse      = lazyWithRetry(() => import('./footer/Termsofuse'));
+const Disclaimer      = lazyWithRetry(() => import('./footer/Disclaimer'));
 
 // ===============================
 // Lightweight fallback

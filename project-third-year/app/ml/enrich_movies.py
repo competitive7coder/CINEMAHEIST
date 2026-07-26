@@ -86,6 +86,7 @@ def parse_movie(data: dict) -> dict:
         "popularity":    data.get("popularity",   0.0),
         "release_year":  release_year,
         "runtime":       data.get("runtime",      0),     # CHANGE 8: metadata completeness
+        "original_language": data.get("original_language", "en"),
     }
 
 

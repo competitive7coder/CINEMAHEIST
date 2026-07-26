@@ -40,6 +40,7 @@ const SearchPage = () => {
   // Multi-signal filter states
   const [selectedGenres, setSelectedGenres] = useState([]);
   const [minRating, setMinRating] = useState(0);
+  const [selectedLanguage, setSelectedLanguage] = useState("");
   const [sortBy, setSortBy] = useState("relevance");
 
   const fetchSearchResults = useCallback(
@@ -55,6 +56,7 @@ const SearchPage = () => {
       try {
         const params = { query, page };
         if (filterYear) params.year = filterYear;
+        if (selectedLanguage) params.language = selectedLanguage;
         const res = await api.get(`/movies/search`, { params });
         setSearchResults((prev) =>
           loadMore ? [...prev, ...res.data.results] : res.data.results
@@ -67,7 +69,7 @@ const SearchPage = () => {
         setLoadingMore(false);
       }
     },
-    [query, filterYear]
+    [query, filterYear, selectedLanguage]
   );
 
   useEffect(() => {
@@ -86,7 +88,7 @@ const SearchPage = () => {
     window.scrollTo(0, 0);
     setCurrentPage(1);
     fetchSearchResults(1, false);
-  }, [query, filterYear, navigate, fetchSearchResults]);
+  }, [query, filterYear, selectedLanguage, navigate, fetchSearchResults]);
 
   const handleLoadMore = () => {
     const nextPage = currentPage + 1;
@@ -328,6 +330,23 @@ const SearchPage = () => {
                 onChange={(e) => setMinRating(parseFloat(e.target.value))}
                 className="filter-slider"
               />
+            </div>
+
+            <div className="col-md-6 col-lg-4">
+              <span className="fw-bold text-uppercase d-block mb-2" style={{ fontSize: "0.75rem", letterSpacing: "1.5px", color: "#cbd5e1" }}>Original Language</span>
+              <Form.Select
+                value={selectedLanguage}
+                onChange={(e) => setSelectedLanguage(e.target.value)}
+                className="bg-dark text-light border-secondary"
+                style={{ borderRadius: "10px", backgroundColor: "rgba(255, 255, 255, 0.05)", color: "#fff", border: "1px solid rgba(255, 255, 255, 0.15)" }}
+                size="sm"
+              >
+                <option value="" style={{ backgroundColor: "#111" }}>All Languages</option>
+                <option value="hi" style={{ backgroundColor: "#111" }}>🇮🇳 Hindi (Bollywood)</option>
+                <option value="en" style={{ backgroundColor: "#111" }}>🇺🇸 English (Hollywood)</option>
+                <option value="ko" style={{ backgroundColor: "#111" }}>🇰🇷 Korean</option>
+                <option value="ja" style={{ backgroundColor: "#111" }}>🇯🇵 Japanese</option>
+              </Form.Select>
             </div>
 
             <div className="col-md-6 col-lg-4 ms-auto">

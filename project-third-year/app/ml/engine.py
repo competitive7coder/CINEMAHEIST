@@ -162,6 +162,11 @@ def _load_content_model() -> bool:
             if col in df.columns:
                 df[col] = df[col].fillna("")
 
+        if "original_language" in df.columns:
+            df["original_language"] = df["original_language"].fillna("en")
+        else:
+            df["original_language"] = "en"
+
         df["features"] = df.apply(_build_feature_string, axis=1)
 
         vectorizer = TfidfVectorizer(
@@ -400,6 +405,7 @@ def get_recommendations(
     n: int = 20,
     interacted_ids: set = None,
     watchlist_timestamps: dict = None,
+    language: str = None,
 ) -> list:
     """
     Hybrid recommendations with two research contributions.
@@ -413,6 +419,7 @@ def get_recommendations(
                              When each movie was added to watchlist.
                              If provided, applies temporal decay weighting.
                              If None, falls back to equal weighting (baseline).
+      language             — filter recommendations by original language (e.g. 'en', 'hi')
 
     Scoring pipeline:
       1. Content score  — TF-IDF cosine with temporal decay (Contribution 1)
@@ -439,6 +446,14 @@ def get_recommendations(
 
     results = []
     for idx, movie_id in _idx_to_id.items():
+
+        # Language filter
+        if language:
+            m_lang = str(_df.at[idx, "original_language"])
+            if language == "hi" and m_lang != "hi":
+                continue
+            elif language == "en" and m_lang != "en":
+                continue
 
         # Improvement 4 — skip already interacted movies
         if movie_id in excluded:

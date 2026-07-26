@@ -132,7 +132,8 @@ async def get_trending(media_type: str = "movie", time_window: str = "day"):
 async def search_movies(
     query: str = Query(..., min_length=1),
     page: int = 1,
-    year: Optional[int] = None,        # frontend sends ?year=2023
+    year: Optional[int] = None,
+    language: Optional[str] = None,
 ):
     params = {
         "query": query,
@@ -141,9 +142,18 @@ async def search_movies(
         "language": "en-US",
     }
     if year:
-        params["primary_release_year"] = year  # TMDB's actual param name
+        params["primary_release_year"] = year
 
-    return await fetch_tmdb("/search/movie", params)
+    data = await fetch_tmdb("/search/movie", params)
+    
+    if language and "results" in data:
+        data["results"] = [
+            m for m in data["results"]
+            if m.get("original_language") == language
+        ]
+        data["total_results"] = len(data["results"])
+
+    return data
 
 
 # ---------------------------------------------------
@@ -293,6 +303,7 @@ async def get_movie_videos(
 # ---------------------------------------------------
 @router.get("/recommendations/user")
 async def get_user_recommendations(
+    language: Optional[str] = None,
     current_user: User = Depends(get_current_user)
 ):
     try:
@@ -301,12 +312,9 @@ async def get_user_recommendations(
 
         watchlist_ids = [int(mid) for mid in (current_user.watchlist or [])]
 
-        # ✅ Empty watchlist check FIRST — always return [] if no watchlist
         if not watchlist_ids:
             return []
 
-        # No Redis cache for recommendations — ML engine is fast enough
-        # and caching causes stale results when watchlist changes
         user_id_str = str(current_user.id)
         raw_ts = current_user.watchlist_timestamps or {}
         watchlist_timestamps = {
@@ -318,6 +326,7 @@ async def get_user_recommendations(
             watchlist_ids=watchlist_ids,
             user_id=user_id_str,
             watchlist_timestamps=watchlist_timestamps or None,
+            language=language,
         )
         print(f"[DEBUG] watchlist_ids sent to ML: {watchlist_ids}")
         print(f"[DEBUG] ML returned: {[r['title'] for r in recommendations[:20]]}")

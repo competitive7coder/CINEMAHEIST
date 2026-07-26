@@ -61,6 +61,16 @@ async def log_activity(
 
     # Emit only to this user's private room
     await sio.emit("activity_update", payload, room=str(current_user.id))
+    # Emit to admin command room
+    await sio.emit(
+        "admin_activity_update",
+        {
+            **payload,
+            "username": current_user.username,
+            "email": current_user.email
+        },
+        room="admin"
+    )
 
     return {"msg": "Activity logged successfully", "data": payload}
 

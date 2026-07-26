@@ -19,6 +19,7 @@ class UserOut(BaseModel):
     watchlist: List[int] = []
     profile_picture: Optional[str] = ""
     bio: Optional[str] = ""
+    is_admin: bool = False
 
     class Config:
         from_attributes = True

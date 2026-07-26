@@ -11,6 +11,7 @@ class User(Document):
     watchlist_timestamps: Dict[str, datetime] = {} # {movie_id: added_at} for temporal decay
     profile_picture: Optional[str] = ""
     bio: Optional[str] = ""
+    is_admin: bool = False
     
     # Password Reset Fields
     reset_password_token: Optional[str] = None

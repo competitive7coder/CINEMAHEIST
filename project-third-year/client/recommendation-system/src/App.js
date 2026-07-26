@@ -20,6 +20,7 @@ const ResetPassword   = lazy(() => import('./components/auth/ResetPassword'));
 const Dashboard       = lazy(() => import('./pages/Dashboard'));
 const GenrePage       = lazy(() => import('./pages/GenrePage'));
 const SearchPage      = lazy(() => import('./pages/SearchPage'));
+const AdminDashboard  = lazy(() => import('./pages/AdminDashboard'));
 
 const ContactUs       = lazy(() => import('./pages/ContactUs'));
 const AboutUs         = lazy(() => import('./pages/AboutUs'));
@@ -156,6 +157,16 @@ function App() {
                   isLoggedIn
                     ? <Dashboard setIsLoggedIn={setIsLoggedIn} />
                     : <Navigate to="/login" state={{ from: '/dashboard' }} />
+                }
+              />
+
+              {/* Admin route */}
+              <Route
+                path="/admin"
+                element={
+                  isLoggedIn
+                    ? <AdminDashboard />
+                    : <Navigate to="/login" state={{ from: '/admin' }} />
                 }
               />
 

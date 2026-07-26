@@ -157,4 +157,5 @@ async def get_current_user_info(current_user: User = Depends(get_current_user)):
         "watchlist":       current_user.watchlist or [],
         "bio":             getattr(current_user, "bio", "") or "",
         "profile_picture": getattr(current_user, "profile_picture", "") or "",
+        "is_admin":        getattr(current_user, "is_admin", False),
     }

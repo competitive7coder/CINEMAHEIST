@@ -62,3 +62,11 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return user
+
+async def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
+    if not getattr(current_user, "is_admin", False):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Admin privileges required"
+        )
+    return current_user

@@ -34,12 +34,13 @@ StreamHub is a full-stack OTT recommendation system built from scratch with a no
 | Feature | Description |
 |---|---|
 | 🎬 10,000 Movies | Full catalog with posters, ratings, trailers via TMDB API |
-| 🔍 Smart Search | Search by title with year filter and pagination |
-| 📋 Watchlist | Personal watchlist with timestamp tracking per user |
+| 🔍 Multi-Signal Search | Search with interactive genre filters, rating threshold sliders, and sorting |
+| 📋 Watchlist | Personal watchlist with glassmorphic direct-delete hover triggers |
 | 🎯 Recommendations | AI-powered hybrid TF-IDF + SVD recommendations |
 | 🎞️ Trailers | Watch trailers directly in the app via VideoModal |
-| 👤 User Auth | JWT authentication, signup, login, profile settings |
-| 🖼️ Avatar Upload | Profile picture upload via Cloudinary |
+| 👤 Session Security | JWT Access/Refresh Token Rotation with silent background refresh |
+| ⚡ Progressive Shell | Shimmer skeleton loading cards replacing blocking spinners |
+| 🖼️ Avatar Upload | Direct profile picture upload via Cloudinary from settings |
 | 📊 Activity Feed | Real-time activity updates via Socket.IO |
 | 🌙 Mood Filter | Recommendations by mood (intense, happy, romantic, scary) |
 | 🏆 Genre Pages | Browse movies by genre with infinite scroll |

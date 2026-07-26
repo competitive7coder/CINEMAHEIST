@@ -15,7 +15,18 @@ async def get_all_users(
     List all registered users.
     """
     users = await User.find_all().to_list()
-    return users
+    result = []
+    for u in users:
+        result.append({
+            "id":              str(u.id),
+            "email":           u.email,
+            "username":        u.username,
+            "watchlist":       u.watchlist or [],
+            "bio":             getattr(u, "bio", "") or "",
+            "profile_picture": getattr(u, "profile_picture", "") or "",
+            "is_admin":        getattr(u, "is_admin", False),
+        })
+    return result
 
 @router.put("/users/{user_id}/toggle-admin")
 async def toggle_admin_status(

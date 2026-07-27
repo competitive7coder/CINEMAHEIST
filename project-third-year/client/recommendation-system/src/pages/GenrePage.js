@@ -127,9 +127,15 @@ const GenrePage = () => {
       inList ? prev.filter((id) => id !== movie.id) : [...prev, movie.id],
     );
     try {
-      if (inList) await api.delete(`/users/watchlist/${movie.id}`);
-      else await api.post(`/users/watchlist/${movie.id}`, {});
+      if (inList) {
+        await api.delete(`/users/watchlist/${movie.id}`);
+        toast.info(`Removed "${movie.title || "Movie"}" from watchlist`);
+      } else {
+        await api.post(`/users/watchlist/${movie.id}`, {});
+        toast.success(`Added "${movie.title || "Movie"}" to watchlist`);
+      }
     } catch (err) {
+      toast.error("Could not update watchlist.");
       setWatchlistIds((prev) =>
         inList ? [...prev, movie.id] : prev.filter((id) => id !== movie.id),
       );

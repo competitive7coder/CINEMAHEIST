@@ -95,12 +95,12 @@ const ContactUs = () => {
     setLoading(true);
     try {
       const response = await api.post("/feedback/send", formData);
-      toast.success(response.data.msg || "Message sent successfully!");
+      toast.success(response.data.msg || "Message chala gya mere pas 😎");
       setSent(true);
       setFormData({ name: "", email: "", message: "" });
       setTimeout(() => setSent(false), 6000);
     } catch (error) {
-      toast.error("Something went wrong. Please try again.");
+      toast.error("Kuch der bad try karo😒");
     } finally {
       setLoading(false);
     }

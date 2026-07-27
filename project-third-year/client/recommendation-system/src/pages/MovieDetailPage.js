@@ -122,7 +122,7 @@ useEffect(() => {
           ),
         );
       } catch (err) {
-        toast.error("Failed to load movie details.");
+        toast.error("Movie details load nhi ho rha😑");
         setMovie(null);
       } finally {
         setLoading(false);
@@ -146,9 +146,9 @@ useEffect(() => {
       if (res.data?.key) {
         setVideoKey(res.data.key);
         setShowVideoModal(true);
-      } else toast.info("No trailer available.");
+      } else toast.info("Trailer available nhi ha😒");
     } catch {
-      toast.error("Could not load trailer.");
+      toast.error("Trailer load nhi ho rha😑");
     }
   };
 
@@ -160,15 +160,17 @@ useEffect(() => {
       if (res.data?.key) {
         setVideoKey(res.data.key);
         setShowVideoModal(true);
-      } else toast.info("No trailer available.");
+      } else toast.info("Trailer available nhi ha😒");
     } catch {
-      toast.error("Could not load trailer.");
+      toast.error("Trailer load nhi ho rha😑");
     }
   };
 
   const handleWatchlistToggle = async (movieToToggle) => {
     if (!localStorage.getItem("token")) {
-      toast.error("Please log in first.");
+      toast.warning("Nhi hoga pehele login karo😅", {
+        toastId: "watchlist-auth",
+      });
       return;
     }
     try {
@@ -176,18 +178,18 @@ useEffect(() => {
       if (check.data.isInWatchlist) {
         await api.delete(`/users/watchlist/${movieToToggle.id}`);
         logActivity(movieToToggle, "removed_from_watchlist");
-        toast.success("Removed from watchlist");
+        toast.success("Remove kardiya😤");
         setIsInWatchlist(false);
         setWatchlistIds((prev) => prev.filter((id) => id !== movieToToggle.id));
       } else {
         await api.post(`/users/watchlist/${movieToToggle.id}`);
         logActivity(movieToToggle, "added_to_watchlist");
-        toast.success("Added to watchlist");
+        toast.success("Add kardiya😎");
         setIsInWatchlist(true);
         setWatchlistIds((prev) => [...prev, movieToToggle.id]);
       }
     } catch {
-      toast.error("Could not update watchlist.");
+      toast.error("Watchlist update nhi ho rha😑");
     }
   };
 

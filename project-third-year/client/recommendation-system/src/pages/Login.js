@@ -312,13 +312,13 @@ const Login = ({ setIsLoggedIn }) => {
 
         
         setIsLoggedIn(true);
-        toast.success("Identity verified. Welcome back!");
+        toast.success("Welcome to StreamHub jii😎🤭");
 
       
         navigate("/dashboard");
       }
     } catch (err) {
-      toast.error(err.response?.data?.detail || "Login failed");
+      toast.error(err.response?.data?.detail || "Ek bar aur try karo🫠");
     } finally {
       setLoading(false);
     }
@@ -330,10 +330,10 @@ const Login = ({ setIsLoggedIn }) => {
     setLoading(true);
     try {
       await api.post("/auth/forgot-password", { email });
-      toast.success("Security link dispatched to your Gmail.");
+      toast.success("Gmail pe link bhej diya😎");
       setIsForgotView(false);
     } catch (err) {
-      toast.error(err.response?.data?.detail || err.response?.data?.msg || "Email recovery failed.");
+      toast.error(err.response?.data?.detail || err.response?.data?.msg || "Email recovery nhi hoga🫠");
     } finally {
       setLoading(false);
     }

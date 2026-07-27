@@ -140,12 +140,12 @@ const Dashboard = ({ setIsLoggedIn }) => {
       // Sync watchlist UI based on action type
       if (data.action_type === ACTION.ADDED) {
         fetchWatchlist(); // re-fetch to get full movie object
-        toast.success(`✅ Added "${data.movie_title}" to watchlist`);
+        toast.success(`"${data.movie_title}" add kar diya😎`);
       } else if (data.action_type === ACTION.REMOVED) {
         setWatchlistMovies((prev) =>
           prev.filter((m) => m.id !== data.movie_id),
         );
-        toast.info(`Removed "${data.movie_title}"`);
+        toast.info(`"${data.movie_title}" remove kar diya😤`);
       }
       // TRAILER action only updates history feed (handled above)
     });
@@ -196,7 +196,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
         // Recommendations load lazily when user clicks Discovery tab
       } catch (err) {
         console.error(err);
-        toast.error("Failed loading dashboard");
+        toast.error("Dashboard load nhi ho rha😑");
       } finally {
         setLoading(false);
       }
@@ -226,7 +226,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
       const res = await api.get(`/movies/${movie.id}/videos`);
       const trailer = res.data;
       if (!trailer?.key) {
-        toast.error("Trailer not available");
+        toast.error("Trailer available nhi ha😒");
         return;
       }
 
@@ -249,7 +249,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
       logActivity(movie, ACTION.ADDED);
     } catch (err) {
       console.error(err);
-      toast.error("Could not add movie");
+      toast.error("Movie add nhi hoga😑");
     }
   };
 
@@ -263,7 +263,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
       logActivity(movie, ACTION.REMOVED);
     } catch (err) {
       console.error(err);
-      toast.error("Could not remove movie");
+      toast.error("Movie remove nhi hoga😑");
     }
   };
 
@@ -274,7 +274,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
       toast.success("History cleared");
     } catch (err) {
       console.error(err);
-      toast.error("Failed to clear history");
+      toast.error("History clear nhi hoga🤪");
     }
   };
 
@@ -283,31 +283,31 @@ const Dashboard = ({ setIsLoggedIn }) => {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      toast.error("Please select an image file");
+      toast.error("Image toh select karo😒");
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image must be under 5MB");
+      toast.error("5MB se bada image nhi hoga😒");
       return;
     }
 
     const formData = new FormData();
     formData.append("profile_picture", file);
 
-    const toastId = toast.loading("Uploading new profile picture...");
+    const toastId = toast.loading("Upload kar rha hu😉");
     try {
       const res = await api.put("/profile/update-avatar", formData);
       setUserProfilePicture(res.data.profile_picture);
       toast.update(toastId, {
-        render: "Profile picture updated successfully! ✨",
+        render: "Profile picture update kar diya😎",
         type: "success",
         isLoading: false,
         autoClose: 3000,
       });
     } catch (err) {
       toast.update(toastId, {
-        render: err.response?.data?.detail || "Failed to upload image",
+        render: err.response?.data?.detail || "Profile picture update nhi hoga😑",
         type: "error",
         isLoading: false,
         autoClose: 3000,

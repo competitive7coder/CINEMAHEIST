@@ -58,12 +58,12 @@ const ProfileSettings = ({
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      toast.error("Please select an image file");
+      toast.error("Phele image select karo😒");
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image must be under 5MB");
+      toast.error("5MB se bada image nhi hoga😒");
       return;
     }
 
@@ -79,7 +79,7 @@ const ProfileSettings = ({
 
       const res = await api.put("/profile/update-avatar", formData);
 
-      toast.success("Profile picture updated");
+      toast.success("Profile picture update kar diya😎");
       setLocalAvatar(null);
 
       if (onPictureUpdate) {
@@ -110,7 +110,7 @@ const ProfileSettings = ({
     e.preventDefault();
 
     if (!nameData.name.trim()) {
-      toast.error("Name cannot be empty");
+      toast.error("Name kaise empty hoga🤣");
       return;
     }
 
@@ -121,7 +121,7 @@ const ProfileSettings = ({
 
       const res = await api.put("/profile/update-name", formData);
 
-      toast.success("Name updated");
+      toast.success("Name update kar diya😎");
 
       if (onNameUpdate) {
         onNameUpdate(res.data.username);
@@ -151,7 +151,7 @@ const ProfileSettings = ({
 
       const res = await api.put("/profile/bio", formData);
 
-      toast.success("Bio updated");
+      toast.success("Bio update kar diya😎");
 
       if (onBioUpdate) {
         onBioUpdate(res.data.bio);
@@ -205,7 +205,7 @@ const ProfileSettings = ({
   const deleteAccount = async () => {
 
     if (!deletePassword) {
-      toast.error("Enter password to delete account");
+      toast.error("Password enter karo😒");
       return;
     }
 

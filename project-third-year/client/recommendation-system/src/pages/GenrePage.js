@@ -67,7 +67,7 @@ const GenrePage = () => {
         setMovies((prev) => (loadMore ? [...prev, ...newResults] : newResults));
         setTotalPages(res.data?.total_pages || res.data?.totalPages || 1);
       } catch (err) {
-        toast.error("Could not load movies.");
+        toast.error("Movies load nahi ho rha😑");
       } finally {
         setLoading(false);
         setLoadingMore(false);
@@ -119,7 +119,9 @@ const GenrePage = () => {
   const handleWatchlistClick = async (movie) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.error("Please log in.");
+      toast.warning("Nahi hoga🫠, Login karne se hoga😎", {
+        toastId: "watchlist-auth",
+      });
       return;
     }
     const inList = watchlistIds.includes(movie.id);
@@ -129,13 +131,13 @@ const GenrePage = () => {
     try {
       if (inList) {
         await api.delete(`/users/watchlist/${movie.id}`);
-        toast.info(`Removed "${movie.title || "Movie"}" from watchlist`);
+        toast.info(`"${movie.title || "Movie"}" remove kardiya😤`);
       } else {
         await api.post(`/users/watchlist/${movie.id}`, {});
-        toast.success(`Added "${movie.title || "Movie"}" to watchlist`);
+        toast.success(`"${movie.title || "Movie"}" add kardiya😎`);
       }
     } catch (err) {
-      toast.error("Could not update watchlist.");
+      toast.error("Areh 👀,nahi hoga🥹");
       setWatchlistIds((prev) =>
         inList ? [...prev, movie.id] : prev.filter((id) => id !== movie.id),
       );

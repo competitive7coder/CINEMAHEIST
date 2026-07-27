@@ -240,7 +240,7 @@ const Signup = () => {
     const onSubmit = async e => {
         e.preventDefault();
         if (password !== retypePassword) {
-            toast.error('Passwords do not match');
+            toast.error('Password different ho gya🤣');
             return;
         }
 
@@ -250,7 +250,7 @@ const Signup = () => {
             toast.success(res.data.msg || "Identity Created!");
             setTimeout(() => navigate('/login'), 2000);
         } catch (err) {
-            toast.error(err.response?.data?.detail || err.response?.data?.msg || 'Registration failed');
+            toast.error(err.response?.data?.detail || err.response?.data?.msg || 'Registration nhi ho rha🫠');
         } finally {
             setLoading(false);
         }

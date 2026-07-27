@@ -23,7 +23,7 @@
   "scripts": {
     "start": "vite",
     "build": "node generate-sitemap.js && vite build && npm run purgecss",
-    "purgecss": "purgecss --css dist/assets/*.css --content src/**/*.{js,jsx} public/index.html --output dist/assets",
+    "purgecss": "purgecss --css dist/assets/*.css --content src/**/*.{js,jsx} public/index.html --output dist/assets --safelist dropdown dropdown-menu dropdown-item show dropdown-toggle",
     "preview": "vite preview",
     "test": "vitest",
     "sitemap": "node generate-sitemap.js"

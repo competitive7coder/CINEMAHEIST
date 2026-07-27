@@ -369,6 +369,7 @@ const HomePage = () => {
   transparent
 );
         z-index: 2;
+        pointer-events: none;
       }
 
       .stream-progress {

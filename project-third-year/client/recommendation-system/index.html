@@ -188,7 +188,7 @@
     <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="manifest" href="/manifest.json" />
 
     <!-- ═══════════════════════════════════════════════════
        OPEN GRAPH
@@ -287,6 +287,17 @@
           '{"token":"a53ff023fe3c4a49b77ee6dd02d4b8ef"}',
         );
         document.head.appendChild(s);
+      }
+    </script>
+
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker
+            .register("/service-worker.js")
+            .then((reg) => console.log("SW registered"))
+            .catch((err) => console.log("SW registration failed", err));
+        });
       }
     </script>
 

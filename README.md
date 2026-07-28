@@ -50,6 +50,7 @@ StreamHub is a full-stack OTT recommendation system built from scratch with a no
 | 🔑 Password Reset | Forgot password with email OTP flow via Brevo |
 | 📈 Dashboard | Personal dashboard with recommendations and activity |
 | 🎥 Watch Modal | Watch movies with WatchMovieModal component |
+| 📱 PWA Support | Installable mobile/desktop app wrapper with custom logos and offline caching |
 
 ---
 
@@ -317,6 +318,16 @@ echo "REACT_APP_API_URL=http://localhost:8000" > .env.development
 npm start
 # App: http://localhost:3000
 ```
+
+### 📱 Progressive Web App (PWA)
+
+StreamHub is configured as a fully installable mobile and desktop application featuring:
+
+*   **🖥️ Standalone Interface**: Opens in its own dedicated window without browser toolbars, navigation buttons, or URL bars, functioning exactly like a native app.
+*   **⚡ Instant Loading (App Shell)**: Caches static code locally (HTML, CSS, JS) so the application loads instantly, even on slow connections.
+*   **🎨 Custom Adaptive Branding**: Implements launch splash screens, theme color matches, and responsive app icons that automatically adapt to mobile grids.
+*   **🔄 Auto-Update Sync**: Silently fetches and activates new app updates in the background when code changes are deployed, ensuring you're always running the latest version.
+
 
 ### ML Dataset
 

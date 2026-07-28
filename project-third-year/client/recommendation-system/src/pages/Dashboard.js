@@ -353,6 +353,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
           <nav className="main-nav">
             <div className="nav-label">Main Menu</div>
             {[
+              { id: "home", label: "Back to Home", icon: "bi-house-door", isRoute: true },
               {
                 id: "watchlist",
                 label: "My Library",
@@ -365,9 +366,13 @@ const Dashboard = ({ setIsLoggedIn }) => {
               <button
                 key={item.id}
                 onClick={() => {
-                  setActiveTab(item.id);
-                  setSidebarOpen(false);
-                  if (item.id === "recommendations") fetchRecommendations();
+                  if (item.isRoute) {
+                    navigate("/");
+                  } else {
+                    setActiveTab(item.id);
+                    setSidebarOpen(false);
+                    if (item.id === "recommendations") fetchRecommendations();
+                  }
                 }}
                 className={`nav-btn ${activeTab === item.id ? "active" : ""}`}
               >
@@ -398,26 +403,30 @@ const Dashboard = ({ setIsLoggedIn }) => {
 
         {/* ── MOBILE TOP BAR ── */}
         <div className="mobile-topbar">
-          <button
-            className="hamburger-btn"
-            onClick={() => setSidebarOpen(true)}
-          >
-            <BsList />
-          </button>
-          <h2 className="brand-text" style={{ margin: 0 }}>
+          <h2 className="brand-text" style={{ margin: 0, cursor: "pointer" }} onClick={() => navigate("/")}>
             STREAM<span>HUB</span>
           </h2>
-          <img
-            src={userProfilePicture || "https://placehold.co/36"}
-            alt="user"
-            className="mobile-avatar"
-          />
+          <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+            <button 
+              onClick={handleLogout} 
+              style={{ background: "none", border: "none", color: "#ef4444", fontSize: "1.25rem", cursor: "pointer", display: "flex", alignItems: "center", padding: "4px" }}
+              title="Sign Out"
+            >
+              <BsBoxArrowRight />
+            </button>
+            <img
+              src={userProfilePicture || "https://placehold.co/36"}
+              alt="user"
+              className="mobile-avatar"
+              onClick={() => setActiveTab("settings")}
+              style={{ cursor: "pointer" }}
+            />
+          </div>
         </div>
 
         {/* ── MAIN CONTENT ── */}
         <main
-          className="content-hub custom-scrollbar py-5"
-          style={{ paddingTop: "4rem" }}
+          className="content-hub custom-scrollbar"
         >
           <header className="content-header-refined">
             <div className="header-left">
@@ -626,17 +635,26 @@ const Dashboard = ({ setIsLoggedIn }) => {
         {/* ── MOBILE BOTTOM NAV ── */}
         <nav className="mobile-bottom-nav">
           {[
-            { id: "watchlist", icon: "bi-collection-play" },
-            { id: "recommendations", icon: "bi-compass" },
-            { id: "history", icon: "bi-clock-history" },
-            { id: "settings", icon: "bi-sliders" },
+            { id: "home", label: "Home", icon: "bi-house-door", isRoute: true },
+            { id: "watchlist", label: "Library", icon: "bi-collection-play" },
+            { id: "recommendations", label: "Discovery", icon: "bi-compass" },
+            { id: "history", label: "Activity", icon: "bi-clock-history" },
+            { id: "settings", label: "Settings", icon: "bi-sliders" },
           ].map((item) => (
             <button
               key={item.id}
-              onClick={() => setActiveTab(item.id)}
+              onClick={() => {
+                if (item.isRoute) {
+                  navigate("/");
+                } else {
+                  setActiveTab(item.id);
+                  if (item.id === "recommendations") fetchRecommendations();
+                }
+              }}
               className={`bottom-nav-btn${activeTab === item.id ? " active" : ""}`}
             >
               <i className={`bi ${item.icon}`}></i>
+              <span className="bnav-label">{item.label}</span>
             </button>
           ))}
         </nav>
@@ -708,8 +726,8 @@ const Dashboard = ({ setIsLoggedIn }) => {
           transform:rotate(-10deg); box-shadow:0 0 20px var(--accent-glow); flex-shrink:0;
         }
         .logo-inner { width:12px; height:12px; border:2.5px solid #fff; border-radius:3px; }
-        .brand-text { font-size:1.35rem; font-weight:800; letter-spacing:-1px; margin:0; }
-        .brand-text span { color:var(--accent); }
+        .brand-text { font-family: 'Bebas Neue', sans-serif; font-size:1.65rem; font-weight:400; letter-spacing:1px; margin:0; }
+        .brand-text span { color:#e50914; }
 
         .main-nav  { display:flex; flex-direction:column; gap:6px; flex-grow:1; }
         .nav-label { font-size:0.65rem; text-transform:uppercase; letter-spacing:1.8px; color:#475569; margin-bottom:0.75rem; padding-left:1rem; font-weight:700; }
@@ -768,20 +786,20 @@ const Dashboard = ({ setIsLoggedIn }) => {
         /* ── BOTTOM NAV ── */
         .mobile-bottom-nav { display:none; }
         .bottom-nav-btn {
-          flex:1; background:none; border:none; color:#475569;
-          font-size:1.25rem; padding:8px 0; cursor:pointer;
+          flex:1; background:none; border:none; color:#94a3b8;
+          font-size:1.15rem; padding:8px 0; cursor:pointer;
           display:flex; flex-direction:column; align-items:center; justify-content:center;
           gap:3px; transition:all 0.2s; position:relative;
         }
         .bottom-nav-btn .bnav-label { font-size:0.55rem; font-weight:600; letter-spacing:0.3px; }
-        .bottom-nav-btn.active { color:var(--accent); }
+        .bottom-nav-btn.active { color:#fff; }
         .bottom-nav-btn.active::before {
           content:''; position:absolute; top:0; left:50%; transform:translateX(-50%);
           width:28px; height:2px; background:var(--accent); border-radius:0 0 4px 4px;
         }
 
         /* ── CONTENT HUB ── */
-        .content-hub { flex-grow:1; overflow-y:auto; padding:2.5rem 3.5rem; min-width:0; }
+        .content-hub { flex-grow:1; overflow-y:auto; padding:4.25rem 3.5rem 2.5rem; min-width:0; }
         .content-header-refined { margin-bottom:2.5rem; }
         .breadcrumb-mini {
           font-size: 0.65rem;
@@ -966,12 +984,25 @@ const Dashboard = ({ setIsLoggedIn }) => {
           }
 
           /* Mobile top bar */
-          .mobile-topbar { display: none; }
+          .mobile-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 56px;
+            padding: 0 1.25rem;
+            background: rgba(8,9,13,0.96);
+            border-bottom: 1px solid var(--border);
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+          }
 
           /* Main content area */
           .content-hub {
             flex:1; height:0; overflow-y:auto;
-            padding:1rem 0.875rem calc(64px + 1rem);
+            padding: calc(56px + 1.25rem) 0.875rem calc(64px + 1rem);
           }
           .content-header-refined { margin-bottom:1.25rem; }
           .header-left h1  { font-size:1.5rem; letter-spacing:-0.8px; }
@@ -1005,7 +1036,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
 
         /* ════════ SMALL ≤ 400px ════════ */
         @media (max-width:400px) {
-          .content-hub          { padding:0.75rem 0.65rem calc(64px + 0.75rem); }
+          .content-hub          { padding: calc(56px + 0.75rem) 0.65rem calc(64px + 0.75rem); }
           .movie-grid-refined   { gap:0.45rem; }
           .header-left h1       { font-size:1.3rem; }
           .settings-main-form   { padding:1rem; }

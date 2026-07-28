@@ -33,6 +33,14 @@ self.addEventListener("activate", (event) => {
 
 // Fetch events
 self.addEventListener("fetch", (event) => {
+  // Only handle same-origin GET requests (local assets, JS, CSS, HTML)
+  if (event.request.method !== "GET") return;
+
+  const url = new URL(event.request.url);
+
+  // Skip cross-origin requests (like TMDB images and API calls)
+  if (url.origin !== self.location.origin) return;
+
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {

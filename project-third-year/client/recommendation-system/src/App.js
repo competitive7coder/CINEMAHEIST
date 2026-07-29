@@ -132,6 +132,13 @@ function App() {
   return (
     <Router>
       <ErrorBoundary>
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          theme="dark"
+          newestOnTop
+          style={{ zIndex: 999999 }}
+        />
         <Suspense fallback={<PageFallback />}>
 
           <>
@@ -219,18 +226,7 @@ function App() {
               />
 
             </Routes>
-
-            {/*  Toast global */}
-            <ToastContainer
-              position="top-right"
-              autoClose={3000}
-              theme="dark"
-              newestOnTop
-              style={{ zIndex: 999999 }}
-            />
-
           </>
-
         </Suspense>
       </ErrorBoundary>
     </Router>

@@ -417,6 +417,7 @@ const PublicHome = ({ setIsLoggedIn }) => {
 
   
   const [liveCount, setLiveCount] = useState(11840);
+
   useEffect(() => {
     const liveTimer = setInterval(() => {
       setLiveCount(prev => prev + Math.floor(Math.random() * 11) - 5);

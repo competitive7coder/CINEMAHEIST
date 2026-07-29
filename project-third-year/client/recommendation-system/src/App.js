@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import MainLayout from './components/layout/MainLayout';
 
 // Toast 
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 // ===============================
@@ -102,6 +102,31 @@ function App() {
 
   useEffect(() => {
     import('./pages/HomePage');
+
+    // Show PWA install helper toast on first visit
+    const hasSeenTip = sessionStorage.getItem("hasSeenInstallTip");
+    if (!hasSeenTip) {
+      sessionStorage.setItem("hasSeenInstallTip", "true");
+      setTimeout(() => {
+        toast.info(
+          "💡 Pro Tip: Install StreamHub to your phone or PC. On PC, click the 'Install' icon in your browser's address bar. On mobile, tap the browser menu (3-dots in Chrome, or the Share button in iOS Safari) scroll down and select 'Install and Create Shortcut'.",
+          {
+            position: "top-center",
+            autoClose: 10000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            theme: "dark",
+            style: {
+              width: "600px",
+              maxWidth: "90vw",
+              fontSize: "0.9rem"
+            }
+          }
+        );
+      }, 3500); // 3.5 second delay so the page loads first
+    }
   }, []);
 
   return (

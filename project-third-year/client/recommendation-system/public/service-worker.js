@@ -70,7 +70,8 @@ self.addEventListener("fetch", (event) => {
         return cachedResponse;
       }
       return fetch(event.request).catch((err) => {
-        // Silently catch network failures when offline/unstable to prevent console noise
+        // Return a mock offline response to satisfy respondWith requirement
+        return new Response("Offline", { status: 503, statusText: "Offline" });
       });
     })
   );

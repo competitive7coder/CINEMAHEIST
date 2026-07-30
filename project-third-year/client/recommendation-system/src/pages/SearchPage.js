@@ -180,7 +180,60 @@ const SearchPage = () => {
       });
   }, [searchResults, selectedGenres, minRating, sortBy]);
 
-  if (loading && currentPage === 1) return <LoadingSpinner />;
+  if (loading && currentPage === 1) {
+    return (
+      <div
+        className="container-fluid py-6"
+        style={{ color: "white", paddingTop: "100px", minHeight: "100vh", background: "radial-gradient(circle at 50% 50%, #0e111a 0%, #050609 100%)" }}
+      >
+        <style>{`
+          @keyframes skeleton-shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+          }
+          .skeleton-card {
+            width: 100%;
+            aspect-ratio: 154 / 231;
+            border-radius: 14px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.015) 25%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.015) 75%);
+            background-size: 200% 100%;
+            animation: skeleton-shimmer 1.5s infinite linear;
+            border: 1px solid rgba(255,255,255,0.03);
+          }
+          .skeleton-title {
+            width: 200px;
+            height: 32px;
+            border-radius: 6px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.015) 25%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.015) 75%);
+            background-size: 200% 100%;
+            animation: skeleton-shimmer 1.5s infinite linear;
+            border: 1px solid rgba(255,255,255,0.03);
+            margin-bottom: 20px;
+          }
+          @media (min-width: 992px) {
+            .sh-grid {
+              display: grid !important;
+              grid-template-columns: repeat(7, 1fr) !important;
+              gap: 12px !important;
+            }
+            .sh-grid > .col {
+              width: 100% !important;
+              max-width: none !important;
+              flex: 0 0 auto !important;
+            }
+          }
+        `}</style>
+        <div className="skeleton-title" />
+        <div className="row sh-grid g-3">
+          {Array.from({ length: 14 }).map((_, i) => (
+            <div key={i} className="col-6 col-sm-4 col-md-3 col">
+              <div className="skeleton-card" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 50 }, (_, i) => currentYear - i);

@@ -69,7 +69,9 @@ self.addEventListener("fetch", (event) => {
       if (cachedResponse) {
         return cachedResponse;
       }
-      return fetch(event.request);
+      return fetch(event.request).catch((err) => {
+        // Silently catch network failures when offline/unstable to prevent console noise
+      });
     })
   );
 });

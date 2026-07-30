@@ -450,7 +450,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
               <div className="grid-reveal">
                 {loading ? (
                   <div className="movie-grid-refined">
-                    {Array.from({ length: 7 }).map((_, i) => (
+                    {Array.from({ length: 12 }).map((_, i) => (
                       <div key={i} className="grid-item-refined">
                         <div className="skeleton-card" />
                       </div>
@@ -496,7 +496,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
               <div className="fade-in-section">
                 {recsLoading ? (
                   <div className="movie-grid-refined">
-                    {Array.from({ length: 7 }).map((_, i) => (
+                    {Array.from({ length: 12 }).map((_, i) => (
                       <div key={i} className="grid-item-refined">
                         <div className="skeleton-card" />
                       </div>

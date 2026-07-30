@@ -319,6 +319,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("refresh_token");
     setIsLoggedIn(false);
     navigate("/login");
   };

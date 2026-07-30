@@ -714,6 +714,7 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("refresh_token");
     setIsLoggedIn(false);
     setUserOpen(false);
     closeMobile();

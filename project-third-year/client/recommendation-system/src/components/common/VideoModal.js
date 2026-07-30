@@ -328,7 +328,7 @@ backdrop-filter: blur(8px);
           </div>
 
           <div className="vm-footer">
-            <span className="vm-footer-text">StreamHub</span>
+            <span className="vm-footer-text">CinemaHeist</span>
             <div className="vm-footer-esc">
               <span className="vm-kbd">ESC</span>
               <span className="vm-footer-text">to close</span>

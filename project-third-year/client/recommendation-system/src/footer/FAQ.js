@@ -11,11 +11,11 @@ const faqs = [
       },
       {
         q: "Why is the video buffering a lot?",
-        a: "Buffering is caused by the third-party embed server, not StreamHub. Try switching to a different server — each one uses a different source. Server 3 (Videasy) is generally the most stable.",
+        a: "Buffering is caused by the third-party embed server, not CinemaHeist. Try switching to a different server — each one uses a different source. Server 3 (Videasy) is generally the most stable.",
       },
       {
-        q: "Can I download movies from StreamHub?",
-        a: "No. StreamHub does not provide downloads. We are a streaming discovery platform only. All content is served via embedded players from third-party providers.",
+        q: "Can I download movies from CinemaHeist?",
+        a: "No. CinemaHeist does not provide downloads. We are a streaming discovery platform only. All content is served via embedded players from third-party providers.",
       },
       {
         q: "Why do some movies show a blank/black player?",
@@ -44,8 +44,8 @@ const faqs = [
     category: "Recommendations",
     items: [
       {
-        q: "How does StreamHub recommend movies?",
-        a: "StreamHub uses a 5-stage hybrid ML engine combining collaborative filtering (SVD), content-based filtering (TF-IDF), and a temporal watchlist decay algorithm. The more movies you add to your watchlist, the better your recommendations get.",
+        q: "How does CinemaHeist recommend movies?",
+        a: "CinemaHeist uses a 5-stage hybrid ML engine combining collaborative filtering (SVD), content-based filtering (TF-IDF), and a temporal watchlist decay algorithm. The more movies you add to your watchlist, the better your recommendations get.",
       },
       {
         q: "Why are my recommendations not changing?",
@@ -61,16 +61,16 @@ const faqs = [
     category: "Legal & Copyright",
     items: [
       {
-        q: "Does StreamHub host any movies?",
-        a: "No. StreamHub does not host, upload, or store any video content. All streams are served by independent third-party embed providers. StreamHub functions as a search and discovery index only.",
+        q: "Does CinemaHeist host any movies?",
+        a: "No. CinemaHeist does not host, upload, or store any video content. All streams are served by independent third-party embed providers. CinemaHeist functions as a search and discovery index only.",
       },
       {
         q: "How do I report a copyright violation?",
-        a: "Email our DMCA agent at dmca.streamhub@proton.me with the movie title, page URL, and proof of ownership. We respond within 48 hours and forward complaints to the relevant embed provider.",
+        a: "Email our DMCA agent at dmca.CinemaHeist@proton.me with the movie title, page URL, and proof of ownership. We respond within 48 hours and forward complaints to the relevant embed provider.",
       },
       {
-        q: "Is StreamHub free to use?",
-        a: "Yes. StreamHub is completely free. We do not charge for any features, require a subscription, or store payment information.",
+        q: "Is CinemaHeist free to use?",
+        a: "Yes. CinemaHeist is completely free. We do not charge for any features, require a subscription, or store payment information.",
       },
     ],
   },
@@ -246,7 +246,7 @@ const FAQ = () => {
           Frequently Asked <span>Questions</span>
         </h1>
         <p>
-          Everything you need to know about StreamHub. Can't find your answer?
+          Everything you need to know about CinemaHeist. Can't find your answer?
           Contact us directly.
         </p>
       </div>

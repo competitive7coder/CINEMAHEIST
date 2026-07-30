@@ -404,7 +404,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
         {/* ── MOBILE TOP BAR ── */}
         <div className="mobile-topbar">
           <h2 className="brand-text" style={{ margin: 0, cursor: "pointer" }} onClick={() => navigate("/")}>
-            STREAM<span>HUB</span>
+            CINEMA<span>HEIST</span>
           </h2>
           <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
             <button 

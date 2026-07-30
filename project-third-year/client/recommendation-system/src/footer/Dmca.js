@@ -4,7 +4,7 @@ const DMCA = () => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText("dmca.streamhub@proton.me");
+    navigator.clipboard.writeText("dmca.CinemaHeist@proton.me");
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -181,7 +181,7 @@ const DMCA = () => {
       <div className="dmca-hero">
         <div className="dmca-badge">⚖️ Legal</div>
         <h1>DMCA & Copyright <span>Policy</span></h1>
-        <p>StreamHub respects intellectual property rights. We do not host any video content — all streams are served by third-party embed providers.</p>
+        <p>CinemaHeist respects intellectual property rights. We do not host any video content — all streams are served by third-party embed providers.</p>
       </div>
 
       <div className="dmca-container">
@@ -190,7 +190,7 @@ const DMCA = () => {
         <div className="dmca-notice-box">
           <div className="dmca-notice-icon">📌</div>
           <div className="dmca-notice-text">
-            <strong>Important:</strong> StreamHub is an automated index that embeds publicly available streaming players. We do not upload, store, or host any video, audio, or media files on our servers. All content is hosted by independent third-party providers such as vidsrc, 2embed, and similar services. StreamHub functions solely as a search and discovery platform.
+            <strong>Important:</strong> CinemaHeist is an automated index that embeds publicly available streaming players. We do not upload, store, or host any video, audio, or media files on our servers. All content is hosted by independent third-party providers such as vidsrc, 2embed, and similar services. CinemaHeist functions solely as a search and discovery platform.
           </div>
         </div>
 
@@ -198,9 +198,9 @@ const DMCA = () => {
         <div className="dmca-section">
           <div className="dmca-section-header">
             <div className="dmca-section-num">1</div>
-            <div className="dmca-section-title">What StreamHub Does</div>
+            <div className="dmca-section-title">What CinemaHeist Does</div>
           </div>
-          <p>StreamHub uses the <strong>TMDB API</strong> for movie metadata (titles, posters, descriptions, ratings). We do not store or serve any video content ourselves. All playback is handled by third-party embed players embedded via iframe.</p>
+          <p>CinemaHeist uses the <strong>TMDB API</strong> for movie metadata (titles, posters, descriptions, ratings). We do not store or serve any video content ourselves. All playback is handled by third-party embed players embedded via iframe.</p>
           <p>We operate similarly to a <strong>search engine</strong> — we index and link to content hosted elsewhere. We have no control over what those third-party providers host or serve.</p>
         </div>
 
@@ -214,7 +214,7 @@ const DMCA = () => {
           <div className="dmca-steps">
             {[
               { title: "Identification of the copyrighted work", desc: "Title of the movie, series, or content you believe is being infringed." },
-              { title: "URL of the infringing content", desc: "The specific page URL on StreamHub where the content appears." },
+              { title: "URL of the infringing content", desc: "The specific page URL on CinemaHeist where the content appears." },
               { title: "Your contact information", desc: "Name, email address, and mailing address of the copyright owner or authorized agent." },
               { title: "Good faith statement", desc: '"I have a good faith belief that the use of the copyrighted material is not authorized by the copyright owner, its agent, or the law."' },
               { title: "Accuracy statement", desc: '"The information in this notice is accurate and, under penalty of perjury, I am authorized to act on behalf of the copyright owner."' },
@@ -237,7 +237,7 @@ const DMCA = () => {
           <p>Send your completed DMCA notice to our designated copyright agent:</p>
           <div className="dmca-contact-card">
             <div className="dmca-contact-label">DMCA Agent Email</div>
-            <div className="dmca-contact-email">dmca.streamhub@proton.me</div>
+            <div className="dmca-contact-email">dmca.CinemaHeist@proton.me</div>
             <div className="dmca-contact-row">
               <button className={`dmca-copy-btn ${copied ? "copied" : ""}`} onClick={handleCopy}>
                 {copied ? "✓ Copied" : "📋 Copy Email"}
@@ -257,7 +257,7 @@ const DMCA = () => {
             {[
               { step: "01", title: "Notice received", sub: "We receive your DMCA notice at our designated email.", active: true },
               { step: "02", title: "Review within 48 hours", sub: "Our team reviews the claim and verifies the reported content.", active: false },
-              { step: "03", title: "Content removed", sub: "We remove the infringing page from StreamHub within 48–72 hours.", active: false },
+              { step: "03", title: "Content removed", sub: "We remove the infringing page from CinemaHeist within 48–72 hours.", active: false },
               { step: "04", title: "Provider notified", sub: "We forward the notice to the relevant embed provider for further action.", active: false },
             ].map((item, i) => (
               <div key={i} className="dmca-timeline-item">
@@ -283,7 +283,7 @@ const DMCA = () => {
 
         {/* Footer note */}
         <div className="dmca-footer-note">
-          <p>StreamHub operates under <strong>IT Act 2000, Section 79</strong> safe harbour provisions as an intermediary platform. We respond to all valid copyright complaints in good faith. This policy was last updated <strong>March 2026</strong>.</p>
+          <p>CinemaHeist operates under <strong>IT Act 2000, Section 79</strong> safe harbour provisions as an intermediary platform. We respond to all valid copyright complaints in good faith. This policy was last updated <strong>March 2026</strong>.</p>
         </div>
 
       </div>

@@ -307,7 +307,7 @@ def merge_and_save(new_df: pd.DataFrame, existing_df: pd.DataFrame) -> pd.DataFr
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Expand StreamHub movie dataset via TMDB API"
+        description="Expand CinemaHeist movie dataset via TMDB API"
     )
     parser.add_argument(
         "--target", type=int, default=10000,
@@ -335,7 +335,7 @@ def main():
     need    = max(0, args.target - current)
 
     print(f"\n{'=' * 55}")
-    print(f"  StreamHub — Dataset Expander")
+    print(f"  CinemaHeist — Dataset Expander")
     print(f"{'=' * 55}")
     print(f"  Current : {current:,} movies")
     print(f"  Target  : {args.target:,} movies")

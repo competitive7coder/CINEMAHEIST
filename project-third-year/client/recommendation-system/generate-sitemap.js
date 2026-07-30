@@ -126,7 +126,7 @@ async function generateSitemap() {
   console.log("🔑 API key source : " + keySource);
 
   const today = new Date().toISOString().split("T")[0];
-  console.log("\n🚀 StreamHub Sitemap Generator");
+  console.log("\n🚀 CinemaHeist Sitemap Generator");
   console.log("   Base URL   : " + BASE_URL);
   console.log("   Output     : " + OUTPUT_PATH);
   console.log("   TMDB pages : " + TOTAL_PAGES + " (~" + (TOTAL_PAGES * 20) + " movies)\n");

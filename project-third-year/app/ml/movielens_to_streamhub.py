@@ -1,5 +1,5 @@
 """
-movielens_to_streamhub.py — Convert MovieLens 25M → StreamHub activity logs
+movielens_to_CinemaHeist.py — Convert MovieLens 25M → CinemaHeist activity logs
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 What this script does:
@@ -28,7 +28,7 @@ HOW TO RUN:
 
   Step 2 — Run this script:
     cd app/ml
-    python movielens_to_streamhub.py
+    python movielens_to_CinemaHeist.py
 
   Step 3 — Load in main.py startup (code shown at bottom of this file)
 
@@ -68,7 +68,7 @@ def rating_to_signal(rating: float) -> str | None:
 
 def main():
     print("=" * 60)
-    print("  MovieLens 25M → StreamHub Activity Logs")
+    print("  MovieLens 25M → CinemaHeist Activity Logs")
     print("=" * 60)
 
     # ── Check files exist ─────────────────────────────────────────────────────
@@ -180,7 +180,7 @@ How to fix:
     movie_count   = activity_logs["movie_id"].nunique()
 
     stats = f"""
-MovieLens → StreamHub Dataset Statistics
+MovieLens → CinemaHeist Dataset Statistics
 (Include these numbers in your research paper)
 {'=' * 50}
 

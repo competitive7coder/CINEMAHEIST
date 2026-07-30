@@ -258,7 +258,7 @@ const ResetPassword = () => {
     <PageContainer>
       <VisualSide>
         <BrandText>
-          <h1>Stream<span>Hub</span></h1>
+          <h1>CINEMA<span>HEIST</span></h1>
           <p>Set a new password and get back to your personalized 4K library.</p>
         </BrandText>
       </VisualSide>

@@ -1,6 +1,6 @@
 {
-  "short_name": "StreamHub",
-  "name": "StreamHub — Watch Movies Online Free",
+  "short_name": "CinemaHeist",
+  "name": "CinemaHeist — Watch Movies Online Free",
   "description": "Stream the latest movies online free. Hollywood, Bollywood and world cinema with AI-powered recommendations.",
   "icons": [
     {
@@ -42,14 +42,14 @@
       "type": "image/jpeg",
       "sizes": "2848x1504",
       "form_factor": "wide",
-      "label": "StreamHub Home Screen"
+      "label": "CinemaHeist Home Screen"
     },
     {
       "src": "logo512.png",
       "type": "image/png",
       "sizes": "512x512",
       "form_factor": "narrow",
-      "label": "StreamHub App Icon"
+      "label": "CinemaHeist App Icon"
     }
   ]
 }

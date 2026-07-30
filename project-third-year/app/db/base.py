@@ -19,8 +19,8 @@ async def init_db():
         # This is the safest way to get the DB defined in your string
         db_name = client.get_default_database().name
     except Exception:
-        # Fallback: If no DB name is in the string, we default to 'streamhub'
-        db_name = "streamhub"
+        # Fallback: If no DB name is in the string, we default to 'CinemaHeist'
+        db_name = "CinemaHeist"
 
     database = client[db_name]
 

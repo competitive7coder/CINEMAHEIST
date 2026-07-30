@@ -232,14 +232,14 @@ export default function AboutUs() {
         {/* HERO */}
         <section className="ab-hero">
           <div className="ab-hero-l">
-            <span className="ab-issue">EST. 2026· STREAMHUB · VOL. I</span>
+            <span className="ab-issue">EST. 2026· CinemaHeist · VOL. I</span>
             <h1 className="ab-hero-h1">
               CINEMA
               <br />
               <span className="r">RE</span>DEFINED
             </h1>
             <p className="ab-hero-q">
-              "We built StreamHub for people who believe watching a film is
+              "We built CinemaHeist for people who believe watching a film is
               never just watching a film."
             </p>
           </div>
@@ -263,7 +263,7 @@ export default function AboutUs() {
           <div className="ab-story-g">
             <div className={`ab-story-t ${sr("story", 1)}`}>
               <p>
-                StreamHub was born from a simple, genuine frustration. Finding
+                CinemaHeist was born from a simple, genuine frustration. Finding
                 the right film to watch shouldn't require four subscriptions,
                 five browser tabs, and twenty minutes of indecision.
               </p>
@@ -293,7 +293,7 @@ export default function AboutUs() {
                 them are broken.
               </p>
               <p className="ab-mis-p">
-                StreamHub is the fix. Free to watch. Intelligent to browse.
+                CinemaHeist is the fix. Free to watch. Intelligent to browse.
                 Honest about what it is and isn't.
               </p>
             </div>
@@ -378,7 +378,7 @@ export default function AboutUs() {
               <div className="ab-team-divider" />
               <p className="ab-team-bio-text">
                 I'm a 3rd year B.Tech IT student at MCKV Institute of
-                Engineering. I built StreamHub completely on my own the FastAPI
+                Engineering. I built CinemaHeist completely on my own the FastAPI
                 backend, MongoDB data layer, React frontend, and the hybrid ML
                 recommendation engine.
               </p>

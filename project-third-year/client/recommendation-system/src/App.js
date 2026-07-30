@@ -109,7 +109,7 @@ function App() {
       sessionStorage.setItem("hasSeenInstallTip", "true");
       setTimeout(() => {
         toast.info(
-          "💡 Pro Tip: Install StreamHub to your phone or PC. On PC, click the 'Install' icon in your browser's address bar. On mobile, tap the browser menu (3-dots in Chrome, or the Share button in iOS Safari) scroll down and select 'Install and Create Shortcut'.",
+          "💡 Pro Tip: Install CinemaHeist to your phone or PC. On PC, click the 'Install' icon in your browser's address bar. On mobile, tap the browser menu (3-dots in Chrome, or the Share button in iOS Safari) scroll down and select 'Install and Create Shortcut'.",
           {
             position: "top-center",
             autoClose: 10000,

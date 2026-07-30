@@ -244,18 +244,18 @@ const Footer = () => {
           {/* Brand + Legal Disclaimer */}
           <BrandSection>
             <BrandName to="/">
-              STREAM<span>HUB</span>
+              CINEMA<span>HEIST</span>
             </BrandName>
             <Disclaimer>
-              StreamHub does not host, upload, or store any video content. All
+              CinemaHeist does not host, upload, or store any video content. All
               streams are served by{" "}
               <DisclaimerHighlight>
                 independent third-party embed providers
               </DisclaimerHighlight>
-              . StreamHub is a search and discovery platform using the TMDB API
+              . CinemaHeist is a search and discovery platform using the TMDB API
               for metadata only. For copyright concerns:{" "}
               <DisclaimerHighlight>
-                dmca.streamhub@proton.me
+                dmca.CinemaHeist@proton.me
               </DisclaimerHighlight>
             </Disclaimer>
             {/* <SocialLinks>
@@ -293,7 +293,7 @@ const Footer = () => {
 
         <BottomBar>
           <Copyright>
-            © {new Date().getFullYear()} StreamHub. Metadata provided by{" "}
+            © {new Date().getFullYear()} CinemaHeist. Metadata provided by{" "}
             <DisclaimerHighlight>TMDB</DisclaimerHighlight>. Not affiliated with
             TMDB, Netflix, or any content provider.
           </Copyright>

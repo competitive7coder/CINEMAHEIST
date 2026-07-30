@@ -733,7 +733,7 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
     <>
       <Nav $scrolled={scrolled} $visible={visible}>
         <Brand to={isLoggedIn ? "/home" : "/"}>
-          <span className="brand-name">STREAM<span>HUB</span></span>
+          <span className="brand-name">CINEMA<span>HEIST</span></span>
         </Brand>
 
         <DesktopLinks>
@@ -819,7 +819,7 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
         <MobileMenu>
           <MobileMenuHeader>
             <Brand to={isLoggedIn ? "/home" : "/"} onClick={closeMobile}>
-              <span className="brand-name">STREAM<span>HUB</span></span>
+              <span className="brand-name">CINEMA<span>HEIST</span></span>
             </Brand>
             <MobileMenuClose onClick={closeMobile}>
               <FaTimes />

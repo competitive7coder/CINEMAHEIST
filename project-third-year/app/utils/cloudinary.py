@@ -11,7 +11,7 @@ cloudinary.config(
     secure=True
 )
 
-async def upload_image(file_bytes, folder="streamhub_profiles"):
+async def upload_image(file_bytes, folder="CinemaHeist_profiles"):
     """
     Uploads an image to Cloudinary and returns the secure URL.
     Runs the synchronous Cloudinary SDK in a thread pool to avoid blocking

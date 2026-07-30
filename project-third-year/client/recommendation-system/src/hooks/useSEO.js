@@ -6,7 +6,7 @@ import { useEffect } from "react";
  * Usage on movie page:
  *   useSEO({
  *     title: "Watch Avengers: Endgame Free Online",
- *     description: "Watch Avengers: Endgame online free on StreamHub. No subscription needed.",
+ *     description: "Watch Avengers: Endgame online free on CinemaHeist. No subscription needed.",
  *     image: "https://image.tmdb.org/t/p/w1280/poster.jpg",
  *     url: "/movie/299534",
  *     type: "video.movie",
@@ -25,7 +25,7 @@ import { useEffect } from "react";
 
 const BASE_URL = "https://stream1hub.pages.dev";
 const DEFAULT_IMAGE = `${BASE_URL}/og-image.jpg`;
-const SITE_NAME = "StreamHub";
+const SITE_NAME = "CinemaHeist";
 
 const setMeta = (selector, content, attr = "content") => {
   if (!content) return;
@@ -107,7 +107,7 @@ const useSEO = ({
 
     const fullDescription =
       description ||
-      "Watch movies online free with AI-powered recommendations. Stream the latest Hollywood and world cinema on StreamHub.";
+      "Watch movies online free with AI-powered recommendations. Stream the latest Hollywood and world cinema on CinemaHeist.";
 
     const fullImage = image || DEFAULT_IMAGE;
     const fullUrl = url ? `${BASE_URL}${url}` : BASE_URL;

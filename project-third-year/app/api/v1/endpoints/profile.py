@@ -36,7 +36,7 @@ async def update_profile(
         current_user.bio = bio
     if profile_picture:
         image_bytes = await profile_picture.read()
-        image_url = await upload_image(image_bytes, folder="streamhub_profiles")
+        image_url = await upload_image(image_bytes, folder="CinemaHeist_profiles")
         if not image_url:
             raise HTTPException(status_code=500, detail="Failed to upload image to Cloudinary")
         current_user.profile_picture = image_url
@@ -88,7 +88,7 @@ async def update_avatar(
     current_user: User = Depends(get_current_user)
 ):
     image_bytes = await profile_picture.read()
-    image_url = await upload_image(image_bytes, folder="streamhub_profiles")
+    image_url = await upload_image(image_bytes, folder="CinemaHeist_profiles")
     if not image_url:
         raise HTTPException(status_code=500, detail="Failed to upload image to Cloudinary")
     current_user.profile_picture = image_url

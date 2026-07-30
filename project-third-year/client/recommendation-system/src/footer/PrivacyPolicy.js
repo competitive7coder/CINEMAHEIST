@@ -6,7 +6,7 @@ const sections = [
     title: "Information We Collect",
     content: [
       { heading: "Account Information", text: "When you register, we collect your name, email address, and password (stored encrypted). We do not collect your phone number, payment information, or government ID." },
-      { heading: "Usage Data", text: "We collect data about how you use StreamHub — movies you view, search queries, watchlist items, and interaction patterns. This data is used solely to power our ML recommendation engine." },
+      { heading: "Usage Data", text: "We collect data about how you use CinemaHeist — movies you view, search queries, watchlist items, and interaction patterns. This data is used solely to power our ML recommendation engine." },
       { heading: "Technical Data", text: "We automatically collect your IP address, browser type, device type, and session timestamps for security and performance purposes." },
     ]
   },
@@ -24,7 +24,7 @@ const sections = [
     title: "What We Do NOT Do",
     content: [
       { heading: "We do not sell your data", text: "Your personal information is never sold, rented, or traded to third parties for marketing purposes." },
-      { heading: "We do not host video content", text: "StreamHub does not store, upload, or serve any video files. All streaming is handled by independent third-party embed providers." },
+      { heading: "We do not host video content", text: "CinemaHeist does not store, upload, or serve any video files. All streaming is handled by independent third-party embed providers." },
       { heading: "We do not track across sites", text: "We do not use cross-site tracking cookies or third-party advertising trackers." },
     ]
   },
@@ -59,7 +59,7 @@ const sections = [
     num: "7",
     title: "Contact Us",
     content: [
-      { heading: "Privacy concerns", text: "For any privacy-related questions or data requests, email us at: dmca.streamhub@proton.me" },
+      { heading: "Privacy concerns", text: "For any privacy-related questions or data requests, email us at: dmca.CinemaHeist@proton.me" },
     ]
   },
 ];
@@ -131,7 +131,7 @@ const PrivacyPolicy = () => (
         </div>
       ))}
       <div className="legal-footer-note">
-        <p>This privacy policy applies to StreamHub and all its features. By using StreamHub, you agree to this policy. We may update this policy occasionally — significant changes will be communicated via email.</p>
+        <p>This privacy policy applies to CinemaHeist and all its features. By using CinemaHeist, you agree to this policy. We may update this policy occasionally — significant changes will be communicated via email.</p>
       </div>
     </div>
   </div>

@@ -110,20 +110,20 @@ const ContactUs = () => {
     {
       icon: "bi-envelope-at",
       label: "General Enquiries",
-      value: "hello.streamhub@proton.me",
-      href: "mailto:hello.streamhub@proton.me",
+      value: "hello.CinemaHeist@proton.me",
+      href: "mailto:hello.CinemaHeist@proton.me",
     },
     {
       icon: "bi-shield-check",
       label: "DMCA / Copyright",
-      value: "dmca.streamhub@proton.me",
-      href: "mailto:dmca.streamhub@proton.me",
+      value: "dmca.CinemaHeist@proton.me",
+      href: "mailto:dmca.CinemaHeist@proton.me",
     },
     {
       icon: "bi-bug",
       label: "Bug Reports",
-      value: "bugs.streamhub@proton.me",
-      href: "mailto:bugs.streamhub@proton.me",
+      value: "bugs.CinemaHeist@proton.me",
+      href: "mailto:bugs.CinemaHeist@proton.me",
     },
   ];
 
@@ -308,7 +308,7 @@ const ContactUs = () => {
             Get in Touch
           </div>
           <h1>
-            Contact <em>StreamHub</em>
+            Contact <em>CinemaHeist</em>
           </h1>
           <p>
             Questions, bug reports, or copyright concerns — we read every

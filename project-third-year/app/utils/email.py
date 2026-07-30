@@ -17,9 +17,9 @@ async def send_reset_email(email_to: str, token: str):
     reset_url = f"{settings.CLIENT_URL}/reset-password/{token}"
     
     payload = {
-        "sender": {"email": settings.SEND_FROM_EMAIL, "name": "StreamHub Support"},
+        "sender": {"email": settings.SEND_FROM_EMAIL, "name": "CinemaHeist Support"},
         "to": [{"email": email_to}],
-        "subject": "StreamHub - Password Reset Request",
+        "subject": "CinemaHeist - Password Reset Request",
         "htmlContent": f"""
             <html>
                 <body>

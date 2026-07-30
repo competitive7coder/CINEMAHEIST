@@ -137,7 +137,7 @@ app = FastAPI(
     title=settings.PROJECT_NAME,
     version=settings.VERSION,
     lifespan=lifespan,
-    description="Backend API for StreamHub Movie Platform",
+    description="Backend API for CinemaHeist Movie Platform",
     docs_url="/docs" if os.getenv("DOCS_ENABLED", "true").lower() == "true" else None,
     redoc_url=None,
 )
@@ -156,7 +156,7 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.add_middleware(
     TrustedHostMiddleware,
     allowed_hosts=[
-        "streamhub-research.onrender.com",  # production
+        "CinemaHeist-research.onrender.com",  # production
         "*.onrender.com",                    # Render internal health checks
         "localhost",                         # local dev
         "127.0.0.1",                         # local dev
@@ -234,7 +234,7 @@ app.mount("/socket.io", socket_app)
 async def root():
     return {
         "status": "Online",
-        "message": "StreamHub API is running smoothly",
+        "message": "CinemaHeist API is running smoothly",
         "docs": "/docs"
     }
 

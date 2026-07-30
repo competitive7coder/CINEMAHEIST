@@ -3,47 +3,47 @@ import React from "react";
 const terms = [
   {
     num: "1", title: "Acceptance of Terms",
-    text: "By accessing or using StreamHub, you agree to be bound by these Terms of Use. If you do not agree to these terms, please do not use StreamHub. We reserve the right to update these terms at any time without prior notice."
+    text: "By accessing or using CinemaHeist, you agree to be bound by these Terms of Use. If you do not agree to these terms, please do not use CinemaHeist. We reserve the right to update these terms at any time without prior notice."
   },
   {
     num: "2", title: "Nature of the Service",
-    text: "StreamHub is a movie discovery and recommendation platform. We use the TMDB API for movie metadata and embed third-party video players for streaming. StreamHub does not host, upload, store, or distribute any video content. All video streams originate from independent third-party providers over which StreamHub has no control."
+    text: "CinemaHeist is a movie discovery and recommendation platform. We use the TMDB API for movie metadata and embed third-party video players for streaming. CinemaHeist does not host, upload, store, or distribute any video content. All video streams originate from independent third-party providers over which CinemaHeist has no control."
   },
   {
     num: "3", title: "User Accounts",
-    text: "You must be at least 13 years old to create an account. You are responsible for maintaining the confidentiality of your account credentials. You agree to provide accurate information and to update it as necessary. StreamHub reserves the right to suspend or terminate accounts that violate these terms."
+    text: "You must be at least 13 years old to create an account. You are responsible for maintaining the confidentiality of your account credentials. You agree to provide accurate information and to update it as necessary. CinemaHeist reserves the right to suspend or terminate accounts that violate these terms."
   },
   {
     num: "4", title: "Acceptable Use",
-    text: "You agree not to: (a) use StreamHub for any unlawful purpose, (b) attempt to gain unauthorized access to any part of the service, (c) reverse engineer or copy any part of StreamHub, (d) use automated bots or scrapers on the platform, (e) harass, abuse, or harm other users, (f) upload malicious code or content."
+    text: "You agree not to: (a) use CinemaHeist for any unlawful purpose, (b) attempt to gain unauthorized access to any part of the service, (c) reverse engineer or copy any part of CinemaHeist, (d) use automated bots or scrapers on the platform, (e) harass, abuse, or harm other users, (f) upload malicious code or content."
   },
   {
     num: "5", title: "Third-Party Content",
-    text: "StreamHub embeds video content from third-party providers. We are not responsible for the availability, accuracy, legality, or quality of third-party content. If you encounter content you believe infringes copyright, please report it via our DMCA page. The appearance of third-party content on StreamHub does not constitute an endorsement."
+    text: "CinemaHeist embeds video content from third-party providers. We are not responsible for the availability, accuracy, legality, or quality of third-party content. If you encounter content you believe infringes copyright, please report it via our DMCA page. The appearance of third-party content on CinemaHeist does not constitute an endorsement."
   },
   {
     num: "6", title: "Intellectual Property",
-    text: "All StreamHub branding, code, design, and original content (excluding third-party embeds and TMDB metadata) is the intellectual property of StreamHub. You may not copy, reproduce, or distribute StreamHub's original work without written permission. Movie metadata is provided by TMDB under their terms of use."
+    text: "All CinemaHeist branding, code, design, and original content (excluding third-party embeds and TMDB metadata) is the intellectual property of CinemaHeist. You may not copy, reproduce, or distribute CinemaHeist's original work without written permission. Movie metadata is provided by TMDB under their terms of use."
   },
   {
     num: "7", title: "Disclaimer of Warranties",
-    text: 'StreamHub is provided "as is" without warranties of any kind. We do not guarantee that the service will be uninterrupted, error-free, or that third-party streams will be available at all times. StreamHub is not responsible for content served by third-party embed providers.'
+    text: 'CinemaHeist is provided "as is" without warranties of any kind. We do not guarantee that the service will be uninterrupted, error-free, or that third-party streams will be available at all times. CinemaHeist is not responsible for content served by third-party embed providers.'
   },
   {
     num: "8", title: "Limitation of Liability",
-    text: "StreamHub shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the service. Our total liability for any claims arising from these terms shall not exceed the amount you paid to use StreamHub (which is zero, as StreamHub is free)."
+    text: "CinemaHeist shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of the service. Our total liability for any claims arising from these terms shall not exceed the amount you paid to use CinemaHeist (which is zero, as CinemaHeist is free)."
   },
   {
     num: "9", title: "DMCA & Copyright",
-    text: "StreamHub respects intellectual property rights and complies with the Digital Millennium Copyright Act (DMCA) and India's IT Act 2000, Section 79. Copyright owners may submit takedown notices to dmca.streamhub@proton.me. We will respond within 48 hours and forward notices to the relevant embed providers."
+    text: "CinemaHeist respects intellectual property rights and complies with the Digital Millennium Copyright Act (DMCA) and India's IT Act 2000, Section 79. Copyright owners may submit takedown notices to dmca.CinemaHeist@proton.me. We will respond within 48 hours and forward notices to the relevant embed providers."
   },
   {
     num: "10", title: "Governing Law",
-    text: "These terms are governed by the laws of India. Any disputes arising from use of StreamHub shall be subject to the jurisdiction of courts in West Bengal, India."
+    text: "These terms are governed by the laws of India. Any disputes arising from use of CinemaHeist shall be subject to the jurisdiction of courts in West Bengal, India."
   },
   {
     num: "11", title: "Contact",
-    text: "For any questions about these Terms of Use, contact us at: dmca.streamhub@proton.me"
+    text: "For any questions about these Terms of Use, contact us at: dmca.CinemaHeist@proton.me"
   },
 ];
 
@@ -81,7 +81,7 @@ const TermsOfUse = () => (
     <div className="legal-hero">
       <div className="legal-badge">📄 Legal</div>
       <h1>Terms of <span>Use</span></h1>
-      <p>Please read these terms carefully before using StreamHub. By using our service, you agree to these terms.</p>
+      <p>Please read these terms carefully before using CinemaHeist. By using our service, you agree to these terms.</p>
       <div className="legal-updated">Last updated: March 2026</div>
     </div>
 
@@ -96,7 +96,7 @@ const TermsOfUse = () => (
         </div>
       ))}
       <div className="legal-footer-note">
-        <p>These Terms of Use constitute the entire agreement between you and StreamHub. If any provision is found unenforceable, the remaining provisions remain in full effect.</p>
+        <p>These Terms of Use constitute the entire agreement between you and CinemaHeist. If any provision is found unenforceable, the remaining provisions remain in full effect.</p>
       </div>
     </div>
   </div>

@@ -12,8 +12,8 @@ What is a PROXY (disclosed in paper):
   - timestamps used as proxy for watchlist addition time
 
 HOW TO RUN:
-  Step 1 — Re-run movielens_to_streamhub.py to get timestamps:
-    python movielens_to_streamhub.py
+  Step 1 — Re-run movielens_to_CinemaHeist.py to get timestamps:
+    python movielens_to_CinemaHeist.py
 
   Step 2 — Run this script:
     python ablation_study_v4.py

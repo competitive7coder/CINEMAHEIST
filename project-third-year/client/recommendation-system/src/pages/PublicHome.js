@@ -411,7 +411,7 @@ const TICKER_TITLES = [
 const PublicHome = ({ setIsLoggedIn }) => {
   useSEO({
     title: "Watch Movies Online Free — Stream Latest Films",
-    description: "StreamHub lets you discover and watch movies online free. AI-powered recommendations, trending films, and the latest releases. No subscription needed.",
+    description: "CinemaHeist lets you discover and watch movies online free. AI-powered recommendations, trending films, and the latest releases. No subscription needed.",
     url: "/",
   });
 
@@ -553,7 +553,7 @@ const PublicHome = ({ setIsLoggedIn }) => {
       </main>
 
       <footer className="ph-footer">
-        <h2>STREAMHUB</h2>
+        <h2>CinemaHeist</h2>
         <p style={{ opacity: 0.2, fontSize: "0.7rem", letterSpacing: "12px", marginTop: 60, textTransform: "uppercase", fontFamily: "monospace" }}>
           ALL RIGHTS RESERVED // ESTABLISHED 2026
         </p>

@@ -312,7 +312,7 @@ const Login = ({ setIsLoggedIn }) => {
 
         
         setIsLoggedIn(true);
-        toast.success("Welcome to StreamHub jii😎🤭");
+        toast.success("Welcome to CinemaHeist jii😎🤭");
 
       
         navigate("/dashboard");
@@ -344,7 +344,7 @@ const Login = ({ setIsLoggedIn }) => {
       <VisualSide>
         <BrandText>
           <h1>
-            Stream<span>Hub</span>
+            CINEMA<span>HEIST</span>
           </h1>
           <p>
             The next evolution of digital entertainment. Login to access your

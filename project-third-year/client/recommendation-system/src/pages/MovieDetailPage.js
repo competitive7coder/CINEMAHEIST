@@ -36,8 +36,8 @@ useEffect(() => {
       ? `${movie.title} (${movie.release_date?.split("-")[0] || ""})`
       : "Watch Movie",
     description: movie
-      ? `Watch ${movie.title} online free on StreamHub. ${movie.overview?.slice(0, 120)}...`
-      : "Watch movies online free on StreamHub.",
+      ? `Watch ${movie.title} online free on CinemaHeist. ${movie.overview?.slice(0, 120)}...`
+      : "Watch movies online free on CinemaHeist.",
     image: movie?.backdrop_path
       ? `https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`
       : movie?.poster_path
@@ -524,7 +524,7 @@ useEffect(() => {
             <div>
               {/* Badge row */}
               <div className="mdp-badge-row">
-                <span className="mdp-badge mdp-badge-brand">✦ StreamHub</span>
+                <span className="mdp-badge mdp-badge-brand">✦ CinemaHeist</span>
                 {year && (
                   <span className="mdp-badge mdp-badge-meta">{year}</span>
                 )}

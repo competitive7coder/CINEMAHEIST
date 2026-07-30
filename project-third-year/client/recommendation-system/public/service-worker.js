@@ -1,4 +1,4 @@
-const CACHE_NAME = "streamhub-cache-v2"; // Incremented to v2 to force update
+const CACHE_NAME = "CinemaHeist-cache-v2"; // Incremented to v2 to force update
 const urlsToCache = [
   "/",
   "/index.html",

@@ -226,7 +226,7 @@ const ForgotPassword = () => {
     <PageContainer>
       <VisualSide>
         <BrandText>
-          <h1>Stream<span>Hub</span></h1>
+          <h1>CINEMA<span>HEIST</span></h1>
           <p>Regain access to your personalized 4K library in seconds.</p>
         </BrandText>
       </VisualSide>

@@ -342,7 +342,7 @@ const Signup = () => {
 
             <VisualSide>
                 <BrandText>
-                  <h1>Stream<span>Hub</span></h1>
+                  <h1>CINEMA<span>HEIST</span></h1>
                   <p>Experience the peak of 4K streaming. Create your account to unlock premium features and cinematic quality.</p>
                 </BrandText>
             </VisualSide>

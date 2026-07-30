@@ -156,7 +156,7 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.add_middleware(
     TrustedHostMiddleware,
     allowed_hosts=[
-        "CinemaHeist-research.onrender.com",  # production
+        "streamhub-research.onrender.com",  # production
         "*.onrender.com",                    # Render internal health checks
         "localhost",                         # local dev
         "127.0.0.1",                         # local dev

@@ -39,9 +39,9 @@ const skeletonStyle = (w, h) => ({
   width: w,
   height: h,
   borderRadius: 6,
-  background: "linear-gradient(90deg,#161616 25%,#242424 50%,#161616 75%)",
-  backgroundSize: "400% 100%",
-  animation: "shimmer 1.5s infinite",
+  background: "linear-gradient(90deg, rgba(255,255,255,0.015) 25%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.015) 75%)",
+  backgroundSize: "200% 100%",
+  animation: "shimmer 1.5s infinite linear",
 });
 
 const RowSkeleton = () => (
@@ -57,7 +57,7 @@ const RowSkeleton = () => (
       <div style={skeletonStyle(180, 20)} />
     </div>
     <div style={{ display: "flex", gap: 12, overflow: "hidden" }}>
-      {Array.from({ length: 7 }).map((_, i) => (
+      {Array.from({ length: 12 }).map((_, i) => (
         <div
           key={i}
           style={{
@@ -318,6 +318,49 @@ const HomePage = () => {
         100% { background-position: -100% 0; }
       }
 
+      /* HERO SKELETON */
+      .hero-skeleton {
+        width: 100%;
+        height: 100vh;
+        background: linear-gradient(180deg, rgba(20, 20, 20, 0.4) 0%, #000 100%);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 0 5%;
+        position: relative;
+        overflow: hidden;
+      }
+      .hero-skeleton::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+        transform: translateX(-100%);
+        animation: shimmer-swipe 1.8s infinite;
+      }
+      .hero-skeleton .skeleton-line {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+        margin-bottom: 20px;
+      }
+      .hero-skeleton .skeleton-line.title {
+        width: 45%;
+        height: 4.5rem;
+      }
+      .hero-skeleton .skeleton-line.subtitle {
+        width: 30%;
+        height: 1.2rem;
+      }
+      .hero-skeleton .skeleton-line.button {
+        width: 180px;
+        height: 48px;
+        border-radius: 50px;
+      }
+      
+      @keyframes shimmer-swipe {
+        100% { transform: translateX(100%); }
+      }
+
       /* HERO NORMAL  */
       .hero-wrapper {
         position: relative;
@@ -399,13 +442,19 @@ const HomePage = () => {
       {/* HERO */}
       <div className={`hero-wrapper ${heroReady ? "ready" : "loading"}`}>
         <div className="hero-inner">
-          {trendingMovies.length > 0 && (
+          {trendingMovies.length > 0 ? (
             <HeroSlider
               movies={trendingMovies}
               watchlist={watchlist}
               onWatchTrailerClick={handleWatchTrailerClick}
               onAddToWatchlist={handleWatchlistToggle}
             />
+          ) : (
+            <div className="hero-skeleton">
+              <div className="skeleton-line title" />
+              <div className="skeleton-line subtitle" />
+              <div className="skeleton-line button" />
+            </div>
           )}
         </div>
       </div>

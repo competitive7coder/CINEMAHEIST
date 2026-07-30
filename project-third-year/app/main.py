@@ -156,10 +156,10 @@ app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.add_middleware(
     TrustedHostMiddleware,
     allowed_hosts=[
-        "streamhub-research.onrender.com",  # production
-        "*.onrender.com",                    # Render internal health checks
-        "localhost",                         # local dev
-        "127.0.0.1",                         # local dev
+        "streamhub-research.onrender.com",  # production backend
+        "*.onrender.com",                     # Render internal health checks
+        "localhost",                          # local dev
+        "127.0.0.1",                          # local dev
     ]
 )
 
@@ -167,9 +167,10 @@ app.add_middleware(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://stream1hub.pages.dev",   # Cloudflare Pages deployment
+        "https://cinemaheist.online",      # Custom production domain
+        "https://cinemaheist.pages.dev",   # Backup Cloudflare Pages domain
         "http://localhost:5173",           # local dev
-        "http://localhost:4173",           # local testing dev
+        "http://localhost:3000",           # local testing dev
     ],
     allow_credentials=True,
     allow_methods=["*"],

@@ -47,6 +47,10 @@
 
     <script>
       (function () {
+        if (window.location.hostname.indexOf('pages.dev') !== -1 && window.location.hostname.indexOf('localhost') === -1) {
+          window.location.replace('https://cinemaheist.online' + window.location.pathname + window.location.search);
+          return;
+        }
         try {
           var cached = localStorage.getItem("sh_hero_lcp");
           if (cached) {

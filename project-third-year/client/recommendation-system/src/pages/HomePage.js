@@ -371,12 +371,14 @@ const HomePage = () => {
       .hero-wrapper .hero-inner {
         position: absolute;
         inset: 0;
-        opacity: 0;
-        transition: opacity 0.4s ease;
       }
 
-      .hero-wrapper.ready .hero-inner {
-        opacity: 1;
+      .hero-slider-fade-in {
+        opacity: 0;
+        animation: heroFadeIn 0.6s forwards ease-out;
+      }
+      @keyframes heroFadeIn {
+        to { opacity: 1; }
       }
 
       /* HERO BACKGROUND */
@@ -443,12 +445,14 @@ const HomePage = () => {
       <div className={`hero-wrapper ${heroReady ? "ready" : "loading"}`}>
         <div className="hero-inner">
           {trendingMovies.length > 0 ? (
-            <HeroSlider
-              movies={trendingMovies}
-              watchlist={watchlist}
-              onWatchTrailerClick={handleWatchTrailerClick}
-              onAddToWatchlist={handleWatchlistToggle}
-            />
+            <div className="hero-slider-fade-in">
+              <HeroSlider
+                movies={trendingMovies}
+                watchlist={watchlist}
+                onWatchTrailerClick={handleWatchTrailerClick}
+                onAddToWatchlist={handleWatchlistToggle}
+              />
+            </div>
           ) : (
             <div className="hero-skeleton">
               <div className="skeleton-line title" />

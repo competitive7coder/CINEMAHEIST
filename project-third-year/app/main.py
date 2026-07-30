@@ -167,8 +167,9 @@ app.add_middleware(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
-        "https://cinemaheist.online",      # Custom production domain
-        "https://cinemaheist.pages.dev",   # Backup Cloudflare Pages domain
+        "https://stream1hub.pages.dev",    # Current Cloudflare Pages deployment
+        "https://cinemaheist.online",      # Future custom production domain
+        # "https://cinemaheist.pages.dev",   # Future backup Cloudflare Pages domain
         "http://localhost:5173",           # local dev
         "http://localhost:3000",           # local testing dev
     ],

@@ -229,7 +229,7 @@ const HomePage = () => {
 
   // Activity log
   const logActivity = useCallback(async (movie, actionType) => {
-    if (!movie) return;
+    if (!movie || !localStorage.getItem("token")) return;
     try {
       await api.post("/activity/log", {
         action_type: actionType,

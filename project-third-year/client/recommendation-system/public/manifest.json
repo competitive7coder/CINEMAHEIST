@@ -38,9 +38,9 @@
   "categories": ["entertainment"],
   "screenshots": [
     {
-      "src": "og-image.jpg",
-      "type": "image/jpeg",
-      "sizes": "2848x1504",
+      "src": "og-image.png",
+      "type": "image/png",
+      "sizes": "1920x1080",
       "form_factor": "wide",
       "label": "CinemaHeist Home Screen"
     },

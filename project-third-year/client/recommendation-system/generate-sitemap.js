@@ -42,7 +42,7 @@ if (fs.existsSync(envPath)) {
 // CONFIG
 // ─────────────────────────────────────────────
 const TMDB_API_KEY = process.env.TMDB_API_KEY || process.env.REACT_APP_TMDB_API_KEY || "YOUR_TMDB_API_KEY_HERE";
-const BASE_URL     = "https://stream1hub.pages.dev";
+const BASE_URL     = "https://www.cinemaheist.online";
 const OUTPUT_PATH  = path.join(__dirname, "public", "sitemap.xml");
 const TOTAL_PAGES  = 500; // 500 pages x 20 movies = 10,000 movies
 const BATCH_SIZE   = 20;  // fetch 20 pages at a time (safe rate limit)

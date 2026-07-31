@@ -17,6 +17,14 @@ const CSS = `
   --ff-m:'JetBrains Mono',monospace;
 }
 
+html, body {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+html::-webkit-scrollbar, body::-webkit-scrollbar {
+  display: none;
+}
+
 .ab{
   background:var(--bg);
   color:var(--ink);
@@ -80,14 +88,7 @@ const CSS = `
 .ab-feat-ttl{font-family:var(--ff-d);font-size:1.8rem;letter-spacing:0.03em;color:var(--ink);margin-bottom:1rem;line-height:1.1;}
 .ab-feat-body{font-size:0.9rem;line-height:1.85;color:var(--muted);}
 
-/* TECH STRIP */
-.ab-tech{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:0 4rem;display:flex;align-items:stretch;overflow-x:auto;scrollbar-width:none;}
-.ab-tech::-webkit-scrollbar{display:none;}
-.ab-tech-item{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0.6rem;padding:2rem 3rem;border-right:1px solid var(--line);flex-shrink:0;transition:background 0.2s;}
-.ab-tech-item:last-child{border-right:none;}
-.ab-tech-item:hover{background:rgba(229,9,20,0.06);}
-.ab-tech-icon{font-size:1.4rem;color:var(--red);}
-.ab-tech-name{font-family:var(--ff-m);font-size:0.58rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--muted);white-space:nowrap;}
+
 
 /* TEAM — horizontal card */
 .ab-team-card{
@@ -178,13 +179,13 @@ const CSS = `
 `;
 
 const TICKER = [
-  "5-STAGE HYBRID ML ENGINE",
-  "21M INTERACTION LOGS",
+  "CINEMAHEIST",
   "38,695 MOVIES",
   "ZERO SUBSCRIPTION",
-  "UNLOCK CINEMA'S HIDDEN GEMS",
   "STREAM FREE",
-  "AI-POWERED DISCOVERY",
+  "HD MOVIE TRAILERS",
+  "WATCHLIST LIBRARY",
+  "UNLIMITED DISCOVERY",
 ];
 
 export default function AboutUs() {
@@ -232,7 +233,7 @@ export default function AboutUs() {
         {/* HERO */}
         <section className="ab-hero">
           <div className="ab-hero-l">
-            <span className="ab-issue">EST. 2026· CinemaHeist · VOL. I</span>
+            <span className="ab-issue">EST. 2026 · CinemaHeist · VOL. I</span>
             <h1 className="ab-hero-h1">
               CINEMA
               <br />
@@ -268,19 +269,13 @@ export default function AboutUs() {
                 five browser tabs, and twenty minutes of indecision.
               </p>
               <p>
-                So we built the alternative. A platform where a research-grade
-                ML engine — trained on 21 million real interaction logs — does
-                the work of understanding your taste, so you don't have to.
+                So we built the alternative. A unified platform designed to help you 
+                organize your watchlist, explore trending titles, and discover your 
+                next favorite film, all in one place.
               </p>
               <blockquote className="ab-pullq">
-                "NOT WHAT'S POPULAR. WHAT'S RIGHT FOR YOU, RIGHT NOW."
+                "THE ART OF CINEMA, ACCESS FOR EVERYONE."
               </blockquote>
-              <p>
-                The engine combines content-based filtering, collaborative
-                signals, and temporal decay — a novel approach submitted to IEEE
-                Access — to surface films that match not just your genre
-                preference, but the recency and weight of your taste signals.
-              </p>
             </div>
             <div className={sr("story", 2)}>
               <span className="ab-mis-lbl">Our Mission</span>
@@ -304,10 +299,10 @@ export default function AboutUs() {
         <div className="ab-stats" ref={setRef("stats")} data-sr="stats">
           <div className="ab-stats-g">
             {[
-              { n: "21M+", l: "Interaction Logs" },
               { n: "38,695", l: "Movie Catalog" },
-              { n: "162K+", l: "Training Users" },
-              { n: "5", l: "ML Stages" },
+              { n: "19", l: "Movie Genres" },
+              { n: "100%", l: "Free Access" },
+              { n: "24/7", l: "Availability" },
             ].map((s, i) => (
               <div
                 key={i}
@@ -330,18 +325,18 @@ export default function AboutUs() {
             {[
               {
                 idx: "01",
-                ttl: "INTELLIGENT DISCOVERY",
-                body: "A 5-stage hybrid ML engine blending TF-IDF content filtering, SVD collaborative signals, temporal decay weighting, and genre diversity — trained on 21 million interactions.",
+                ttl: "CURATED DISCOVERY",
+                body: "Seamlessly browse a massive curated catalog of titles, filter by genres, and find exactly what matches your current mood.",
               },
               {
                 idx: "02",
                 ttl: "PERSONAL LIBRARY",
-                body: "Your watchlist feeds the engine. Every addition, trailer watch, and removal is a signal. The more you use it, the sharper it gets.",
+                body: "Build your custom movie library. Save movies to watch later, track your favorites, and organize your viewing queue.",
               },
               {
                 idx: "03",
-                ttl: "STREAM INSTANTLY",
-                body: "Six embed servers per title. Automatic fallback. No subscription, no sign-up wall. Press play.",
+                ttl: "TRAILERS & DETAILS",
+                body: "Watch high-definition movie trailers, check detailed cast listings, read descriptions, and view ratings instantly.",
               },
             ].map((f, i) => (
               <div key={i} className={`ab-feat ${sr("feat", i + 1)}`}>
@@ -369,23 +364,20 @@ export default function AboutUs() {
               <div className="ab-team-frame" />
             </div>
             <div>
-              <span className="ab-team-bio-idx">Founder & Engineer</span>
+              <span className="ab-team-bio-idx">Core Development</span>
               <h3 className="ab-team-bio-name">
-                PROTYUSH
-                <br />
-                GHORUI
+                Founder & Developer
               </h3>
               <div className="ab-team-divider" />
               <p className="ab-team-bio-text">
-                I'm a 3rd year B.Tech IT student at MCKV Institute of
-                Engineering. I built CinemaHeist completely on my own the FastAPI
-                backend, MongoDB data layer, React frontend, and the hybrid ML
-                recommendation engine.
+                CinemaHeist is engineered to deliver a modern, high-performance web 
+                experience for movie enthusiasts, handling everything from database 
+                architecture to responsive interface design.
               </p>
               <div className="ab-team-tags">
-                <span className="ab-team-tag">Full Stack Developer</span>
-                {/* <span className="ab-team-tag">IEEE Researcher</span> */}
-                <span className="ab-team-tag">B.Tech IT · 2027</span>
+                <span className="ab-team-tag">Engineering</span>
+                <span className="ab-team-tag">Design</span>
+                <span className="ab-team-tag">Product</span>
               </div>
             </div>
           </div>

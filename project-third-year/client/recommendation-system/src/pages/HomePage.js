@@ -72,15 +72,38 @@ const RowSkeleton = () => (
   </div>
 );
 
+// In-memory cache variables to make page loads instant when navigating back and forth
+let cachedToken = null;
+let cachedTrendingMovies = null;
+let cachedTop10Movies = null;
+let cachedNewReleases = null;
+let cachedWatchlist = null;
+let cachedMoviesByGenre = null;
+let cachedStreamDone = false;
+let cachedLoadedCount = 0;
+
 const HomePage = () => {
-  const [trendingMovies, setTrendingMovies] = useState([]);
-  const [heroReady, setHeroReady] = useState(false);
-  const [top10Movies, setTop10Movies] = useState([]);
-  const [newReleases, setNewReleases] = useState([]);
-  const [watchlist, setWatchlist] = useState([]);
-  const [moviesByGenre, setMoviesByGenre] = useState({});
-  const [streamDone, setStreamDone] = useState(false);
-  const [loadedCount, setLoadedCount] = useState(0);
+  const currentToken = localStorage.getItem("token");
+  if (currentToken !== cachedToken) {
+    // Clear cache if user logs in or out
+    cachedTrendingMovies = null;
+    cachedTop10Movies = null;
+    cachedNewReleases = null;
+    cachedWatchlist = null;
+    cachedMoviesByGenre = null;
+    cachedStreamDone = false;
+    cachedLoadedCount = 0;
+    cachedToken = currentToken;
+  }
+
+  const [trendingMovies, setTrendingMovies] = useState(() => cachedTrendingMovies || []);
+  const [heroReady, setHeroReady] = useState(() => !!cachedTrendingMovies);
+  const [top10Movies, setTop10Movies] = useState(() => cachedTop10Movies || []);
+  const [newReleases, setNewReleases] = useState(() => cachedNewReleases || []);
+  const [watchlist, setWatchlist] = useState(() => cachedWatchlist || []);
+  const [moviesByGenre, setMoviesByGenre] = useState(() => cachedMoviesByGenre || {});
+  const [streamDone, setStreamDone] = useState(() => cachedStreamDone || false);
+  const [loadedCount, setLoadedCount] = useState(() => cachedLoadedCount || 0);
   const [showVideoModal, setShowVideoModal] = useState(false);
   const [videoKey, setVideoKey] = useState(null);
 
@@ -88,13 +111,17 @@ const HomePage = () => {
 
   //Hero
   useEffect(() => {
+    if (cachedTrendingMovies) return;
+
     let cancelled = false;
 
     const load = async () => {
       try {
         if (window.__trendingResolved?.results?.length) {
           if (!cancelled) {
-            setTrendingMovies(window.__trendingResolved.results.slice(0, 8));
+            const data = window.__trendingResolved.results.slice(0, 8);
+            cachedTrendingMovies = data;
+            setTrendingMovies(data);
             setHeroReady(true);
           }
           return;
@@ -105,14 +132,18 @@ const HomePage = () => {
         if (cancelled) return;
 
         if (data?.results?.length) {
-          setTrendingMovies(data.results.slice(0, 8));
+          const resData = data.results.slice(0, 8);
+          cachedTrendingMovies = resData;
+          setTrendingMovies(resData);
           setHeroReady(true);
           return;
         }
 
         const res = await api.get("/movies/trending");
         if (cancelled) return;
-        setTrendingMovies(toArray(res.data).slice(0, 8));
+        const trending = toArray(res.data).slice(0, 8);
+        cachedTrendingMovies = trending;
+        setTrendingMovies(trending);
         setHeroReady(true);
       } catch (err) {
         if (cancelled) return;
@@ -132,6 +163,21 @@ const HomePage = () => {
     let cancelled = false;
     const token = localStorage.getItem("token");
 
+    // If movies are already cached, we only need to sync the watchlist to keep it fresh
+    if (cachedTop10Movies && cachedNewReleases) {
+      if (token) {
+        api.get("/users/watchlist")
+          .then((wlRes) => {
+            if (cancelled) return;
+            const wl = toArray(wlRes.data);
+            cachedWatchlist = wl;
+            setWatchlist(wl);
+          })
+          .catch(() => {});
+      }
+      return;
+    }
+
     Promise.all([
       api.get("/movies/top-rated-in"),
       api.get("/movies/now-playing"),
@@ -141,10 +187,17 @@ const HomePage = () => {
     ])
       .then(([top10Res, newRelRes, wlRes]) => {
         if (cancelled) return;
-        // Both endpoints return plain arrays
-        setTop10Movies(toArray(top10Res.data).slice(0, 10));
-        setNewReleases(toArray(newRelRes.data));
-        setWatchlist(toArray(wlRes.data));
+        const top10 = toArray(top10Res.data).slice(0, 10);
+        const newRel = toArray(newRelRes.data);
+        const wl = toArray(wlRes.data);
+
+        cachedTop10Movies = top10;
+        cachedNewReleases = newRel;
+        cachedWatchlist = wl;
+
+        setTop10Movies(top10);
+        setNewReleases(newRel);
+        setWatchlist(wl);
       })
       .catch((err) => {
         if (cancelled) return;
@@ -160,6 +213,7 @@ const HomePage = () => {
   //  SSE genre rows
   useEffect(() => {
     if (!heroReady) return;
+    if (cachedStreamDone) return;
 
     let es = null;
     let timerFired = false;
@@ -180,13 +234,21 @@ const HomePage = () => {
           const data = JSON.parse(e.data);
           if (data.done) {
             setStreamDone(true);
+            cachedStreamDone = true;
             es.close();
             return;
           }
-          // SSE sends { name, movies } where movies is always a plain array
           const movies = Array.isArray(data.movies) ? data.movies : [];
-          setMoviesByGenre((prev) => ({ ...prev, [data.name]: movies }));
-          setLoadedCount((prev) => prev + 1);
+          setMoviesByGenre((prev) => {
+            const next = { ...prev, [data.name]: movies };
+            cachedMoviesByGenre = next;
+            return next;
+          });
+          setLoadedCount((prev) => {
+            const next = prev + 1;
+            cachedLoadedCount = next;
+            return next;
+          });
         } catch {
           /* ignore malformed frames */
         }
@@ -194,6 +256,7 @@ const HomePage = () => {
 
       es.onerror = () => {
         setStreamDone(true);
+        cachedStreamDone = true;
         es.close();
       };
     };
@@ -282,9 +345,11 @@ const HomePage = () => {
 
       const inList = watchlist.includes(movie.id);
 
-      setWatchlist((prev) =>
-        inList ? prev.filter((id) => id !== movie.id) : [...prev, movie.id],
-      );
+      setWatchlist((prev) => {
+        const next = inList ? prev.filter((id) => id !== movie.id) : [...prev, movie.id];
+        cachedWatchlist = next;
+        return next;
+      });
 
       try {
         if (inList) {
@@ -297,9 +362,11 @@ const HomePage = () => {
           toast.success("Add kardiya😎");
         }
       } catch {
-        setWatchlist((prev) =>
-          inList ? [...prev, movie.id] : prev.filter((id) => id !== movie.id),
-        );
+        setWatchlist((prev) => {
+          const next = inList ? [...prev, movie.id] : prev.filter((id) => id !== movie.id);
+          cachedWatchlist = next;
+          return next;
+        });
         toast.error("Watchlist update nahi ho rha😑");
       }
     },

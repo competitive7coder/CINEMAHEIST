@@ -21,4 +21,4 @@ Disallow: /profile
 Disallow: /settings
 Disallow: /api/
 
-Sitemap: https://stream1hub.pages.dev/sitemap.xml
+Sitemap: https://www.cinemaheist.online/sitemap.xml

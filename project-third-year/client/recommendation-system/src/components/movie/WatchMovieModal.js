@@ -25,6 +25,8 @@ const modalStyles = `
 
 /* ── Top Bar ── */
 .wm-topbar {
+  position: relative;
+  z-index: 10;
   background: linear-gradient(180deg,#111 0%,#0d0d0d 100%);
   border-bottom: 1px solid rgba(255,255,255,0.06);
   padding: 10px 14px;
@@ -76,6 +78,8 @@ const modalStyles = `
 
 /* Close */
 .wm-close {
+  position: relative;
+  z-index: 12;
   background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
   border-radius: 8px; color: rgba(255,255,255,0.6); width: 32px; height: 32px; min-width: 32px;
   display: flex; align-items: center; justify-content: center; cursor: pointer;

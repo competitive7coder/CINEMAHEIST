@@ -2,39 +2,24 @@ import React from "react";
 
 const disclaimers = [
   {
-    icon: "🎬",
-    title: "No Video Hosting",
-    text: "CinemaHeist does not host, upload, store, cache, or distribute any video, audio, or media files on its servers. All video content displayed on CinemaHeist is embedded from independent third-party streaming providers. CinemaHeist has no control over the content served by these providers."
-  },
-  {
-    icon: "🔗",
-    title: "Third-Party Embed Players",
-    text: "CinemaHeist uses iframe embeds from third-party providers such as vidsrc, 2embed, and similar services. The availability, quality, and legality of content served by these providers is entirely their responsibility. CinemaHeist merely provides the embed frame — equivalent to linking to an external website."
-  },
-  {
-    icon: "🗄️",
-    title: "TMDB Metadata",
-    text: "Movie titles, posters, descriptions, ratings, cast information, and other metadata displayed on CinemaHeist are sourced from The Movie Database (TMDB) API. CinemaHeist is not affiliated with, endorsed by, or certified by TMDB. All metadata rights belong to their respective owners."
-  },
-  {
     icon: "©️",
-    title: "Copyright",
-    text: "All movie titles, characters, and related content displayed on CinemaHeist are trademarks and copyrights of their respective studios and rights holders. CinemaHeist does not claim ownership of any movie content, metadata, posters, or related intellectual property."
+    title: "Copyright and Ownership",
+    text: "All movie titles, characters, cover arts, descriptions, and related media references displayed on CinemaHeist are trademarks and copyrights of their respective production studios, distribution networks, and rights holders. CinemaHeist does not claim ownership or affiliation with any of these properties."
   },
   {
-    icon: "⚖️",
-    title: "Legal Intermediary Status",
-    text: "CinemaHeist operates as an intermediary platform under India's IT Act 2000, Section 79, which provides safe harbour protection to intermediaries that do not initiate, select, or modify third-party transmissions. CinemaHeist qualifies as such an intermediary."
+    icon: "🤝",
+    title: "Non-Commercial Platform",
+    text: "CinemaHeist is an independent, non-commercial movie catalog and reference portal. We are not officially associated, endorsed, or affiliated with Netflix, Amazon Prime, Disney+, or any other streaming service or entertainment studio."
   },
   {
     icon: "🌐",
-    title: "Availability",
-    text: "CinemaHeist does not guarantee the availability, uptime, or continuity of any third-party stream or embed. Streams may become unavailable at any time due to actions by third-party providers or rights holders. CinemaHeist is not responsible for buffering, poor quality, or unavailable content."
+    title: "Service Availability",
+    text: "CinemaHeist does not guarantee uninterrupted operation, 100% uptime, or the permanent availability of specific pages, details, or library items. The catalog may be updated, modified, or restricted at any time without prior notice."
   },
   {
     icon: "📧",
     title: "Copyright Complaints",
-    text: "If you are a copyright owner and believe your content is being served through CinemaHeist's embedded players, please contact us at dmca.CinemaHeist@proton.me. We will review your complaint within 48 hours and forward it to the relevant embed provider."
+    text: "CinemaHeist respects intellectual property rights. If you are a rights holder and have any inquiries or copyright complaints regarding media references displayed on the platform, please contact us at dmca.CinemaHeist@proton.me."
   },
 ];
 
@@ -75,7 +60,7 @@ const Disclaimer = () => (
     <div className="legal-hero">
       <div className="legal-badge">⚠️ Disclaimer</div>
       <h1>Site <span>Disclaimer</span></h1>
-      <p>Important information about CinemaHeist's nature, limitations, and legal position regarding content and copyright.</p>
+      <p>Important information about CinemaHeist's nature, limitations, and policy regarding content ownership.</p>
       <div className="legal-updated">Last updated: March 2026</div>
     </div>
 
@@ -94,7 +79,7 @@ const Disclaimer = () => (
 
       <div className="legal-footer-note">
         <p>
-          <strong>CinemaHeist is a free, non-commercial platform.</strong> We do not profit from any copyrighted content. All revenue, if any, comes from display advertising unrelated to copyrighted content. This disclaimer is provided in good faith and in compliance with India's IT Act 2000 and the DMCA safe harbour provisions.
+          <strong>CinemaHeist is a free, non-commercial catalog.</strong> This disclaimer is provided in good faith to establish content copyright and protect intellectual property rights.
         </p>
       </div>
     </div>

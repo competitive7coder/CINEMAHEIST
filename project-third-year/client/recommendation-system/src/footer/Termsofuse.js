@@ -7,7 +7,7 @@ const terms = [
   },
   {
     num: "2", title: "Nature of the Service",
-    text: "CinemaHeist is a movie discovery and recommendation platform. We use the TMDB API for movie metadata and embed third-party video players for streaming. CinemaHeist does not host, upload, store, or distribute any video content. All video streams originate from independent third-party providers over which CinemaHeist has no control."
+    text: "CinemaHeist is a movie discovery and recommendation platform. We reference movie metadata and provide discovery features. CinemaHeist does not host, upload, store, or distribute any video or media content. All content references originate from independent third-party platforms."
   },
   {
     num: "3", title: "User Accounts",
@@ -19,15 +19,15 @@ const terms = [
   },
   {
     num: "5", title: "Third-Party Content",
-    text: "CinemaHeist embeds video content from third-party providers. We are not responsible for the availability, accuracy, legality, or quality of third-party content. If you encounter content you believe infringes copyright, please report it via our DMCA page. The appearance of third-party content on CinemaHeist does not constitute an endorsement."
+    text: "CinemaHeist references external media resources. We are not responsible for the availability, compliance, or quality of third-party hosts. If you encounter content you believe violates policies, please report it via our DMCA page. The appearance of external links does not constitute an endorsement."
   },
   {
     num: "6", title: "Intellectual Property",
-    text: "All CinemaHeist branding, code, design, and original content (excluding third-party embeds and TMDB metadata) is the intellectual property of CinemaHeist. You may not copy, reproduce, or distribute CinemaHeist's original work without written permission. Movie metadata is provided by TMDB under their terms of use."
+    text: "All CinemaHeist branding, code, design, and original content is the intellectual property of CinemaHeist. You may not copy, reproduce, or distribute CinemaHeist's work without written permission."
   },
   {
     num: "7", title: "Disclaimer of Warranties",
-    text: 'CinemaHeist is provided "as is" without warranties of any kind. We do not guarantee that the service will be uninterrupted, error-free, or that third-party streams will be available at all times. CinemaHeist is not responsible for content served by third-party embed providers.'
+    text: 'CinemaHeist is provided "as is" without warranties of any kind. We do not guarantee that the service will be uninterrupted, error-free, or that external assets will be available at all times. CinemaHeist is not responsible for content served by third-party hosts.'
   },
   {
     num: "8", title: "Limitation of Liability",
@@ -35,7 +35,7 @@ const terms = [
   },
   {
     num: "9", title: "DMCA & Copyright",
-    text: "CinemaHeist respects intellectual property rights and complies with the Digital Millennium Copyright Act (DMCA) and India's IT Act 2000, Section 79. Copyright owners may submit takedown notices to dmca.CinemaHeist@proton.me. We will respond within 48 hours and forward notices to the relevant embed providers."
+    text: "CinemaHeist respects intellectual property rights and complies with the Digital Millennium Copyright Act (DMCA) and India's IT Act 2000, Section 79. Copyright owners may submit takedown notices to dmca.CinemaHeist@proton.me. We will respond within 48 hours and process requests in good faith."
   },
   {
     num: "10", title: "Governing Law",

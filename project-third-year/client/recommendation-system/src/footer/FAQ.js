@@ -7,19 +7,19 @@ const faqs = [
     items: [
       {
         q: "Why does the wrong movie play sometimes?",
-        a: "Embed servers sometimes mis-map movie IDs. Simply switch to another server using the server tabs at the top of the player. Server 1 or Server 2 usually gives the best results.",
+        a: "If the details do not match, try refreshing your browser or clearing your cache to load the latest index.",
       },
       {
         q: "Why is the video buffering a lot?",
-        a: "Buffering is caused by the third-party embed server, not CinemaHeist. Try switching to a different server — each one uses a different source. Server 3 (Videasy) is generally the most stable.",
+        a: "Buffering is typically caused by unstable internet connections or high server traffic. Check your internet connection or try reloading the page.",
       },
       {
         q: "Can I download movies from CinemaHeist?",
-        a: "No. CinemaHeist does not provide downloads. We are a streaming discovery platform only. All content is served via embedded players from third-party providers.",
+        a: "No, CinemaHeist is designed for online browsing and cataloging only. Downloading files is not supported.",
       },
       {
-        q: "Why do some movies show a blank/black player?",
-        a: "The movie may not yet be available on that server. Try switching servers. Very new movies (still in theatres) may not be available on any server yet.",
+        q: "Why do some movies show a blank player?",
+        a: "If details or media previews fail to load, try refreshing your browser. Some newly released titles may have limited information available.",
       },
     ],
   },
@@ -45,15 +45,15 @@ const faqs = [
     items: [
       {
         q: "How does CinemaHeist recommend movies?",
-        a: "CinemaHeist uses a 5-stage hybrid ML engine combining collaborative filtering (SVD), content-based filtering (TF-IDF), and a temporal watchlist decay algorithm. The more movies you add to your watchlist, the better your recommendations get.",
+        a: "CinemaHeist uses a custom recommendation engine based on your watchlist preferences to suggest relevant movies.",
       },
       {
         q: "Why are my recommendations not changing?",
-        a: "Recommendations update based on your watchlist activity. Add more movies to your watchlist to improve diversity. Our temporal decay algorithm also gives more weight to recently added movies.",
+        a: "Recommendations update based on your watchlist activity. Try adding more movies to your watchlist to see new suggestions.",
       },
       {
         q: "How many movies do I need in my watchlist for good recommendations?",
-        a: "We recommend at least 5 movies for basic recommendations. 10+ movies gives significantly better results as the ML engine has more signals to work with.",
+        a: "We recommend adding at least 5 to 10 movies to your watchlist to help our system establish your taste preferences.",
       },
     ],
   },
@@ -62,11 +62,11 @@ const faqs = [
     items: [
       {
         q: "Does CinemaHeist host any movies?",
-        a: "No. CinemaHeist does not host, upload, or store any video content. All streams are served by independent third-party embed providers. CinemaHeist functions as a search and discovery index only.",
+        a: "No, CinemaHeist is a reference catalog and library platform. We do not store or distribute any video files on our servers.",
       },
       {
         q: "How do I report a copyright violation?",
-        a: "Email our DMCA agent at dmca.CinemaHeist@proton.me with the movie title, page URL, and proof of ownership. We respond within 48 hours and forward complaints to the relevant embed provider.",
+        a: "Please email our copyright agent at dmca.CinemaHeist@proton.me with the relevant movie title and detailed information.",
       },
       {
         q: "Is CinemaHeist free to use?",

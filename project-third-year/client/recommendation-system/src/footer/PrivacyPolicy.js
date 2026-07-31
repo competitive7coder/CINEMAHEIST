@@ -6,7 +6,7 @@ const sections = [
     title: "Information We Collect",
     content: [
       { heading: "Account Information", text: "When you register, we collect your name, email address, and password (stored encrypted). We do not collect your phone number, payment information, or government ID." },
-      { heading: "Usage Data", text: "We collect data about how you use CinemaHeist — movies you view, search queries, watchlist items, and interaction patterns. This data is used solely to power our ML recommendation engine." },
+      { heading: "Usage Data", text: "We collect data about how you use CinemaHeist — movies you view, search queries, watchlist items, and interaction patterns. This data is used solely to power your personalized discovery and watchlist." },
       { heading: "Technical Data", text: "We automatically collect your IP address, browser type, device type, and session timestamps for security and performance purposes." },
     ]
   },
@@ -14,7 +14,7 @@ const sections = [
     num: "2",
     title: "How We Use Your Information",
     content: [
-      { heading: "Personalized Recommendations", text: "Your watchlist and viewing patterns feed our hybrid ML recommendation engine (TF-IDF, SVD, temporal decay) to suggest relevant movies." },
+      { heading: "Personalized Recommendations", text: "Your watchlist and viewing preferences help organize and customize your experience to suggest relevant content." },
       { heading: "Account Management", text: "Your email is used for account verification, password resets, and important service updates. We do not send marketing emails without your explicit consent." },
       { heading: "Security", text: "IP addresses and session data help us detect unauthorized access and protect your account." },
     ]
@@ -24,7 +24,7 @@ const sections = [
     title: "What We Do NOT Do",
     content: [
       { heading: "We do not sell your data", text: "Your personal information is never sold, rented, or traded to third parties for marketing purposes." },
-      { heading: "We do not host video content", text: "CinemaHeist does not store, upload, or serve any video files. All streaming is handled by independent third-party embed providers." },
+      { heading: "We do not host video content", text: "CinemaHeist does not store, upload, or serve any video files. All streaming trailers and resources are managed by independent external video hosts." },
       { heading: "We do not track across sites", text: "We do not use cross-site tracking cookies or third-party advertising trackers." },
     ]
   },
@@ -33,7 +33,7 @@ const sections = [
     title: "Third-Party Services",
     content: [
       { heading: "TMDB API", text: "We use The Movie Database (TMDB) API for all movie metadata — titles, posters, descriptions, and ratings. TMDB has its own privacy policy available at themoviedb.org." },
-      { heading: "Embed Providers", text: "Video content is served by third-party embed providers (vidsrc, 2embed, etc.). These providers have their own privacy policies and data practices we do not control." },
+      { heading: "Embed Providers", text: "Video content is served by independent third-party external services. These services have their own privacy policies and data practices we do not control." },
       { heading: "Cloudinary", text: "User avatars are stored and served via Cloudinary. Cloudinary's privacy policy applies to avatar data." },
     ]
   },

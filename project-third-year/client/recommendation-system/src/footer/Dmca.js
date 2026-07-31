@@ -181,7 +181,7 @@ const DMCA = () => {
       <div className="dmca-hero">
         <div className="dmca-badge">⚖️ Legal</div>
         <h1>DMCA & Copyright <span>Policy</span></h1>
-        <p>CinemaHeist respects intellectual property rights. We do not host any video content — all streams are served by third-party embed providers.</p>
+        <p>CinemaHeist respects intellectual property rights. We are committed to maintaining a compliant platform and responding to all copyright inquiries.</p>
       </div>
 
       <div className="dmca-container">
@@ -190,7 +190,7 @@ const DMCA = () => {
         <div className="dmca-notice-box">
           <div className="dmca-notice-icon">📌</div>
           <div className="dmca-notice-text">
-            <strong>Important:</strong> CinemaHeist is an automated index that embeds publicly available streaming players. We do not upload, store, or host any video, audio, or media files on our servers. All content is hosted by independent third-party providers such as vidsrc, 2embed, and similar services. CinemaHeist functions solely as a search and discovery platform.
+            <strong>Important:</strong> CinemaHeist is a reference catalog. We respect the intellectual property of creators, studios, and copyright holders. All inquiries submitted to our agent are processed in good faith.
           </div>
         </div>
 
@@ -198,10 +198,9 @@ const DMCA = () => {
         <div className="dmca-section">
           <div className="dmca-section-header">
             <div className="dmca-section-num">1</div>
-            <div className="dmca-section-title">What CinemaHeist Does</div>
+            <div className="dmca-section-title">Compliance and Policy</div>
           </div>
-          <p>CinemaHeist uses the <strong>TMDB API</strong> for movie metadata (titles, posters, descriptions, ratings). We do not store or serve any video content ourselves. All playback is handled by third-party embed players embedded via iframe.</p>
-          <p>We operate similarly to a <strong>search engine</strong> — we index and link to content hosted elsewhere. We have no control over what those third-party providers host or serve.</p>
+          <p>CinemaHeist respects intellectual property rights. If you identify references or assets that you believe infringe upon your copyrighted material, we provide a structured method to report your concern directly to our administration.</p>
         </div>
 
         {/* Section 2 */}
@@ -258,7 +257,7 @@ const DMCA = () => {
               { step: "01", title: "Notice received", sub: "We receive your DMCA notice at our designated email.", active: true },
               { step: "02", title: "Review within 48 hours", sub: "Our team reviews the claim and verifies the reported content.", active: false },
               { step: "03", title: "Content removed", sub: "We remove the infringing page from CinemaHeist within 48–72 hours.", active: false },
-              { step: "04", title: "Provider notified", sub: "We forward the notice to the relevant embed provider for further action.", active: false },
+              { step: "04", title: "Resolution updated", sub: "We resolve the claim and update our records accordingly.", active: false },
             ].map((item, i) => (
               <div key={i} className="dmca-timeline-item">
                 <div className={`dmca-timeline-dot ${item.active ? "active" : ""}`}>{item.step}</div>
@@ -283,7 +282,7 @@ const DMCA = () => {
 
         {/* Footer note */}
         <div className="dmca-footer-note">
-          <p>CinemaHeist operates under <strong>IT Act 2000, Section 79</strong> safe harbour provisions as an intermediary platform. We respond to all valid copyright complaints in good faith. This policy was last updated <strong>March 2026</strong>.</p>
+          <p>CinemaHeist is committed to respecting the intellectual property rights of others. We respond to all valid, detailed complaints in good faith. This policy was last updated <strong>March 2026</strong>.</p>
         </div>
 
       </div>

@@ -247,13 +247,9 @@ const Footer = () => {
               CINEMA<span>HEIST</span>
             </BrandName>
             <Disclaimer>
-              CinemaHeist does not host, upload, or store any video content. All
-              streams are served by{" "}
-              <DisclaimerHighlight>
-                independent third-party embed providers
-              </DisclaimerHighlight>
-              . CinemaHeist is a search and discovery platform using the TMDB API
-              for metadata only. For copyright concerns:{" "}
+              CinemaHeist is a comprehensive movie reference and catalog platform. 
+              All trademarks, cover arts, and media details belong to their respective 
+              studios and rights holders. For copyright concerns:{" "}
               <DisclaimerHighlight>
                 dmca.CinemaHeist@proton.me
               </DisclaimerHighlight>
@@ -269,10 +265,9 @@ const Footer = () => {
           {/* Browse */}
           <LinkGroup>
             <GroupTitle>Browse</GroupTitle>
-            <FooterLink to="/">Home</FooterLink>
-            <FooterLink to="/popular">Trending</FooterLink>
-            <FooterLink to="/watchlist">My Watchlist</FooterLink>
-            <FooterLink to="/profile">Profile</FooterLink>
+            <FooterLink to="/home">Explore Movies</FooterLink>
+            <FooterLink to="/dashboard">My Library</FooterLink>
+            <FooterLink to="/about">About Us</FooterLink>
             <FooterLink to="/faq">FAQ</FooterLink>
             <FooterLink to="/contact">Contact Us</FooterLink>
           </LinkGroup>
@@ -293,9 +288,8 @@ const Footer = () => {
 
         <BottomBar>
           <Copyright>
-            © {new Date().getFullYear()} CinemaHeist. Metadata provided by{" "}
-            <DisclaimerHighlight>TMDB</DisclaimerHighlight>. Not affiliated with
-            TMDB, Netflix, or any content provider.
+            © {new Date().getFullYear()} CinemaHeist. All rights reserved. 
+            Not affiliated with Netflix, Amazon Prime, or any content provider.
           </Copyright>
           <LegalNav>
             <LegalLink to="/dmca">DMCA</LegalLink>
@@ -305,14 +299,6 @@ const Footer = () => {
             <LegalLink to="/terms">Terms</LegalLink>
             <Dot>•</Dot>
             <LegalLink to="/disclaimer">Disclaimer</LegalLink>
-            <Dot>•</Dot>
-            <LegalLinkExternal
-              href="https://www.themoviedb.org/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Powered by TMDB
-            </LegalLinkExternal>
           </LegalNav>
         </BottomBar>
       </Inner>

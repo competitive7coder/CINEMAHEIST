@@ -23,8 +23,8 @@ import { useEffect } from "react";
  *   });
  */
 
-const BASE_URL = "https://stream1hub.pages.dev";
-const DEFAULT_IMAGE = `${BASE_URL}/og-image.jpg`;
+const BASE_URL = "https://www.cinemaheist.online";
+const DEFAULT_IMAGE = `${BASE_URL}/og-image.png`;
 const SITE_NAME = "CinemaHeist";
 
 const setMeta = (selector, content, attr = "content") => {
@@ -107,7 +107,7 @@ const useSEO = ({
 
     const fullDescription =
       description ||
-      "Watch movies online free with AI-powered recommendations. Stream the latest Hollywood and world cinema on CinemaHeist.";
+      "Watch movies online free. Stream the latest Hollywood and world cinema on CinemaHeist.";
 
     const fullImage = image || DEFAULT_IMAGE;
     const fullUrl = url ? `${BASE_URL}${url}` : BASE_URL;
@@ -163,10 +163,10 @@ const useSEO = ({
 
     return () => {
       document.title = `${SITE_NAME} — Watch Movies Online Free`;
-      setMeta('meta[name="description"]', "Watch movies online free with AI-powered recommendations.");
+      setMeta('meta[name="description"]', "Watch movies online free. Stream the latest Hollywood and world cinema.");
       setCanonical(BASE_URL);
       setMeta('meta[property="og:title"]',        `${SITE_NAME} — Watch Movies Online Free`);
-      setMeta('meta[property="og:description"]',  "Watch movies online free with AI-powered recommendations.");
+      setMeta('meta[property="og:description"]',  "Watch movies online free. Stream the latest Hollywood and world cinema.");
       setMeta('meta[property="og:image"]',        DEFAULT_IMAGE);
       setMeta('meta[property="og:image:alt"]',    SITE_NAME);
       setMeta('meta[property="og:image:width"]',  "1200");

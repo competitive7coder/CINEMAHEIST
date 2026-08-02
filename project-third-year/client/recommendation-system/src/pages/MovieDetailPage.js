@@ -66,7 +66,7 @@ useEffect(() => {
               }
             : undefined,
           genre: movie.genres?.map((g) => g.name),
-          url: `https://stream1hub.pages.dev/movie/${toMovieSlug(movie)}`,
+          url: `https://www.cinemaheist.online/movie/${toMovieSlug(movie)}`,
         }
       : null,
   });

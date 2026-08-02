@@ -19,6 +19,10 @@ const AdminDashboard = () => {
   const [userSearch, setUserSearch] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
 
+  // Secure PIN passcode states
+  const [pin, setPin] = useState("");
+  const [isAuthorized, setIsAuthorized] = useState(() => !!sessionStorage.getItem("admin_secret_key"));
+
   // SVD ML retrain states
   const [mlStatus, setMlStatus] = useState({ is_training: false, logs: [] });
   const [pollingStatus, setPollingStatus] = useState(false);
@@ -33,7 +37,16 @@ const AdminDashboard = () => {
   const socketRef = useRef(null);
   const consoleBottomRef = useRef(null);
 
+  const handlePinSubmit = (e) => {
+    e.preventDefault();
+    if (!pin) return;
+    sessionStorage.setItem("admin_secret_key", pin);
+    setIsAuthorized(true);
+  };
+
   useEffect(() => {
+    if (!isAuthorized) return;
+
     // 1. Authenticate admin access
     const checkAdmin = async () => {
       try {
@@ -50,10 +63,17 @@ const AdminDashboard = () => {
       }
     };
     checkAdmin();
-  }, [navigate]);
+  }, [navigate, isAuthorized]);
+
+  // Secure exit when leaving /admin page
+  useEffect(() => {
+    return () => {
+      sessionStorage.removeItem("admin_secret_key");
+    };
+  }, []);
 
   useEffect(() => {
-    if (!currentUser) return;
+    if (!currentUser || !isAuthorized) return;
 
     // 2. Fetch admin data
     const fetchAdminData = async () => {
@@ -78,7 +98,13 @@ const AdminDashboard = () => {
         });
 
       } catch (err) {
-        toast.error("Failed to load administration data.");
+        if (err.response?.status === 403) {
+          toast.error("Invalid admin security key.");
+          sessionStorage.removeItem("admin_secret_key");
+          setIsAuthorized(false);
+        } else {
+          toast.error("Failed to load administration data.");
+        }
       } finally {
         setLoadingUsers(false);
         setLoadingActivity(false);
@@ -222,6 +248,86 @@ const AdminDashboard = () => {
     u.username.toLowerCase().includes(userSearch.toLowerCase()) ||
     u.email.toLowerCase().includes(userSearch.toLowerCase())
   );
+
+  if (!isAuthorized) {
+    return (
+      <div style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "radial-gradient(circle at 50% 50%, #0e111a 0%, #050609 100%)",
+        fontFamily: "'Plus Jakarta Sans', sans-serif",
+        color: "#fff"
+      }}>
+        <Card style={{
+          background: "rgba(255, 255, 255, 0.015)",
+          border: "1px solid rgba(255, 255, 255, 0.06)",
+          backdropFilter: "blur(24px)",
+          borderRadius: "20px",
+          padding: "3rem 2.5rem",
+          maxWidth: "400px",
+          width: "90%",
+          boxShadow: "0 20px 50px rgba(0,0,0,0.65)",
+          textAlign: "center"
+        }}>
+          <div style={{
+            width: "60px",
+            height: "60px",
+            borderRadius: "50%",
+            background: "rgba(229, 9, 20, 0.1)",
+            border: "1px solid rgba(229, 9, 20, 0.25)",
+            color: "#e50914",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "1.5rem",
+            margin: "0 auto 1.5rem"
+          }}>
+            <BsShieldLock />
+          </div>
+          <h2 style={{ fontSize: "1.25rem", fontWeight: 800, marginBottom: "0.5rem" }}>Admin Gateway</h2>
+          <p style={{ fontSize: "0.8rem", color: "#64748b", marginBottom: "2rem" }}>
+            Enter the master security passcode to access the management dashboard.
+          </p>
+          <Form onSubmit={handlePinSubmit}>
+            <Form.Group className="mb-4">
+              <Form.Control
+                type="password"
+                placeholder="Enter passcode..."
+                value={pin}
+                onChange={(e) => setPin(e.target.value)}
+                style={{
+                  background: "rgba(255, 255, 255, 0.03)",
+                  border: "1px solid rgba(255, 255, 255, 0.08)",
+                  borderRadius: "10px",
+                  color: "#fff",
+                  padding: "12px 16px",
+                  textAlign: "center",
+                  fontSize: "0.95rem"
+                }}
+                autoFocus
+              />
+            </Form.Group>
+            <Button
+              type="submit"
+              style={{
+                width: "100%",
+                background: "#e50914",
+                border: "none",
+                borderRadius: "10px",
+                padding: "12px",
+                fontWeight: 700,
+                fontSize: "0.88rem"
+              }}
+            >
+              Verify Passcode
+            </Button>
+          </Form>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="admin-dashboard-container">
@@ -433,9 +539,29 @@ const AdminDashboard = () => {
             <span className="text-muted fw-bold text-uppercase" style={{ fontSize: "0.7rem", letterSpacing: "2.5px" }}>Control Center</span>
             <h1 className="fw-black text-white m-0" style={{ letterSpacing: "-1.5px", fontSize: "2.5rem" }}>System Dashboard</h1>
           </div>
-          <Badge bg="danger" className="px-3 py-2 fw-bold text-uppercase" style={{ letterSpacing: "1px", borderRadius: "8px" }}>
-            Admin Session
-          </Badge>
+          <div className="d-flex align-items-center gap-3">
+            <Badge bg="danger" className="px-3 py-2 fw-bold text-uppercase" style={{ letterSpacing: "1px", borderRadius: "8px" }}>
+              Admin Session
+            </Badge>
+            <Button
+              variant="outline-danger"
+              onClick={() => {
+                sessionStorage.removeItem("admin_secret_key");
+                setIsAuthorized(false);
+                toast.info("Securely exited admin panel.");
+              }}
+              style={{
+                borderRadius: "8px",
+                padding: "8px 16px",
+                fontWeight: 700,
+                fontSize: "0.8rem",
+                textTransform: "uppercase",
+                letterSpacing: "0.5px"
+              }}
+            >
+              Lock Panel
+            </Button>
+          </div>
         </div>
 
         {/* Stats Row */}

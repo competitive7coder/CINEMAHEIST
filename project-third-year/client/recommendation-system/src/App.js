@@ -1,5 +1,5 @@
 import React, { useState, Suspense, lazy, useEffect, memo } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import MainLayout from './components/layout/MainLayout';
 
 // Toast 
@@ -95,6 +95,16 @@ class ErrorBoundary extends React.Component {
   }
 }
 
+function AdminSecretCleaner() {
+  const location = useLocation();
+  useEffect(() => {
+    if (location.pathname !== "/admin") {
+      sessionStorage.removeItem("admin_secret_key");
+    }
+  }, [location]);
+  return null;
+}
+
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(
     () => !!localStorage.getItem('token')
@@ -131,6 +141,7 @@ function App() {
 
   return (
     <Router>
+      <AdminSecretCleaner />
       <ErrorBoundary>
         <ToastContainer
           position="top-right"

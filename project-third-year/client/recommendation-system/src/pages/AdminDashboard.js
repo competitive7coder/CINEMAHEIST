@@ -261,28 +261,29 @@ const AdminDashboard = () => {
         color: "#fff"
       }}>
         <Card style={{
-          background: "rgba(255, 255, 255, 0.015)",
-          border: "1px solid rgba(255, 255, 255, 0.06)",
-          backdropFilter: "blur(24px)",
+          background: "rgba(10, 12, 22, 0.8)",
+          border: "1px solid rgba(168, 85, 247, 0.3)",
+          backdropFilter: "blur(20px)",
           borderRadius: "20px",
           padding: "3rem 2.5rem",
           maxWidth: "400px",
           width: "90%",
-          boxShadow: "0 20px 50px rgba(0,0,0,0.65)",
+          boxShadow: "0 20px 50px rgba(0,0,0,0.85), 0 0 20px rgba(168, 85, 247, 0.15)",
           textAlign: "center"
         }}>
           <div style={{
             width: "60px",
             height: "60px",
             borderRadius: "50%",
-            background: "rgba(229, 9, 20, 0.1)",
-            border: "1px solid rgba(229, 9, 20, 0.25)",
-            color: "#e50914",
+            background: "rgba(168, 85, 247, 0.1)",
+            border: "1px solid rgba(168, 85, 247, 0.3)",
+            color: "#a855f7",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             fontSize: "1.5rem",
-            margin: "0 auto 1.5rem"
+            margin: "0 auto 1.5rem",
+            boxShadow: "0 0 10px rgba(168, 85, 247, 0.2)"
           }}>
             <BsShieldLock />
           </div>
@@ -313,12 +314,14 @@ const AdminDashboard = () => {
               type="submit"
               style={{
                 width: "100%",
-                background: "#e50914",
+                background: "#a855f7",
                 border: "none",
                 borderRadius: "10px",
                 padding: "12px",
                 fontWeight: 700,
-                fontSize: "0.88rem"
+                fontSize: "0.88rem",
+                boxShadow: "0 0 15px rgba(168, 85, 247, 0.35)",
+                transition: "all 0.2s ease"
               }}
             >
               Verify Passcode
@@ -334,73 +337,96 @@ const AdminDashboard = () => {
       <style>{`
         .admin-dashboard-container {
           min-height: 100vh;
-          background: radial-gradient(circle at 50% 50%, #0e111a 0%, #050609 100%);
+          background: radial-gradient(circle at 50% 50%, #070913 0%, #020305 100%);
           color: #e2e8f0;
           font-family: 'Plus Jakarta Sans', sans-serif;
           padding: 100px 2rem 3rem;
         }
 
         .glass-card {
-          background: rgba(255, 255, 255, 0.015);
-          border: 1px solid rgba(255, 255, 255, 0.06);
-          backdrop-filter: blur(24px);
-          -webkit-backdrop-filter: blur(24px);
+          background: rgba(10, 12, 22, 0.6);
+          border: 1px solid rgba(168, 85, 247, 0.15);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
           border-radius: 20px;
-          padding: 1.75rem;
-          box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+          padding: 2rem;
+          box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 2px rgba(168, 85, 247, 0.1);
           height: 100%;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .glass-card:hover {
+          border-color: rgba(168, 85, 247, 0.4);
+          box-shadow: 0 20px 45px rgba(168, 85, 247, 0.08), 0 0 15px rgba(168, 85, 247, 0.15);
         }
 
         .stat-card {
           text-align: center;
-          transition: all 0.3s ease;
+          transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .stat-card:hover {
-          transform: translateY(-5px);
-          border-color: rgba(58,123,213,0.3);
-          box-shadow: 0 15px 30px rgba(58,123,213,0.1);
+          transform: translateY(-8px);
         }
         .stat-icon-wrapper {
-          width: 54px;
-          height: 54px;
-          border-radius: 14px;
-          background: rgba(58,123,213,0.1);
-          color: #3a7bd5;
+          width: 58px;
+          height: 58px;
+          border-radius: 16px;
+          background: rgba(6, 182, 212, 0.08);
+          color: #06b6d4;
           display: flex;
           align-items: center;
           justify-content: center;
-          margin: 0 auto 1rem;
-          font-size: 1.5rem;
-          border: 1px solid rgba(58,123,213,0.25);
+          margin: 0 auto 1.25rem;
+          font-size: 1.6rem;
+          border: 1px solid rgba(6, 182, 212, 0.2);
+          transition: all 0.3s ease;
+          box-shadow: 0 0 10px rgba(6, 182, 212, 0.05);
+        }
+        .stat-card:hover .stat-icon-wrapper {
+          transform: scale(1.1) rotate(5deg);
+          background: rgba(6, 182, 212, 0.15);
+          border-color: #06b6d4;
+          box-shadow: 0 0 20px rgba(6, 182, 212, 0.35);
         }
         .stat-val {
-          font-size: 2.25rem;
+          font-size: 2.5rem;
           font-weight: 800;
-          letter-spacing: -1px;
+          letter-spacing: -1.5px;
           margin-bottom: 0.25rem;
           color: #fff;
+          background: linear-gradient(180deg, #fff 0%, #06b6d4 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
         }
         .stat-lbl {
-          font-size: 0.75rem;
+          font-size: 0.72rem;
           text-transform: uppercase;
-          letter-spacing: 1.5px;
+          letter-spacing: 1.8px;
           color: #64748b;
           font-weight: 700;
         }
 
         /* Nav tabs */
         .admin-tab-btn {
-          border-radius: 30px !important;
+          border-radius: 12px !important;
           padding: 10px 24px !important;
           font-weight: 700 !important;
           font-size: 0.85rem !important;
           letter-spacing: 0.5px !important;
+          border: 1px solid rgba(168, 85, 247, 0.2) !important;
+          background: rgba(168, 85, 247, 0.05) !important;
+          color: #a855f7 !important;
           transition: all 0.2s ease !important;
+        }
+        .admin-tab-btn.active, .admin-tab-btn:hover {
+          background: #a855f7 !important;
+          color: #fff !important;
+          border-color: #a855f7 !important;
+          box-shadow: 0 0 15px rgba(168, 85, 247, 0.4) !important;
         }
 
         /* Users table styles */
         .custom-table {
-          color: #e2e8f0 !important;
+          color: #cbd5e1 !important;
           border-collapse: separate;
           border-spacing: 0 8px;
         }
@@ -413,7 +439,8 @@ const AdminDashboard = () => {
           padding: 12px 16px;
         }
         .custom-table tbody tr {
-          background: rgba(255,255,255,0.01) !important;
+          background: rgba(15, 17, 26, 0.4) !important;
+          border: 1px solid rgba(255, 255, 255, 0.02) !important;
           transition: all 0.2s ease;
         }
         .custom-table tbody tr:hover {
@@ -529,6 +556,21 @@ const AdminDashboard = () => {
         .terminal-prompt {
           color: #64748b;
           margin-right: 8px;
+        }
+
+        @keyframes pulse-green {
+          0% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+          }
+          70% {
+            transform: scale(1);
+            box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+          }
+          100% {
+            transform: scale(0.95);
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+          }
         }
       `}</style>
 
@@ -707,11 +749,20 @@ const AdminDashboard = () => {
             {/* Real-time Activity feed */}
             <Col lg={4}>
               <div className="glass-card">
-                <h4 className="fw-bold mb-4 text-white d-flex align-items-center gap-2">
+                <h4 className="fw-bold mb-4 text-white d-flex align-items-center gap-2" style={{ position: "relative" }}>
                   <BsCpu className="text-primary" />
                   <span>Live Event Stream</span>
+                  <span className="live-pulse" style={{
+                    width: "8px",
+                    height: "8px",
+                    borderRadius: "50%",
+                    background: "#10b981",
+                    display: "inline-block",
+                    boxShadow: "0 0 10px #10b981",
+                    marginLeft: "8px",
+                    animation: "pulse-green 2s infinite"
+                  }} />
                 </h4>
-
                 {loadingActivity ? (
                   <div className="text-center py-5">
                     <Spinner animation="border" variant="primary" />

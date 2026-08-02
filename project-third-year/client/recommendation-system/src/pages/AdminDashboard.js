@@ -18,6 +18,7 @@ const AdminDashboard = () => {
   const [loadingActivity, setLoadingActivity] = useState(true);
   const [userSearch, setUserSearch] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
+  const [isAdminChecking, setIsAdminChecking] = useState(true);
 
   // Secure PIN passcode states
   const [pin, setPin] = useState("");
@@ -45,9 +46,7 @@ const AdminDashboard = () => {
   };
 
   useEffect(() => {
-    if (!isAuthorized) return;
-
-    // 1. Authenticate admin access
+    // 1. Authenticate admin access immediately on mount
     const checkAdmin = async () => {
       try {
         const res = await api.get("/users/me");
@@ -57,13 +56,14 @@ const AdminDashboard = () => {
           return;
         }
         setCurrentUser(res.data);
+        setIsAdminChecking(false);
       } catch (err) {
         toast.error("Please login to access the admin panel.");
         navigate("/login");
       }
     };
     checkAdmin();
-  }, [navigate, isAuthorized]);
+  }, [navigate]);
 
   // Secure exit when leaving /admin page
   useEffect(() => {
@@ -248,6 +248,21 @@ const AdminDashboard = () => {
     u.username.toLowerCase().includes(userSearch.toLowerCase()) ||
     u.email.toLowerCase().includes(userSearch.toLowerCase())
   );
+
+  if (isAdminChecking) {
+    return (
+      <div style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "radial-gradient(circle at 50% 50%, #070913 0%, #020305 100%)",
+        color: "#fff"
+      }}>
+        <Spinner animation="border" variant="primary" />
+      </div>
+    );
+  }
 
   if (!isAuthorized) {
     return (

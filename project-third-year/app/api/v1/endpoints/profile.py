@@ -96,6 +96,16 @@ async def update_avatar(
     return serialize_user(current_user)
 
 
+@router.post("/verify-password")
+async def verify_user_password(
+    password: str = Form(...),
+    current_user: User = Depends(get_current_user)
+):
+    if not verify_password(password, current_user.password):
+        raise HTTPException(status_code=400, detail="Incorrect password")
+    return {"msg": "Password verified"}
+
+
 @router.delete("/delete-account")
 async def delete_account(
     password: str = Form(...),

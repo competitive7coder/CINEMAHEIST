@@ -6,6 +6,7 @@ import { Dropdown, Form, Spinner, Button } from "react-bootstrap";
 import MovieCard from "../components/movie/MovieCard";
 import VideoModal from "../components/common/VideoModal";
 import LoadingSpinner from "../components/common/LoadingSpinner";
+import { getGenreId, getGenreName } from "../utils/genres";
 
 const GENRE_MAP = {
   popular: "Trending Now",
@@ -25,7 +26,8 @@ const GENRE_MAP = {
 
 const GenrePage = () => {
   const { genreId } = useParams();
-  const genreName = GENRE_MAP[genreId] || "Movies";
+  const numericGenreId = getGenreId(genreId);
+  const genreName = GENRE_MAP[genreId] || GENRE_MAP[numericGenreId] || getGenreName(genreId);
 
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -52,7 +54,7 @@ const GenrePage = () => {
         if (genreId === "popular") url = `/movies/popular`;
         else if (genreId === "new-releases") url = `/movies/now-playing`;
         else {
-          url = `/movies/genre/${genreId}`;
+          url = `/movies/genre/${numericGenreId || genreId}`;
           params.sort_by = sortBy;
           if (filterYear) params.year = filterYear;
         }

@@ -1,5 +1,6 @@
 import React, { useRef } from "react";
 import { Link } from "react-router-dom";
+import { getGenreSlug } from "../../utils/genres";
 import MovieCard from "./MovieCard";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
@@ -43,7 +44,7 @@ const MovieRow = ({
     if (seeAllLink)
       return <Link to={seeAllLink} className="cta">{inner}</Link>;
     if (genreId)
-      return <Link to={`/genre/${genreId}`} className="cta">{inner}</Link>;
+      return <Link to={`/genre/${getGenreSlug(genreId)}`} className="cta">{inner}</Link>;
     return null;
   })();
 

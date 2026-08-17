@@ -652,16 +652,16 @@ const MobileLogoutBtn = styled.button`
 `;
 
 const genres = [
-  { name: "Action",    icon: <FaFistRaised   style={{color:'#ef4444'}} />, path: "/genre/28"    },
-  { name: "Adventure", icon: <FaCompass      style={{color:'#38bdf8'}} />, path: "/genre/12"    },
-  { name: "Animation", icon: <FaSmile        style={{color:'#facc15'}} />, path: "/genre/16"    },
-  { name: "Comedy",    icon: <FaLaugh        style={{color:'#4ade80'}} />, path: "/genre/35"    },
-  { name: "Crime",     icon: <FaUserSecret   style={{color:'#a78bfa'}} />, path: "/genre/80"    },
-  { name: "Drama",     icon: <FaTheaterMasks style={{color:'#e2e8f0'}} />, path: "/genre/18"    },
-  { name: "Horror",    icon: <FaGhost        style={{color:'#f87171'}} />, path: "/genre/27"    },
-  { name: "Romance",   icon: <FaHeart        style={{color:'#f9a8d4'}} />, path: "/genre/10749" },
-  { name: "Sci-Fi",    icon: <FaRocket       style={{color:'#60a5fa'}} />, path: "/genre/878"   },
-  { name: "Thriller",  icon: <FaEye          style={{color:'#fbbf24'}} />, path: "/genre/53"    },
+  { name: "Action",    icon: <FaFistRaised   style={{color:'#ef4444'}} />, path: "/genre/action"    },
+  { name: "Adventure", icon: <FaCompass      style={{color:'#38bdf8'}} />, path: "/genre/adventure"    },
+  { name: "Animation", icon: <FaSmile        style={{color:'#facc15'}} />, path: "/genre/animation"    },
+  { name: "Comedy",    icon: <FaLaugh        style={{color:'#4ade80'}} />, path: "/genre/comedy"    },
+  { name: "Crime",     icon: <FaUserSecret   style={{color:'#a78bfa'}} />, path: "/genre/crime"    },
+  { name: "Drama",     icon: <FaTheaterMasks style={{color:'#e2e8f0'}} />, path: "/genre/drama"    },
+  { name: "Horror",    icon: <FaGhost        style={{color:'#f87171'}} />, path: "/genre/horror"    },
+  { name: "Romance",   icon: <FaHeart        style={{color:'#f9a8d4'}} />, path: "/genre/romance" },
+  { name: "Sci-Fi",    icon: <FaRocket       style={{color:'#60a5fa'}} />, path: "/genre/sci-fi"   },
+  { name: "Thriller",  icon: <FaEye          style={{color:'#fbbf24'}} />, path: "/genre/thriller"    },
 ];
 
 const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {

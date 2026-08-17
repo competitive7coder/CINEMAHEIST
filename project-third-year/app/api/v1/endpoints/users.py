@@ -149,3 +149,65 @@ async def get_current_user_info(current_user: User = Depends(get_current_user)):
         "profile_picture": getattr(current_user, "profile_picture", "") or "",
         "is_admin":        getattr(current_user, "is_admin", False),
     }
+
+
+# GET USER ANALYTICS
+@router.get("/me/analytics")
+async def get_user_analytics(current_user: User = Depends(get_current_user)):
+    from app.models.activity import Activity
+    from datetime import timedelta, date
+    from collections import Counter
+
+    # 1. Fetch watchlist items to build genre distribution
+    watchlist_movies = await get_watchlist_full(current_user)
+    
+    genres_counter = Counter()
+    for movie in watchlist_movies:
+        if isinstance(movie, dict) and "genres" in movie:
+            for g in movie["genres"]:
+                genres_counter[g.get("name", "Unknown")] += 1
+
+    genre_distribution = [
+        {"name": name, "count": count}
+        for name, count in genres_counter.most_common(5)
+    ]
+
+    # Favorite genre
+    favorite_genre = genre_distribution[0]["name"] if genre_distribution else "None"
+
+    # 2. Fetch recent activities for this user
+    activities = await Activity.find(Activity.user_id.id == current_user.id).to_list()
+    
+    total_interactions = len(activities)
+
+    # Weekly activity trend (last 7 days)
+    today = date.today()
+    last_7_days = [today - timedelta(days=i) for i in range(6, -1, -1)]
+    daily_activity_counts = {d.strftime("%Y-%m-%d"): 0 for d in last_7_days}
+
+    for act in activities:
+        act_date = act.timestamp.date()
+        date_str = act_date.strftime("%Y-%m-%d")
+        if date_str in daily_activity_counts:
+            daily_activity_counts[date_str] += 1
+
+    weekly_activity = [
+        {"date": d_str, "count": daily_activity_counts[d_str]}
+        for d_str in sorted(daily_activity_counts.keys())
+    ]
+
+    # Calculate watch time (watchlist count * 120 mins average + 2 mins per trailer click)
+    watchlist_time = len(current_user.watchlist) * 120
+    trailer_activities = sum(1 for act in activities if act.action_type == "trailer_watch")
+    estimated_watch_time = watchlist_time + (trailer_activities * 2)
+
+    return {
+        "summary": {
+            "totalWatchlist": len(current_user.watchlist),
+            "totalInteractions": total_interactions,
+            "favoriteGenre": favorite_genre,
+            "estimatedWatchTimeMins": estimated_watch_time
+        },
+        "genreDistribution": genre_distribution,
+        "weeklyActivity": weekly_activity
+    }

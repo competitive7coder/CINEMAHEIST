@@ -44,6 +44,9 @@ const Dashboard = ({ setIsLoggedIn }) => {
   const [showAllRecommendations, setShowAllRecommendations] = useState(false);
   const [recsLoaded, setRecsLoaded] = useState(false);
   const [recsLoading, setRecsLoading] = useState(false);
+  const [analytics, setAnalytics] = useState(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
+  const [analyticsLoaded, setAnalyticsLoaded] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [triggerDelete, setTriggerDelete] = useState(false);
   const fileInputRef = React.useRef(null);
@@ -88,6 +91,19 @@ const Dashboard = ({ setIsLoggedIn }) => {
       setRecsLoading(false);
     }
   }, [recsLoaded, recsLoading]);
+
+  const fetchAnalytics = useCallback(async () => {
+    setAnalyticsLoading(true);
+    try {
+      const res = await api.get("/users/me/analytics");
+      setAnalytics(res.data);
+      setAnalyticsLoaded(true);
+    } catch (err) {
+      console.error("Analytics fetch failed:", err);
+    } finally {
+      setAnalyticsLoading(false);
+    }
+  }, []);
 
   //  Socket setup 
   // IMPORTANT: only connect AFTER the dashboard has finished loading.
@@ -357,6 +373,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
               },
               { id: "recommendations", label: "Discovery", icon: "bi-compass" },
               { id: "history", label: "Activity", icon: "bi-clock-history" },
+              { id: "analytics", label: "Analytics", icon: "bi-graph-up-arrow" },
               { id: "settings", label: "Settings", icon: "bi-sliders" },
             ].map((item) => (
               <button
@@ -368,6 +385,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
                     setActiveTab(item.id);
                     setSidebarOpen(false);
                     if (item.id === "recommendations") fetchRecommendations();
+                    if (item.id === "analytics") fetchAnalytics();
                   }
                 }}
                 className={`nav-btn ${activeTab === item.id ? "active" : ""}`}
@@ -550,6 +568,175 @@ const Dashboard = ({ setIsLoggedIn }) => {
               </div>
             )}
 
+            {/* ── ANALYTICS TAB ── */}
+            {activeTab === "analytics" && (
+              <div className="analytics-container fade-in-section" style={{ color: "#fff", padding: "10px" }}>
+                {analyticsLoading ? (
+                  <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "300px" }}>
+                    <LoadingSpinner />
+                  </div>
+                ) : !analytics ? (
+                  <div className="text-center py-5" style={{ color: "#888" }}>
+                    No analytics data found.
+                  </div>
+                ) : (
+                  <div>
+                    {/* Summary Cards */}
+                    <div className="analytics-grid mb-4" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "20px" }}>
+                      <div className="analytics-card" style={{ background: "rgba(10, 12, 22, 0.6)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "12px", padding: "20px", position: "relative", overflow: "hidden" }}>
+                        <div style={{ position: "absolute", top: "0", left: "0", width: "100%", height: "3px", background: "linear-gradient(90deg, #3a7bd5, #3a6073)" }}></div>
+                        <div style={{ fontSize: "0.85rem", color: "#888", marginBottom: "5px" }}>Library Size</div>
+                        <div style={{ fontSize: "1.8rem", fontWeight: "700", color: "#3a7bd5" }}>{analytics.summary.totalWatchlist}</div>
+                        <div style={{ fontSize: "0.75rem", color: "#666", marginTop: "5px" }}>Movies saved in watchlist</div>
+                      </div>
+                      
+                      <div className="analytics-card" style={{ background: "rgba(10, 12, 22, 0.6)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "12px", padding: "20px", position: "relative", overflow: "hidden" }}>
+                        <div style={{ position: "absolute", top: "0", left: "0", width: "100%", height: "3px", background: "linear-gradient(90deg, #a855f7, #ec4899)" }}></div>
+                        <div style={{ fontSize: "0.85rem", color: "#888", marginBottom: "5px" }}>Total Interactions</div>
+                        <div style={{ fontSize: "1.8rem", fontWeight: "700", color: "#a855f7" }}>{analytics.summary.totalInteractions}</div>
+                        <div style={{ fontSize: "0.75rem", color: "#666", marginTop: "5px" }}>Watchlist changes & clicks</div>
+                      </div>
+
+                      <div className="analytics-card" style={{ background: "rgba(10, 12, 22, 0.6)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "12px", padding: "20px", position: "relative", overflow: "hidden" }}>
+                        <div style={{ position: "absolute", top: "0", left: "0", width: "100%", height: "3px", background: "linear-gradient(90deg, #10b981, #059669)" }}></div>
+                        <div style={{ fontSize: "0.85rem", color: "#888", marginBottom: "5px" }}>Favorite Genre</div>
+                        <div style={{ fontSize: "1.6rem", fontWeight: "700", color: "#10b981", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{analytics.summary.favoriteGenre}</div>
+                        <div style={{ fontSize: "0.75rem", color: "#666", marginTop: "5px" }}>Most added category</div>
+                      </div>
+
+                      <div className="analytics-card" style={{ background: "rgba(10, 12, 22, 0.6)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "12px", padding: "20px", position: "relative", overflow: "hidden" }}>
+                        <div style={{ position: "absolute", top: "0", left: "0", width: "100%", height: "3px", background: "linear-gradient(90deg, #f59e0b, #d97706)" }}></div>
+                        <div style={{ fontSize: "0.85rem", color: "#888", marginBottom: "5px" }}>Estimated Watchtime</div>
+                        <div style={{ fontSize: "1.8rem", fontWeight: "700", color: "#f59e0b" }}>{Math.round(analytics.summary.estimatedWatchTimeMins / 60)} hrs</div>
+                        <div style={{ fontSize: "0.75rem", color: "#666", marginTop: "5px" }}>Based on watchlist content</div>
+                      </div>
+                    </div>
+
+                    {/* Charts Grid */}
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))", gap: "20px" }}>
+                      
+                      {/* Weekly Trend Chart */}
+                      <div className="chart-card" style={{ background: "rgba(10, 12, 22, 0.6)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "12px", padding: "20px" }}>
+                        <h5 style={{ fontSize: "1rem", fontWeight: "600", marginBottom: "20px", color: "#eee" }}>Activity Trend (Last 7 Days)</h5>
+                        {analytics.weeklyActivity && analytics.weeklyActivity.length > 0 ? (
+                          <div style={{ width: "100%", overflowX: "auto" }}>
+                            {(() => {
+                              const maxCount = Math.max(...analytics.weeklyActivity.map(d => d.count), 1);
+                              const height = 180;
+                              const width = 450;
+                              const paddingX = 35;
+                              const paddingY = 25;
+                              
+                              const points = analytics.weeklyActivity.map((d, i) => {
+                                const x = paddingX + (i * (width - 2 * paddingX) / 6);
+                                const y = height - paddingY - (d.count * (height - 2 * paddingY) / maxCount);
+                                return { x, y, count: d.count, date: d.date.substring(5) };
+                              });
+                              
+                              const pathD = `M ${points.map(p => `${p.x} ${p.y}`).join(" L ")}`;
+                              const areaD = `${pathD} L ${points[points.length - 1].x} ${height - paddingY} L ${points[0].x} ${height - paddingY} Z`;
+                              
+                              return (
+                                <svg viewBox={`0 0 ${width} ${height}`} width="100%" height={height} style={{ overflow: "visible" }}>
+                                  <defs>
+                                    <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+                                      <stop offset="0%" stopColor="#3a7bd5" stopOpacity="0.3" />
+                                      <stop offset="100%" stopColor="#3a7bd5" stopOpacity="0" />
+                                    </linearGradient>
+                                  </defs>
+                                  
+                                  {[0, 0.5, 1].map((ratio, i) => {
+                                    const y = paddingY + ratio * (height - 2 * paddingY);
+                                    return (
+                                      <line key={i} x1={paddingX} y1={y} x2={width - paddingX} y2={y} stroke="rgba(255,255,255,0.05)" strokeDasharray="3,3" />
+                                    );
+                                  })}
+                                  
+                                  <path d={areaD} fill="url(#areaGrad)" />
+                                  <path d={pathD} fill="none" stroke="#3a7bd5" strokeWidth="3" strokeLinecap="round" />
+                                  
+                                  {points.map((p, i) => (
+                                    <g key={i}>
+                                      <circle cx={p.x} cy={p.y} r="5" fill="#1e2235" stroke="#3a7bd5" strokeWidth="2" style={{ cursor: "pointer" }} />
+                                      <text x={p.x} y={p.y - 10} textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold">
+                                        {p.count || ""}
+                                      </text>
+                                      <text x={p.x} y={height - 5} textAnchor="middle" fill="#666" fontSize="10">
+                                        {p.date}
+                                      </text>
+                                    </g>
+                                  ))}
+                                </svg>
+                              );
+                            })()}
+                          </div>
+                        ) : (
+                          <div className="text-center py-5 text-muted">No recent activity.</div>
+                        )}
+                      </div>
+
+                      {/* Genre Distribution Chart */}
+                      <div className="chart-card" style={{ background: "rgba(10, 12, 22, 0.6)", border: "1px solid rgba(255, 255, 255, 0.08)", borderRadius: "12px", padding: "20px" }}>
+                        <h5 style={{ fontSize: "1rem", fontWeight: "600", marginBottom: "20px", color: "#eee" }}>Watchlist Genre Breakdown</h5>
+                        {analytics.genreDistribution && analytics.genreDistribution.length > 0 ? (
+                          <div style={{ display: "flex", alignItems: "center", gap: "20px", flexWrap: "wrap", justifyContent: "center" }}>
+                            {(() => {
+                              const colors = ["#3a7bd5", "#a855f7", "#10b981", "#f59e0b", "#ec4899"];
+                              const total = analytics.genreDistribution.reduce((acc, g) => acc + g.count, 0);
+                              let accumulatedPercentage = 0;
+                              
+                              return (
+                                <div style={{ display: "flex", width: "100%", alignItems: "center", gap: "30px", flexWrap: "wrap", justifyContent: "center" }}>
+                                  <svg width="140" height="140" viewBox="0 0 42 42" className="donut" style={{ transform: "rotate(-90deg)" }}>
+                                    <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="rgba(255,255,255,0.03)" strokeWidth="4"></circle>
+                                    {analytics.genreDistribution.map((g, i) => {
+                                      const percentage = (g.count / total) * 100;
+                                      const strokeDasharray = `${percentage} ${100 - percentage}`;
+                                      const strokeDashoffset = 100 - accumulatedPercentage;
+                                      accumulatedPercentage += percentage;
+                                      return (
+                                        <circle
+                                          key={i}
+                                          cx="21"
+                                          cy="21"
+                                          r="15.91549430918954"
+                                          fill="transparent"
+                                          stroke={colors[i % colors.length]}
+                                          strokeWidth="4"
+                                          strokeDasharray={strokeDasharray}
+                                          strokeDashoffset={strokeDashoffset}
+                                          style={{ transition: "stroke-dashoffset 0.3s ease" }}
+                                        ></circle>
+                                      );
+                                    })}
+                                  </svg>
+                                  
+                                  <div style={{ display: "flex", flexDirection: "column", gap: "8px", flex: 1, minWidth: "160px" }}>
+                                    {analytics.genreDistribution.map((g, i) => (
+                                      <div key={i} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: "0.85rem" }}>
+                                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                                          <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: colors[i % colors.length] }}></div>
+                                          <span style={{ color: "#bbb" }}>{g.name}</span>
+                                        </div>
+                                        <span style={{ fontWeight: "600", color: "#eee" }}>{g.count} ({Math.round((g.count / total) * 100)}%)</span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              );
+                            })()}
+                          </div>
+                        ) : (
+                          <div className="text-center py-5 text-muted">No watchlist items to categorize.</div>
+                        )}
+                      </div>
+
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* ── SETTINGS TAB ── */}
             {activeTab === "settings" && (
               <div className="settings-bento-grid fade-in-section">
@@ -635,6 +822,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
             { id: "watchlist", label: "Library", icon: "bi-collection-play" },
             { id: "recommendations", label: "Discovery", icon: "bi-compass" },
             { id: "history", label: "Activity", icon: "bi-clock-history" },
+            { id: "analytics", label: "Stats", icon: "bi-graph-up-arrow" },
             { id: "settings", label: "Settings", icon: "bi-sliders" },
           ].map((item) => (
             <button
@@ -645,6 +833,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
                 } else {
                   setActiveTab(item.id);
                   if (item.id === "recommendations") fetchRecommendations();
+                  if (item.id === "analytics") fetchAnalytics();
                 }
               }}
               className={`bottom-nav-btn${activeTab === item.id ? " active" : ""}`}

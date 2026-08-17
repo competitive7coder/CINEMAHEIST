@@ -23,6 +23,32 @@ const AdminDashboard = () => {
   const [pin, setPin] = useState("");
   const [isAuthorized, setIsAuthorized] = useState(() => !!sessionStorage.getItem("admin_secret_key"));
 
+  const [broadcastMsg, setBroadcastMsg] = useState("");
+  const [broadcastLink, setBroadcastLink] = useState("");
+  const [sendingBroadcast, setSendingBroadcast] = useState(false);
+
+  const handleBroadcastSubmit = async (e) => {
+    e.preventDefault();
+    if (!broadcastMsg) return;
+    setSendingBroadcast(true);
+    try {
+      await api.post("/notifications/broadcast", null, {
+        params: {
+          message: broadcastMsg,
+          link: broadcastLink || undefined
+        }
+      });
+      toast.success("Broadcast message sent successfully!");
+      setBroadcastMsg("");
+      setBroadcastLink("");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to send broadcast");
+    } finally {
+      setSendingBroadcast(false);
+    }
+  };
+
   const [mlStatus, setMlStatus] = useState({ is_training: false, logs: [] });
   const [pollingStatus, setPollingStatus] = useState(false);
 
@@ -661,9 +687,17 @@ const AdminDashboard = () => {
             <BsGearFill />
             <span>ML Engine Control</span>
           </Button>
+          <Button
+            variant={activeTab === "broadcast" ? "primary" : "outline-secondary"}
+            onClick={() => setActiveTab("broadcast")}
+            className="admin-tab-btn d-flex align-items-center gap-2"
+          >
+            <BsShieldLock />
+            <span>Broadcast Alerts</span>
+          </Button>
         </div>
 
-        {activeTab === "users" ? (
+        {activeTab === "users" && (
           <Row className="g-4">
             {/* User Directory */}
             <Col lg={8}>
@@ -816,7 +850,9 @@ const AdminDashboard = () => {
               </div>
             </Col>
           </Row>
-        ) : (
+        )}
+
+        {activeTab === "ml" && (
           <Row className="g-4">
             {/* ML Engine controls */}
             <Col lg={12}>
@@ -879,6 +915,58 @@ const AdminDashboard = () => {
                   )}
                   <div ref={consoleBottomRef} />
                 </div>
+              </div>
+            </Col>
+          </Row>
+        )}
+
+        {activeTab === "broadcast" && (
+          <Row className="g-4">
+            <Col lg={12}>
+              <div className="glass-card">
+                <h4 className="fw-bold text-white mb-2">Send Broadcast Message</h4>
+                <p className="text-muted mb-4" style={{ fontSize: "0.85rem" }}>
+                  Compose a notification message that will be saved in the database and sent live to all active users.
+                </p>
+
+                <Form onSubmit={handleBroadcastSubmit}>
+                  <Form.Group className="mb-3">
+                    <Form.Label className="text-muted fw-bold text-uppercase" style={{ fontSize: "0.75rem" }}>
+                      Notification Message
+                    </Form.Label>
+                    <Form.Control
+                      as="textarea"
+                      rows={3}
+                      placeholder="e.g. Toy Story 5 is now playing in theaters! watch it now"
+                      value={broadcastMsg}
+                      onChange={(e) => setBroadcastMsg(e.target.value)}
+                      style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }}
+                      required
+                    />
+                  </Form.Group>
+
+                  <Form.Group className="mb-4">
+                    <Form.Label className="text-muted fw-bold text-uppercase" style={{ fontSize: "0.75rem" }}>
+                      Target Link / Redirect URL (Optional)
+                    </Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="e.g. /genre/animation or /movie/533535"
+                      value={broadcastLink}
+                      onChange={(e) => setBroadcastLink(e.target.value)}
+                      style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff" }}
+                    />
+                  </Form.Group>
+
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    disabled={sendingBroadcast}
+                    style={{ borderRadius: "30px", fontWeight: "700", padding: "10px 24px" }}
+                  >
+                    {sendingBroadcast ? "Sending Broadcast..." : "Send Live Broadcast"}
+                  </Button>
+                </Form>
               </div>
             </Col>
           </Row>

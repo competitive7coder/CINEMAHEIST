@@ -167,7 +167,13 @@ async function generateSitemap() {
   // Build movie entries
   console.log("\n✍️  Building XML for " + allMovies.length + " movies...");
   const movieEntries = allMovies.map(movie => {
-    const lastmod = movie.release_date ? movie.release_date.substring(0, 10) : today;
+    let lastmod = today;
+    if (movie.release_date && movie.release_date.length >= 10) {
+      const releaseDate = movie.release_date.substring(0, 10);
+      if (releaseDate <= today && /^\d{4}-\d{2}-\d{2}$/.test(releaseDate)) {
+        lastmod = releaseDate;
+      }
+    }
     return urlEntry("/movie/" + movie.id, lastmod, "monthly", "0.8");
   }).join("");
 

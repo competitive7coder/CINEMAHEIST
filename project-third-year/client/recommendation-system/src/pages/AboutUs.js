@@ -224,7 +224,7 @@ export default function AboutUs() {
             {[...TICKER, ...TICKER].map((t, i) => (
               <span key={i} className="ab-ticker-item">
                 {t}
-                <span className="ab-ticker-dot"> ◆ </span>
+                <span className="ab-ticker-dot">  </span>
               </span>
             ))}
           </div>

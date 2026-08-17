@@ -17,7 +17,7 @@ const https = require("https");
 const fs    = require("fs");
 const path  = require("path");
 
-// ─── Load .env.development automatically (no extra packages needed) ───
+//  Load .env.development automatically (no extra packages needed) 
 const envPath = fs.existsSync(path.join(__dirname, ".env.development"))
   ? path.join(__dirname, ".env.development")
   : path.join(__dirname, ".env");
@@ -33,27 +33,24 @@ if (fs.existsSync(envPath)) {
     const value = trimmed.substring(eqIndex + 1).trim().replace(/^["']|["']$/g, "");
     if (key && !process.env[key]) process.env[key] = value;
   });
-  console.log("📁 Loaded env from: " + path.basename(envPath));
+  console.log(" Loaded env from: " + path.basename(envPath));
 } else {
-  console.log("⚠️  No .env file found — using system environment variables");
+  console.log("️  No .env file found — using system environment variables");
 }
 
-// ─────────────────────────────────────────────
 // CONFIG
-// ─────────────────────────────────────────────
 const TMDB_API_KEY = process.env.TMDB_API_KEY || process.env.REACT_APP_TMDB_API_KEY || "YOUR_TMDB_API_KEY_HERE";
 const BASE_URL     = "https://www.cinemaheist.online";
 const OUTPUT_PATH  = path.join(__dirname, "public", "sitemap.xml");
 const TOTAL_PAGES  = 500; // 500 pages x 20 movies = 10,000 movies
 const BATCH_SIZE   = 20;  // fetch 20 pages at a time (safe rate limit)
-// ─────────────────────────────────────────────
 
 // Static pages
 const STATIC_URLS = [
   { loc: "/",             changefreq: "daily",   priority: "1.0" },
   { loc: "/popular",      changefreq: "daily",   priority: "0.9" },
   { loc: "/search",       changefreq: "weekly",  priority: "0.8" },
-  // Genre pages — high value for SEO
+  // Genre pages  high value for SEO
   { loc: "/genre/action",     changefreq: "daily",   priority: "0.85" }, // Action
   { loc: "/genre/adventure",  changefreq: "daily",   priority: "0.85" }, // Adventure
   { loc: "/genre/animation",  changefreq: "daily",   priority: "0.85" }, // Animation
@@ -73,7 +70,7 @@ const STATIC_URLS = [
   { loc: "/disclaimer",   changefreq: "yearly",  priority: "0.4" },
 ];
 
-// ─── Helpers ───────────────────────────────────
+//  Helpers 
 
 function httpsGet(url) {
   return new Promise((resolve, reject) => {
@@ -110,11 +107,11 @@ function urlEntry(loc, lastmod, changefreq, priority) {
     "\n  </url>";
 }
 
-// ─── Main ──────────────────────────────────────
+//  Main 
 
 async function generateSitemap() {
   if (TMDB_API_KEY === "YOUR_TMDB_API_KEY_HERE") {
-    console.error("\n❌  TMDB API key not found!");
+    console.error("\n  TMDB API key not found!");
     console.error("    Add this to your .env.development file:");
     console.error("    TMDB_API_KEY=your_key_here");
     console.error("    OR: REACT_APP_TMDB_API_KEY=your_key_here\n");
@@ -123,16 +120,16 @@ async function generateSitemap() {
 
   // Show which key name was found
   const keySource = process.env.TMDB_API_KEY ? "TMDB_API_KEY" : "REACT_APP_TMDB_API_KEY";
-  console.log("🔑 API key source : " + keySource);
+  console.log(" API key source : " + keySource);
 
   const today = new Date().toISOString().split("T")[0];
-  console.log("\n🚀 CinemaHeist Sitemap Generator");
+  console.log("\n CinemaHeist Sitemap Generator");
   console.log("   Base URL   : " + BASE_URL);
   console.log("   Output     : " + OUTPUT_PATH);
   console.log("   TMDB pages : " + TOTAL_PAGES + " (~" + (TOTAL_PAGES * 20) + " movies)\n");
 
   // Static entries
-  console.log("📄 Adding static pages...");
+  console.log(" Adding static pages...");
   const staticEntries = STATIC_URLS.map(u =>
     urlEntry(u.loc, today, u.changefreq, u.priority)
   ).join("");
@@ -145,7 +142,7 @@ async function generateSitemap() {
     const end   = Math.min(start + BATCH_SIZE - 1, TOTAL_PAGES);
     const pages = Array.from({ length: end - start + 1 }, (_, i) => start + i);
 
-    process.stdout.write("🎬 Fetching pages " + start + "-" + end + " / " + TOTAL_PAGES + "...");
+    process.stdout.write(" Fetching pages " + start + "-" + end + " / " + TOTAL_PAGES + "...");
 
     const results = await Promise.all(pages.map(fetchMoviePage));
     let added = 0;
@@ -160,12 +157,12 @@ async function generateSitemap() {
       }
     }
 
-    console.log(" ✓ " + added + " new movies (total: " + allMovies.length + ")");
+    console.log("  " + added + " new movies (total: " + allMovies.length + ")");
     if (end < TOTAL_PAGES) await sleep(250);
   }
 
   // Build movie entries
-  console.log("\n✍️  Building XML for " + allMovies.length + " movies...");
+  console.log("\n️  Building XML for " + allMovies.length + " movies...");
   const movieEntries = allMovies.map(movie => {
     let lastmod = today;
     if (movie.release_date && movie.release_date.length >= 10) {
@@ -190,15 +187,15 @@ async function generateSitemap() {
   fs.writeFileSync(OUTPUT_PATH, xml, "utf8");
 
   const sizeKB = Math.round(fs.statSync(OUTPUT_PATH).size / 1024);
-  console.log("\n✅ Done!");
+  console.log("\n Done!");
   console.log("   File : " + OUTPUT_PATH);
   console.log("   Size : " + sizeKB + " KB");
   console.log("   URLs : " + (STATIC_URLS.length + allMovies.length) + " total\n");
-  console.log("🔗 Submit to Google Search Console:");
+  console.log(" Submit to Google Search Console:");
   console.log("   " + BASE_URL + "/sitemap.xml\n");
 }
 
 generateSitemap().catch(err => {
-  console.error("❌ Sitemap generation failed:", err.message);
+  console.error(" Sitemap generation failed:", err.message);
   process.exit(1);
 });

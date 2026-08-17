@@ -2,22 +2,22 @@ import React from "react";
 
 const disclaimers = [
   {
-    icon: "©️",
+    icon: "️",
     title: "Copyright and Ownership",
     text: "All movie titles, characters, cover arts, descriptions, and related media references displayed on CinemaHeist are trademarks and copyrights of their respective production studios, distribution networks, and rights holders. CinemaHeist does not claim ownership or affiliation with any of these properties."
   },
   {
-    icon: "🤝",
+    icon: "",
     title: "Non-Commercial Platform",
     text: "CinemaHeist is an independent, non-commercial movie catalog and reference portal. We are not officially associated, endorsed, or affiliated with Netflix, Amazon Prime, Disney+, or any other streaming service or entertainment studio."
   },
   {
-    icon: "🌐",
+    icon: "",
     title: "Service Availability",
     text: "CinemaHeist does not guarantee uninterrupted operation, 100% uptime, or the permanent availability of specific pages, details, or library items. The catalog may be updated, modified, or restricted at any time without prior notice."
   },
   {
-    icon: "📧",
+    icon: "",
     title: "Copyright Complaints",
     text: "CinemaHeist respects intellectual property rights. If you are a rights holder and have any inquiries or copyright complaints regarding media references displayed on the platform, please contact us at dmca.CinemaHeist@proton.me."
   },
@@ -58,7 +58,7 @@ const Disclaimer = () => (
     `}</style>
 
     <div className="legal-hero">
-      <div className="legal-badge">⚠️ Disclaimer</div>
+      <div className="legal-badge">️ Disclaimer</div>
       <h1>Site <span>Disclaimer</span></h1>
       <p>Important information about CinemaHeist's nature, limitations, and policy regarding content ownership.</p>
       <div className="legal-updated">Last updated: March 2026</div>

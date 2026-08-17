@@ -48,10 +48,10 @@ const Dashboard = ({ setIsLoggedIn }) => {
   const [triggerDelete, setTriggerDelete] = useState(false);
   const fileInputRef = React.useRef(null);
 
-  // ── Fetch helpers ────────────────────────────────────────────────────────────
+  //  Fetch helpers 
   const fetchWatchlist = useCallback(async () => {
     try {
-      // ✅ Single call — returns full movie objects, no N individual calls
+      //  Single call  returns full movie objects, no N individual calls
       const res = await api.get("/users/watchlist/full");
       setWatchlistMovies(res.data || []);
     } catch (error) {
@@ -71,7 +71,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
     }
   }, []);
 
-  // ── Lazy load recommendations only when tab clicked ─────────────────────────
+  //  Lazy load recommendations only when tab clicked 
   const fetchRecommendations = useCallback(async () => {
     if (recsLoaded || recsLoading) return;
     setRecsLoading(true);
@@ -89,7 +89,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
     }
   }, [recsLoaded, recsLoading]);
 
-  // ── Socket setup ─────────────────────────────────────────────────────────────
+  //  Socket setup 
   // IMPORTANT: only connect AFTER the dashboard has finished loading.
   // Connecting during the loading phase causes a race condition where the
   // WebSocket handshake starts before the server is ready to accept it,
@@ -106,7 +106,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
     try {
       userId = JSON.parse(atob(token.split(".")[1])).sub;
     } catch {
-      console.error("❌ Could not decode token for socket room");
+      console.error(" Could not decode token for socket room");
       return;
     }
 
@@ -117,14 +117,14 @@ const Dashboard = ({ setIsLoggedIn }) => {
       import.meta.env.VITE_SOCKET_URL || "http://localhost:8000";
     const socket = io(SOCKET_URL, {
       path: "/socket.io",
-      transports: ["polling", "websocket"], // polling first → upgrades to WS
+      transports: ["polling", "websocket"], // polling first  upgrades to WS
       upgrade: true,
       reconnection: true,
-      reconnectionAttempts: Infinity, // keep retrying — don't give up
+      reconnectionAttempts: Infinity, // keep retrying  don't give up
       reconnectionDelay: 1000, // 1s first retry
       reconnectionDelayMax: 10000, // cap at 10s between retries
       randomizationFactor: 0.3, // jitter so all clients don't retry at once
-      timeout: 20000, // 20s handshake timeout (was 10s — too short)
+      timeout: 20000, // 20s handshake timeout (was 10s  too short)
       forceNew: false, // reuse connection if it exists
     });
 
@@ -134,18 +134,18 @@ const Dashboard = ({ setIsLoggedIn }) => {
     });
 
     socket.on("activity_update", (data) => {
-      // Always prepend to history feed — no extra API call needed
+      // Always prepend to history feed  no extra API call needed
       setHistory((prev) => [data, ...prev].slice(0, 20));
 
       // Sync watchlist UI based on action type
       if (data.action_type === ACTION.ADDED) {
         fetchWatchlist(); // re-fetch to get full movie object
-        toast.success(`"${data.movie_title}" add kar diya😎`);
+        toast.success(`"${data.movie_title}" add kar diya`);
       } else if (data.action_type === ACTION.REMOVED) {
         setWatchlistMovies((prev) =>
           prev.filter((m) => m.id !== data.movie_id),
         );
-        toast.info(`"${data.movie_title}" remove kar diya😤`);
+        toast.info(`"${data.movie_title}" remove kar diya`);
       }
       // TRAILER action only updates history feed (handled above)
     });
@@ -153,7 +153,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
     socket.on("connect_error", (err) => {});
 
     socket.on("disconnect", (reason) => {
-      // "io server disconnect" means server actively kicked us — must reconnect manually
+      // "io server disconnect" means server actively kicked us  must reconnect manually
       if (reason === "io server disconnect") socket.connect();
     });
 
@@ -167,9 +167,9 @@ const Dashboard = ({ setIsLoggedIn }) => {
       socket.off("activity_update");
       socket.disconnect();
     };
-  }, [loading, fetchWatchlist]); // `loading` gates the connection — socket only starts when dashboard is ready
+  }, [loading, fetchWatchlist]); // `loading` gates the connection  socket only starts when dashboard is ready
 
-  // ── Initial dashboard load ───────────────────────────────────────────────────
+  //  Initial dashboard load 
   useEffect(() => {
     const fetchDashboard = async () => {
       const token = localStorage.getItem("token");
@@ -180,7 +180,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
       try {
         const [userRes, watchlistRes] = await Promise.all([
           api.get("/users/me"),
-          api.get("/users/watchlist/full"), // ✅ full movie objects in 1 call
+          api.get("/users/watchlist/full"), //  full movie objects in 1 call
         ]);
 
         setUserName(userRes.data.name || userRes.data.username || "");
@@ -189,14 +189,14 @@ const Dashboard = ({ setIsLoggedIn }) => {
         );
         setUserBio(userRes.data.bio || "");
 
-        // ✅ Full movie objects returned directly — no N individual calls
+        //  Full movie objects returned directly  no N individual calls
         setWatchlistMovies(watchlistRes.data || []);
 
-        fetchHistory(); // background — doesn't block
+        fetchHistory(); // background  doesn't block
         // Recommendations load lazily when user clicks Discovery tab
       } catch (err) {
         console.error(err);
-        toast.error("Dashboard load nhi ho rha😑");
+        toast.error("Dashboard load nhi ho rha");
       } finally {
         setLoading(false);
       }
@@ -204,7 +204,6 @@ const Dashboard = ({ setIsLoggedIn }) => {
     fetchDashboard();
   }, [navigate, fetchHistory]);
 
-  // ── Activity logger (fire-and-forget — socket handles the UI update) ─────────
   const logActivity = useCallback(async (movie, actionType) => {
     const token = localStorage.getItem("token");
     if (!token || !movie) return;
@@ -220,13 +219,13 @@ const Dashboard = ({ setIsLoggedIn }) => {
     }
   }, []);
 
-  // ── Action handlers ──────────────────────────────────────────────────────────
+  //  Action handlers 
   const handleWatchTrailerClick = async (movie) => {
     try {
       const res = await api.get(`/movies/${movie.id}/videos`);
       const trailer = res.data;
       if (!trailer?.key) {
-        toast.error("Trailer available nhi ha😒");
+        toast.error("Trailer available nhi ha");
         return;
       }
 
@@ -241,15 +240,13 @@ const Dashboard = ({ setIsLoggedIn }) => {
     try {
       const res = await api.post(`/users/watchlist/${movie.id}`);
       toast.success(res.data.msg);
-      // Optimistic UI update
       setWatchlistMovies((prev) =>
         prev.some((m) => m.id === movie.id) ? prev : [movie, ...prev],
       );
-      // Fire-and-forget — socket confirms and updates history
       logActivity(movie, ACTION.ADDED);
     } catch (err) {
       console.error(err);
-      toast.error("Movie add nhi hoga😑");
+      toast.error("Movie add nhi hoga");
     }
   };
 
@@ -257,13 +254,11 @@ const Dashboard = ({ setIsLoggedIn }) => {
     try {
       const res = await api.delete(`/users/watchlist/${movie.id}`);
       toast.info(res.data.msg);
-      // Optimistic UI update
       setWatchlistMovies((prev) => prev.filter((m) => m.id !== movie.id));
-      // Fire-and-forget — socket updates history
       logActivity(movie, ACTION.REMOVED);
     } catch (err) {
       console.error(err);
-      toast.error("Movie remove nhi hoga😑");
+      toast.error("Movie remove nhi hoga");
     }
   };
 
@@ -274,7 +269,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
       toast.success("History cleared");
     } catch (err) {
       console.error(err);
-      toast.error("History clear nhi hoga🤪");
+      toast.error("History clear nhi hoga");
     }
   };
 
@@ -283,31 +278,31 @@ const Dashboard = ({ setIsLoggedIn }) => {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      toast.error("Image toh select karo😒");
+      toast.error("Image toh select karo");
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("5MB se bada image nhi hoga😒");
+      toast.error("5MB se bada image nhi hoga");
       return;
     }
 
     const formData = new FormData();
     formData.append("profile_picture", file);
 
-    const toastId = toast.loading("Upload kar rha hu😉");
+    const toastId = toast.loading("Upload kar rha hu");
     try {
       const res = await api.put("/profile/update-avatar", formData);
       setUserProfilePicture(res.data.profile_picture);
       toast.update(toastId, {
-        render: "Profile picture update kar diya😎",
+        render: "Profile picture update kar diya",
         type: "success",
         isLoading: false,
         autoClose: 3000,
       });
     } catch (err) {
       toast.update(toastId, {
-        render: err.response?.data?.detail || "Profile picture update nhi hoga😑",
+        render: err.response?.data?.detail || "Profile picture update nhi hoga",
         type: "error",
         isLoading: false,
         autoClose: 3000,
@@ -324,7 +319,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
     navigate("/login");
   };
 
-  // ── Render ───────────────────────────────────────────────────────────────────
+  //  Render 
 
   return (
     <div className="modern-dashboard">
@@ -434,7 +429,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
               <span className="breadcrumb-mini">{activeTab === "watchlist" ? "Library" : activeTab}</span>
               <h1>
                 {activeTab === "watchlist"
-                  ? `Welcome back, ${userName || "User"} 👋`
+                  ? `Welcome back, ${userName || "User"} `
                   : activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
               </h1>
               {activeTab === "watchlist" && (
@@ -967,7 +962,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
           .modern-dashboard  { height:100dvh; }
           .dashboard-layout  { flex-direction:column; height:100dvh; overflow:hidden; }
 
-          /* Sidebar → slide-in drawer */
+          /* Sidebar  slide-in drawer */
           .sidebar-glass {
             position:fixed; top:0; left:0; height:100dvh; width:270px;
             z-index:200; transform:translateX(-100%); padding:1.5rem 1.25rem;

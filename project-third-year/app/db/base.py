@@ -34,4 +34,4 @@ async def init_db():
         ]
     )
     
-    print(f"✅ Connected to MongoDB Database: {db_name}")
+    print(f"Connected to MongoDB Database: {db_name}")

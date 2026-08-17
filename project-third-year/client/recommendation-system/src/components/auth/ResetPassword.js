@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import api from "../../services/api";
 import styled, { keyframes } from "styled-components";
 
-// --- ANIMATIONS ---
+//  ANIMATIONS 
 const bgZoom = keyframes`
   0% { transform: scale(1); }
   50% { transform: scale(1.08); }

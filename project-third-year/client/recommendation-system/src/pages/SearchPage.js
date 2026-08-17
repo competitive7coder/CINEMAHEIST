@@ -63,7 +63,7 @@ const SearchPage = () => {
         );
         setTotalPages(res.data.total_pages || 1);
       } catch (err) {
-        toast.error("Search results fetch nhi ho rha😑");
+        toast.error("Search results fetch nhi ho rha");
       } finally {
         setLoading(false);
         setLoadingMore(false);
@@ -119,7 +119,7 @@ const SearchPage = () => {
   const handleWatchlistClick = async (movie) => {
     const token = localStorage.getItem("token");
     if (!token) {
-      toast.warning("Nhi nhi phele Login karo 👀", {
+      toast.warning("Nhi nhi phele Login karo ", {
         toastId: "watchlist-auth",
       });
       return;
@@ -129,14 +129,14 @@ const SearchPage = () => {
       if (alreadyAdded) {
         await api.delete(`/users/watchlist/${movie.id}`);
         setWatchlistIds(prev => prev.filter(id => id !== movie.id));
-        toast.info(`"${movie.title}" remove kardiya😤`);
+        toast.info(`"${movie.title}" remove kardiya`);
       } else {
         await api.post(`/users/watchlist/${movie.id}`, {});
         setWatchlistIds(prev => [...prev, movie.id]);
-        toast.success(`"${movie.title}" add kardiya😎`);
+        toast.success(`"${movie.title}" add kardiya`);
       }
     } catch (err) {
-      toast.error("Update nhi ho rha😑");
+      toast.error("Update nhi ho rha");
     }
   };
 
@@ -373,7 +373,7 @@ const SearchPage = () => {
               <div className="d-flex justify-content-between align-items-center mb-2">
                 <span className="fw-bold text-uppercase" style={{ fontSize: "0.75rem", letterSpacing: "1.5px", color: "#cbd5e1" }}>Minimum Rating</span>
                 <span className="badge px-2 py-1" style={{ fontSize: "0.75rem", backgroundColor: "rgba(58, 123, 213, 0.2)", color: "#7cb1ff", border: "0.5px solid rgba(58, 123, 213, 0.4)" }}>
-                  ★ {minRating.toFixed(1)}+
+                   {minRating.toFixed(1)}+
                 </span>
               </div>
               <input
@@ -397,10 +397,10 @@ const SearchPage = () => {
                 size="sm"
               >
                 <option value="" style={{ backgroundColor: "#111" }}>All Languages</option>
-                <option value="hi" style={{ backgroundColor: "#111" }}>🇮🇳 Hindi (Bollywood)</option>
-                <option value="en" style={{ backgroundColor: "#111" }}>🇺🇸 English (Hollywood)</option>
-                <option value="ko" style={{ backgroundColor: "#111" }}>🇰🇷 Korean</option>
-                <option value="ja" style={{ backgroundColor: "#111" }}>🇯🇵 Japanese</option>
+                <option value="hi" style={{ backgroundColor: "#111" }}> Hindi (Bollywood)</option>
+                <option value="en" style={{ backgroundColor: "#111" }}> English (Hollywood)</option>
+                <option value="ko" style={{ backgroundColor: "#111" }}> Korean</option>
+                <option value="ja" style={{ backgroundColor: "#111" }}> Japanese</option>
               </Form.Select>
             </div>
 

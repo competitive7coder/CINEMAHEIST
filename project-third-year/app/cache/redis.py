@@ -19,7 +19,7 @@ import json
 import httpx
 from app.config import settings
 
-# ── TTL constants ──────────────────────────────────────────────────────────────
+#  TTL constants 
 MOVIE_DETAIL_TTL      = 86400    # 24 hours
 TRENDING_TTL          = 3600     # 1 hour
 HOMEPAGE_TTL          = 21600    # 6 hours

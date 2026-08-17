@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 from typing import Any, Union
 from jose import jwt, JWTError
 import bcrypt
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer
 from app.config import settings
 from app.models.user import User
@@ -63,10 +63,21 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
-async def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
+async def get_current_admin(
+    request: Request,
+    current_user: User = Depends(get_current_user)
+) -> User:
     if not getattr(current_user, "is_admin", False):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin privileges required"
         )
+    
+    admin_key = request.headers.get("X-Admin-Secret-Key")
+    if not admin_key or admin_key != settings.ADMIN_SECRET_KEY:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid or missing admin security key"
+        )
+        
     return current_user

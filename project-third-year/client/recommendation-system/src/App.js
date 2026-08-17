@@ -6,9 +6,7 @@ import MainLayout from './components/layout/MainLayout';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-// ===============================
 // Lazy-loaded routes (with deployment update retry wrapper)
-// ===============================
 const lazyWithRetry = (componentImport) => 
   lazy(async () => {
     const hasRetried = window.sessionStorage.getItem('retry-lazy');
@@ -48,9 +46,7 @@ const PrivacyPolicy   = lazyWithRetry(() => import('./footer/PrivacyPolicy'));
 const TermsOfUse      = lazyWithRetry(() => import('./footer/Termsofuse'));
 const Disclaimer      = lazyWithRetry(() => import('./footer/Disclaimer'));
 
-// ===============================
 // Lightweight fallback
-// ===============================
 const PageFallback = memo(() => (
   <div
     style={{
@@ -66,9 +62,7 @@ const PageFallback = memo(() => (
   </div>
 ));
 
-// ===============================
 // Error Boundary
-// ===============================
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
@@ -119,7 +113,7 @@ function App() {
       sessionStorage.setItem("hasSeenInstallTip", "true");
       setTimeout(() => {
         toast.info(
-          "💡 Pro Tip: Install CinemaHeist to your phone or PC. On PC, click the 'Install' icon in your browser's address bar. On mobile, tap the browser menu (3-dots in Chrome, or the Share button in iOS Safari) scroll down and select 'Install and Create Shortcut'.",
+          " Pro Tip: Install CinemaHeist to your phone or PC. On PC, click the 'Install' icon in your browser's address bar. On mobile, tap the browser menu (3-dots in Chrome, or the Share button in iOS Safari) scroll down and select 'Install and Create Shortcut'.",
           {
             position: "top-center",
             autoClose: 10000,

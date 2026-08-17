@@ -37,7 +37,7 @@ async def log_activity(
     to the user's private room so their Dashboard updates instantly.
     """
     if activity_in.action_type not in ACTION_TYPES:
-        # Gracefully accept unknown types rather than crashing —
+        # Gracefully accept unknown types rather than crashing 
         # just won't trigger a special UI handler on the client.
         pass
 

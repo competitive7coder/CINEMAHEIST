@@ -42,7 +42,7 @@ self.addEventListener("fetch", (event) => {
   // Skip cross-origin requests (TMDB images, API calls)
   if (url.origin !== self.location.origin) return;
 
-  // 🌐 STRATEGY: Network First for main navigation (HTML page)
+  //  STRATEGY: Network First for main navigation (HTML page)
   // This ensures users always get the latest code/Vite hashes on deploy
   if (event.request.mode === "navigate") {
     event.respondWith(
@@ -63,7 +63,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // ⚡ STRATEGY: Cache First for static images and assets
+  //  STRATEGY: Cache First for static images and assets
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       if (cachedResponse) {

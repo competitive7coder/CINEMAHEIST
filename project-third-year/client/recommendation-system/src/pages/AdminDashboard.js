@@ -20,15 +20,12 @@ const AdminDashboard = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [isAdminChecking, setIsAdminChecking] = useState(true);
 
-  // Secure PIN passcode states
   const [pin, setPin] = useState("");
   const [isAuthorized, setIsAuthorized] = useState(() => !!sessionStorage.getItem("admin_secret_key"));
 
-  // SVD ML retrain states
   const [mlStatus, setMlStatus] = useState({ is_training: false, logs: [] });
   const [pollingStatus, setPollingStatus] = useState(false);
 
-  // Stats
   const [stats, setStats] = useState({
     totalUsers: 0,
     adminCount: 0,
@@ -46,7 +43,6 @@ const AdminDashboard = () => {
   };
 
   useEffect(() => {
-    // 1. Authenticate admin access immediately on mount
     const checkAdmin = async () => {
       try {
         const res = await api.get("/users/me");
@@ -65,7 +61,6 @@ const AdminDashboard = () => {
     checkAdmin();
   }, [navigate]);
 
-  // Secure exit when leaving /admin page
   useEffect(() => {
     return () => {
       sessionStorage.removeItem("admin_secret_key");
@@ -75,7 +70,6 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (!currentUser || !isAuthorized) return;
 
-    // 2. Fetch admin data
     const fetchAdminData = async () => {
       try {
         const [usersRes, activityRes] = await Promise.all([
@@ -86,7 +80,6 @@ const AdminDashboard = () => {
         setUsers(usersRes.data);
         setActivities(activityRes.data);
 
-        // Calculate stats
         const total = usersRes.data.length;
         const admins = usersRes.data.filter(u => u.is_admin).length;
         const watchlists = usersRes.data.reduce((acc, curr) => acc + (curr.watchlist?.length || 0), 0);
@@ -113,7 +106,6 @@ const AdminDashboard = () => {
 
     fetchAdminData();
 
-    // 3. Fetch SVD model status on mount
     const checkMlEngine = async () => {
       try {
         const res = await api.get("/admin/ml/status");
@@ -127,7 +119,6 @@ const AdminDashboard = () => {
     };
     checkMlEngine();
 
-    // 4. Connect Socket for global activities
     const socketUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
     const socket = io(socketUrl, {
       transports: ["websocket"],
@@ -832,7 +823,7 @@ const AdminDashboard = () => {
               <div className="glass-card">
                 <div className="d-flex justify-content-between align-items-center mb-4">
                   <div>
-                    <h4 className="fw-bold m-0 text-white">🤖 SVD Collaborative Training</h4>
+                    <h4 className="fw-bold m-0 text-white"> SVD Collaborative Training</h4>
                     <span className="text-muted" style={{ fontSize: "0.8rem" }}>Configure and execute recommender matrix retrains</span>
                   </div>
                   <Button

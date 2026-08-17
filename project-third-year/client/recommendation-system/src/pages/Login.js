@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 import api from "../services/api";
 import styled, { keyframes } from "styled-components";
 
-// --- ANIMATIONS ---
+//  ANIMATIONS 
 const bgZoom = keyframes`
   0% { transform: scale(1); }
   50% { transform: scale(1.08); }
@@ -26,7 +26,7 @@ const cardGlow = keyframes`
   50% { box-shadow: 0 40px 100px rgba(255, 0, 0, 0.05); border-color: rgba(255, 0, 0, 0.15); }
 `;
 
-// --- STYLED COMPONENTS ---
+//  STYLED COMPONENTS 
 const PageContainer = styled.div`
   height: 100vh;
   width: 100vw;
@@ -312,13 +312,13 @@ const Login = ({ setIsLoggedIn }) => {
 
         
         setIsLoggedIn(true);
-        toast.success("Welcome to CinemaHeist jii😎🤭");
+        toast.success("Welcome to CinemaHeist jii");
 
       
         navigate("/dashboard");
       }
     } catch (err) {
-      toast.error(err.response?.data?.detail || "Ek bar aur try karo🫠");
+      toast.error(err.response?.data?.detail || "Ek bar aur try karo");
     } finally {
       setLoading(false);
     }
@@ -330,10 +330,10 @@ const Login = ({ setIsLoggedIn }) => {
     setLoading(true);
     try {
       await api.post("/auth/forgot-password", { email });
-      toast.success("Gmail pe link bhej diya😎");
+      toast.success("Gmail pe link bhej diya");
       setIsForgotView(false);
     } catch (err) {
-      toast.error(err.response?.data?.detail || err.response?.data?.msg || "Email recovery nhi hoga🫠");
+      toast.error(err.response?.data?.detail || err.response?.data?.msg || "Email recovery nhi hoga");
     } finally {
       setLoading(false);
     }

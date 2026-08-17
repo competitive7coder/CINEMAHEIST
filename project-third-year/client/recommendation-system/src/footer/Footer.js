@@ -288,7 +288,7 @@ const Footer = () => {
 
         <BottomBar>
           <Copyright>
-            © {new Date().getFullYear()} CinemaHeist. All rights reserved. 
+             {new Date().getFullYear()} CinemaHeist. All rights reserved. 
             Not affiliated with Netflix, Amazon Prime, or any content provider.
           </Copyright>
           <LegalNav>

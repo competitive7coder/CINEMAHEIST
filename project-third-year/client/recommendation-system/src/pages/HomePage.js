@@ -337,7 +337,7 @@ const HomePage = () => {
     async (movie) => {
       const token = localStorage.getItem("token");
       if (!token) {
-        toast.warning("Pehele login toh karle😒", {
+        toast.warning("Pehele login toh karle", {
           toastId: "watchlist-auth",
         });
         return;
@@ -355,11 +355,11 @@ const HomePage = () => {
         if (inList) {
           await api.delete(`/users/watchlist/${movie.id}`);
           logActivity(movie, "removed_from_watchlist");
-          toast.info("Remove kardiya😤");
+          toast.info("Remove kardiya");
         } else {
           await api.post(`/users/watchlist/${movie.id}`);
           logActivity(movie, "added_to_watchlist");
-          toast.success("Add kardiya😎");
+          toast.success("Add kardiya");
         }
       } catch {
         setWatchlist((prev) => {
@@ -367,7 +367,7 @@ const HomePage = () => {
           cachedWatchlist = next;
           return next;
         });
-        toast.error("Watchlist update nahi ho rha😑");
+        toast.error("Watchlist update nahi ho rha");
       }
     },
     [watchlist, logActivity],

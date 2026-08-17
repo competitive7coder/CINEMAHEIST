@@ -179,7 +179,7 @@ const DMCA = () => {
 
       {/* Hero */}
       <div className="dmca-hero">
-        <div className="dmca-badge">⚖️ Legal</div>
+        <div className="dmca-badge">️ Legal</div>
         <h1>DMCA & Copyright <span>Policy</span></h1>
         <p>CinemaHeist respects intellectual property rights. We are committed to maintaining a compliant platform and responding to all copyright inquiries.</p>
       </div>
@@ -188,7 +188,7 @@ const DMCA = () => {
 
         {/* Notice box */}
         <div className="dmca-notice-box">
-          <div className="dmca-notice-icon">📌</div>
+          <div className="dmca-notice-icon"></div>
           <div className="dmca-notice-text">
             <strong>Important:</strong> CinemaHeist is a reference catalog. We respect the intellectual property of creators, studios, and copyright holders. All inquiries submitted to our agent are processed in good faith.
           </div>
@@ -239,9 +239,9 @@ const DMCA = () => {
             <div className="dmca-contact-email">dmca.CinemaHeist@proton.me</div>
             <div className="dmca-contact-row">
               <button className={`dmca-copy-btn ${copied ? "copied" : ""}`} onClick={handleCopy}>
-                {copied ? "✓ Copied" : "📋 Copy Email"}
+                {copied ? " Copied" : " Copy Email"}
               </button>
-              <div className="dmca-response-tag">⏱ Response within 48 hours</div>
+              <div className="dmca-response-tag"> Response within 48 hours</div>
             </div>
           </div>
         </div>

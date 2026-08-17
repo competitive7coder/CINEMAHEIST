@@ -300,7 +300,7 @@ backdrop-filter: blur(8px);
             <div className="vm-header-right">
               <span className="vm-pill">HD</span>
               <button className="vm-close" onClick={close} aria-label="Close">
-                ✕
+                
               </button>
             </div>
           </div>

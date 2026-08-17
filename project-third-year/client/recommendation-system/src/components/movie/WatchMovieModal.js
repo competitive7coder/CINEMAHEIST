@@ -220,7 +220,7 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
   const [isTheater, setIsTheater] = useState(false);
   const playerRef = useRef(null);
 
-  // ── Fetch sources from backend ──
+  //  Fetch sources from backend 
   const fetchSources = useCallback(
     async () => {
       if (!tmdbId) return;
@@ -400,7 +400,7 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
         {!loading && currentSource && (
           <div className="wm-notice">
             <div className="wm-notice-left">
-              <span>💡</span>
+              <span></span>
               {currentSource.isDirect
                 ? "Direct stream — guaranteed correct movie."
                 : "Wrong movie or buffering? Switch server above. Click the CC icon inside the player for subtitles."}
@@ -426,7 +426,7 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
             </div>
           ) : error ? (
             <div className="wm-error">
-              <div className="wm-error-icon">⚠️</div>
+              <div className="wm-error-icon">️</div>
               <p>Could not load sources for this movie.</p>
               <button
                 className="wm-retry-btn"
@@ -437,7 +437,7 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
             </div>
           ) : sources?.not_available ? (
             <div className="wm-not-available">
-              <div className="wm-na-icon">🎬</div>
+              <div className="wm-na-icon"></div>
               <h4 className="wm-na-title">Not Available Yet</h4>
               <p className="wm-na-sub">
                 <strong style={{ color: "#fff" }}>{movieTitle}</strong> hasn't
@@ -493,7 +493,7 @@ const WatchMovieModal = ({ show, handleClose, tmdbId, movieTitle }) => {
 
                 {isFullscreen && (
                   <div className="wm-fs-bottom">
-                    <span className="wm-fs-bottom-title">🎬 {movieTitle}</span>
+                    <span className="wm-fs-bottom-title"> {movieTitle}</span>
                     <button
                       className="wm-fs-mini-btn"
                       onClick={handleFullscreen}

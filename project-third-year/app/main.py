@@ -18,12 +18,12 @@ from app.api.v1.api import api_router
 from dotenv import load_dotenv
 
 
-# ── Timeout Middleware ────────────────────────────────────────────────────────
+#  Timeout Middleware 
 # Skip timeout for SSE + slow endpoints
 SKIP_TIMEOUT_PATHS = [
-    "/homepage-sections/stream",   # SSE — streams forever by design
-    "/recommendations/user",        # ML engine — slow on first run
-    "/watchlist/full",              # parallel TMDB calls — can be slow
+    "/homepage-sections/stream",   # SSE  streams forever by design
+    "/recommendations/user",        # ML engine  slow on first run
+    "/watchlist/full",              # parallel TMDB calls  can be slow
 ]
 
 
@@ -31,7 +31,7 @@ SKIP_TIMEOUT_PATHS = [
 async def lifespan(app: FastAPI):
     print("Connecting to MongoDB...")
     await init_db()
-    print(f"🚀 {settings.PROJECT_NAME} is live on MongoDB")
+    print(f" {settings.PROJECT_NAME} is live on MongoDB")
 
     app.state.http_client = httpx.AsyncClient(
         base_url="https://api.themoviedb.org/3",
@@ -46,9 +46,9 @@ async def lifespan(app: FastAPI):
         await asyncio.sleep(2)  # wait for app.state.http_client to be ready
         try:
             await get_homepage_sections()
-            print("✅ Homepage cache warmed")
+            print(" Homepage cache warmed")
         except Exception as e:
-            print(f"⚠️  Cache warm failed: {e}")
+            print(f"️  Cache warm failed: {e}")
 
     async def train_ml():
         await asyncio.sleep(3)  # wait for DB to be fully ready
@@ -68,7 +68,7 @@ async def lifespan(app: FastAPI):
             CACHE_FILE  = MODEL_DIR / "svd_model.npz"
             INDEX_FILE  = MODEL_DIR / "svd_index.pkl"
 
-            # ── Fast path: load pre-trained model from disk ───────────────────
+            #  Fast path: load pre-trained model from disk 
             if CACHE_FILE.exists() and INDEX_FILE.exists():
                 import pickle
                 data = np.load(CACHE_FILE, allow_pickle=False)
@@ -78,11 +78,11 @@ async def lifespan(app: FastAPI):
                     idx = pickle.load(f)
                 engine_module._collab_user_index  = idx["user_index"]
                 engine_module._collab_movie_index = idx["movie_index"]
-                print(f"✅ SVD model loaded from cache — "
+                print(f" SVD model loaded from cache — "
                       f"{len(idx['user_index']):,} users, "
                       f"{len(idx['movie_index']):,} movies")
 
-                # Still load real user logs on top (fast — only 1 user)
+                # Still load real user logs on top (fast  only 1 user)
                 logs      = await Activity.find_all().to_list()
                 real_logs = [
                     {
@@ -94,23 +94,23 @@ async def lifespan(app: FastAPI):
                 ]
                 if real_logs:
                     build_collaborative_model(real_logs)
-                    print(f"✅ Real user model updated — {len(real_logs)} logs")
+                    print(f" Real user model updated — {len(real_logs)} logs")
                 return
 
-            # ── Slow path: train from scratch + save cache ────────────────────
-            # Only runs ONCE — after that always uses cache above
-            print("ℹ️  No SVD model cache found — initiating background training...")
+            #  Slow path: train from scratch + save cache 
+            # Only runs ONCE  after that always uses cache above
+            print("️  No SVD model cache found — initiating background training...")
             from app.ml.engine import retrain_recommendation_model
             asyncio.create_task(retrain_recommendation_model())
             
         except Exception as e:
-            print(f"⚠️  ML training failed: {e}")
+            print(f"️  ML training failed: {e}")
 
     asyncio.create_task(warm_cache())
     asyncio.create_task(train_ml())
 
     async def keep_db_warm():
-        # Ping MongoDB every 4 minutes — prevents Atlas free tier idle timeout
+        # Ping MongoDB every 4 minutes  prevents Atlas free tier idle timeout
         import asyncio as _asyncio
         from app.models.user import User as _User
         from app.cache.redis import set_cache      
@@ -118,7 +118,7 @@ async def lifespan(app: FastAPI):
             try:
                 await _asyncio.sleep(240)
                 await _User.find_one()
-                # Pings Redis (Upstash) too — keeps connection alive 
+                # Pings Redis (Upstash) too  keeps connection alive 
                 await set_cache("keepalive", "1", 300)
             except Exception:
                 pass
@@ -128,7 +128,7 @@ async def lifespan(app: FastAPI):
     yield
 
     await app.state.http_client.aclose()
-    print("💤 Shutting down...")
+    print(" Shutting down...")
 
 load_dotenv()
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173, http://localhost:4173/")
@@ -144,15 +144,13 @@ app = FastAPI(
 
 print("FRONTEND_URL:", FRONTEND_URL)
 
-# ── Rate Limiting — blocks abuse & bot scraping ───────────────────────────────
+#  Rate Limiting  blocks abuse & bot scraping 
 limiter = Limiter(key_func=get_remote_address, default_limits=["500/minute"])
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# ── Step 1: GZip compression — shrinks responses by 60-80% ──────────────────
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
-# ── Step 2: Trusted Host — blocks fake/spoofed Host header attacks ────────────
 app.add_middleware(
     TrustedHostMiddleware,
     allowed_hosts=[
@@ -163,7 +161,6 @@ app.add_middleware(
     ]
 )
 
-# ── Step 3: Register CORS middleware ─────────────────────────────────────────
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -178,7 +175,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ── Request size limit — blocks oversized payloads (max 1MB) ─────────────────
+#  Request size limit  blocks oversized payloads (max 1MB) 
 @app.middleware("http")
 async def limit_request_size(request: Request, call_next):
     content_length = request.headers.get("content-length")
@@ -201,7 +198,7 @@ async def limit_request_size(request: Request, call_next):
 
 
 
-# ── Security headers — hides server info, hardens API responses ──────────────
+#  Security headers  hides server info, hardens API responses 
 @app.middleware("http")
 async def security_headers_middleware(request: Request, call_next):
     response = await call_next(request)
@@ -211,7 +208,7 @@ async def security_headers_middleware(request: Request, call_next):
     response.headers["server"] = ""  # hide server info
     return response
 
-# ── Request timeout — registered before routes ───────────────────────────────
+#  Request timeout  registered before routes 
 @app.middleware("http")
 async def timeout_middleware(request: Request, call_next):
     if any(p in request.url.path for p in SKIP_TIMEOUT_PATHS):
@@ -224,10 +221,10 @@ async def timeout_middleware(request: Request, call_next):
             status_code=504
         )
     except RuntimeError:
-        # Starlette middleware race condition — pass through safely
+        # Starlette middleware race condition  pass through safely
         return await call_next(request)
 
-# ── Socket.IO mount ───────────────────────────────────────────────────────────
+#  Socket.IO mount 
 socket_app = socketio.ASGIApp(sio, socketio_path="")
 app.mount("/socket.io", socket_app)
 

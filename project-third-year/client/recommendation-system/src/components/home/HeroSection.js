@@ -191,9 +191,9 @@ const HeroSection = ({ movie, onWatchTrailerClick, onAddToWatchlist }) => {
 
         <div className="hs-content">
           <div className="hs-meta">
-            <span className="hs-badge hs-badge-live">✦ Featured</span>
+            <span className="hs-badge hs-badge-live"> Featured</span>
             {rating && (
-              <span className="hs-badge hs-badge-rating">★ {rating}</span>
+              <span className="hs-badge hs-badge-rating"> {rating}</span>
             )}
             {year && <span className="hs-badge hs-badge-year">{year}</span>}
           </div>

@@ -25,6 +25,10 @@ api.interceptors.request.use(config => {
   if (token) {
     config.headers['Authorization'] = `Bearer ${token}`;
   }
+  const adminSecret = sessionStorage.getItem('admin_secret_key');
+  if (adminSecret) {
+    config.headers['X-Admin-Secret-Key'] = adminSecret;
+  }
   return config;
 }, error => {
   return Promise.reject(error);

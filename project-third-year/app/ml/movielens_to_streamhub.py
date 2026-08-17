@@ -1,18 +1,18 @@
 """
-movielens_to_CinemaHeist.py — Convert MovieLens 25M → CinemaHeist activity logs
+movielens_to_CinemaHeist.py — Convert MovieLens 25M  CinemaHeist activity logs
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 What this script does:
   1. Loads MovieLens ratings.csv (25M ratings, 162k users)
   2. Cross-references links.csv to get TMDB movie IDs
   3. Filters to only movies in YOUR movies_enriched.csv
-  4. Maps star ratings → OTT implicit signals (your paper's Contribution 2)
+  4. Maps star ratings  OTT implicit signals (your paper's Contribution 2)
   5. Saves ml_activity_logs.csv — ready to feed into engine.py
 
-Rating → OTT Signal Mapping (your paper's novel contribution):
-  ★★★★★ (≥ 4.0) → added_to_watchlist  (weight 1.0, alpha=40)
-  ★★★   (3.0–3.9) → trailer_watch      (weight 0.5, alpha=20)
-  ★★    (< 3.0)  → removed_from_watchlist (weight -0.5)
+Rating  OTT Signal Mapping (your paper's novel contribution):
+   (≥ 4.0)  added_to_watchlist  (weight 1.0, alpha=40)
+     (3.0–3.9)  trailer_watch      (weight 0.5, alpha=20)
+      (< 3.0)   removed_from_watchlist (weight -0.5)
 
 Academic justification (cite in paper):
   "Following Hu et al. (2008), we derive implicit feedback from explicit
@@ -42,7 +42,7 @@ import sys
 import pandas as pd
 from pathlib import Path
 
-# ── Paths ─────────────────────────────────────────────────────────────────────
+#  Paths 
 BASE_DIR      = Path(__file__).resolve().parent
 ML_DIR        = BASE_DIR / "movielens"
 ENRICHED_CSV  = BASE_DIR / "movies_enriched.csv"
@@ -53,32 +53,32 @@ ML_RATINGS    = ML_DIR / "ratings.csv"
 ML_LINKS      = ML_DIR / "links.csv"
 ML_MOVIES     = ML_DIR / "movies.csv"
 
-# ── Rating → OTT Signal mapping ───────────────────────────────────────────────
+#  Rating  OTT Signal mapping 
 # This IS Contribution 2 of your paper
 # Maps MovieLens explicit ratings to OTT implicit feedback signals
 def rating_to_signal(rating: float) -> str | None:
     if rating >= 4.0:
-        return "added_to_watchlist"    # strong positive → watchlist save
+        return "added_to_watchlist"    # strong positive  watchlist save
     elif rating >= 3.0:
-        return "trailer_watch"         # moderate interest → trailer engagement
+        return "trailer_watch"         # moderate interest  trailer engagement
     elif rating >= 1.0:
-        return "removed_from_watchlist" # negative → explicit rejection
+        return "removed_from_watchlist" # negative  explicit rejection
     return None
 
 
 def main():
     print("=" * 60)
-    print("  MovieLens 25M → CinemaHeist Activity Logs")
+    print("  MovieLens 25M  CinemaHeist Activity Logs")
     print("=" * 60)
 
-    # ── Check files exist ─────────────────────────────────────────────────────
+    #  Check files exist 
     missing = []
     if not ML_RATINGS.exists():
-        missing.append(f"  ❌ {ML_RATINGS}")
+        missing.append(f"   {ML_RATINGS}")
     if not ML_LINKS.exists():
-        missing.append(f"  ❌ {ML_LINKS}")
+        missing.append(f"   {ML_LINKS}")
     if not ENRICHED_CSV.exists():
-        missing.append(f"  ❌ {ENRICHED_CSV}")
+        missing.append(f"   {ENRICHED_CSV}")
 
     if missing:
         print("\nMissing files:")
@@ -95,14 +95,12 @@ How to fix:
 """)
         sys.exit(1)
 
-    # ── Step 1: Load your enriched movies → get TMDB IDs ─────────────────────
-    print("\n📂 Loading your movies_enriched.csv...")
+    print("\n Loading your movies_enriched.csv...")
     enriched    = pd.read_csv(ENRICHED_CSV, usecols=["id"])
     your_tmdb   = set(enriched["id"].astype(int).tolist())
     print(f"   Your dataset: {len(your_tmdb):,} movies")
 
-    # ── Step 2: Load MovieLens links → cross-reference TMDB IDs ──────────────
-    print("\n📂 Loading MovieLens links.csv...")
+    print("\n Loading MovieLens links.csv...")
     links = pd.read_csv(ML_LINKS, dtype={"movieId": int, "tmdbId": "Int64"})
     links = links.dropna(subset=["tmdbId"])
     links["tmdbId"] = links["tmdbId"].astype(int)
@@ -113,12 +111,11 @@ How to fix:
     print(f"   MovieLens movies matched to your dataset: {len(valid_ml_ids):,}")
 
     if len(valid_ml_ids) == 0:
-        print("\n❌ No overlap found between MovieLens and your movies.")
+        print("\n No overlap found between MovieLens and your movies.")
         print("   Make sure movies_enriched.csv has TMDB IDs in the 'id' column.")
         sys.exit(1)
 
-    # ── Step 3: Load ratings — only for matched movies ────────────────────────
-    print("\n📂 Loading MovieLens ratings.csv (25M rows — ~30 seconds)...")
+    print("\n Loading MovieLens ratings.csv (25M rows — ~30 seconds)...")
     print("   (filtering as we load to save memory)")
 
     # Load in chunks to handle 25M rows efficiently
@@ -146,18 +143,16 @@ How to fix:
     print(f"   Raw ratings for your movies: {len(ratings):,}")
     print(f"   Unique users: {ratings['userId'].nunique():,}")
 
-    # ── Step 4: Map MovieLens IDs → TMDB IDs ─────────────────────────────────
-    print("\n🔀 Mapping MovieLens IDs → TMDB IDs...")
+    print("\n Mapping MovieLens IDs  TMDB IDs...")
     ml_to_tmdb = dict(zip(links_filtered["movieId"], links_filtered["tmdbId"]))
     ratings["movie_id"] = ratings["movieId"].map(ml_to_tmdb)
     ratings = ratings.dropna(subset=["movie_id"])
     ratings["movie_id"] = ratings["movie_id"].astype(int)
 
-    # ── Step 5: Map ratings → OTT signals ────────────────────────────────────
-    print("\n📊 Mapping ratings → OTT implicit signals...")
-    print("   ★★★★★ (≥4.0) → added_to_watchlist")
-    print("   ★★★   (3.0-3.9) → trailer_watch")
-    print("   ★★    (<3.0)  → removed_from_watchlist")
+    print("\n Mapping ratings  OTT implicit signals...")
+    print("    (≥4.0)  added_to_watchlist")
+    print("      (3.0-3.9)  trailer_watch")
+    print("       (<3.0)   removed_from_watchlist")
 
     ratings["action_type"] = ratings["rating"].apply(rating_to_signal)
     ratings = ratings.dropna(subset=["action_type"])
@@ -165,22 +160,19 @@ How to fix:
     # Prefix user IDs with "ml_" so they don't clash with your real users
     ratings["user_id"] = "ml_" + ratings["userId"].astype(str)
 
-    # ── Step 6: Build final activity logs ─────────────────────────────────────
     activity_logs = ratings[["user_id", "movie_id", "action_type", "timestamp"]].copy()
     activity_logs = activity_logs.drop_duplicates()
 
-    # ── Step 7: Save ──────────────────────────────────────────────────────────
-    print(f"\n💾 Saving {len(activity_logs):,} activity logs...")
+    print(f"\n Saving {len(activity_logs):,} activity logs...")
     activity_logs.to_csv(OUTPUT_LOGS, index=False)
-    print(f"   Saved → {OUTPUT_LOGS}")
+    print(f"   Saved  {OUTPUT_LOGS}")
 
-    # ── Step 8: Stats for your paper ─────────────────────────────────────────
     signal_counts = activity_logs["action_type"].value_counts()
     user_count    = activity_logs["user_id"].nunique()
     movie_count   = activity_logs["movie_id"].nunique()
 
     stats = f"""
-MovieLens → CinemaHeist Dataset Statistics
+MovieLens  CinemaHeist Dataset Statistics
 (Include these numbers in your research paper)
 {'=' * 50}
 
@@ -210,12 +202,12 @@ Source:
 
     with open(OUTPUT_STATS, "w", encoding="utf-8") as f:
         f.write(stats)
-    print(f"   Stats saved → {OUTPUT_STATS}")
+    print(f"   Stats saved  {OUTPUT_STATS}")
 
-    # ── Usage instructions ────────────────────────────────────────────────────
+    #  Usage instructions 
     print(f"""
 {'=' * 60}
-  ✅ DONE
+   DONE
 {'=' * 60}
 
   NEXT STEP — Load in main.py startup:
@@ -249,7 +241,7 @@ Source:
           else:
               ml_logs = []
 
-          # Combine both — real users + MovieLens users
+          # Combine both  real users + MovieLens users
           all_logs = real_logs + ml_logs
           build_collaborative_model(all_logs)
 

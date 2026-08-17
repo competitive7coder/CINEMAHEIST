@@ -20,21 +20,19 @@ router = APIRouter()
 
 TMDB_BASE_URL = "https://api.themoviedb.org/3"
 
-# ---------------------------------------------------
 # CACHE + RATE LIMIT PROTECTION
-# ---------------------------------------------------
 homepage_cache = {"data": None, "expires": 0}
-CACHE_TTL = 60 * 60 * 6   # 6 hours — genre data barely changes
+CACHE_TTL = 60 * 60 * 6   # 6 hours  genre data barely changes
 
 _short_cache: dict = {}
 SHORT_TTL = 60 * 5         # 5 minutes for trending/now-playing/top-rated
 
-# LAYER 1 — In-flight deduplication
+# LAYER 1  In-flight deduplication
 # If 50 users request /trending at the same moment cache is cold,
-# only ONE real TMDB call is made — rest wait for that same result.
+# only ONE real TMDB call is made  rest wait for that same result.
 _in_flight: dict = {}
 
-# LAYER 2 — Global TMDB rate limiter (50 req/s limit)
+# LAYER 2  Global TMDB rate limiter (50 req/s limit)
 # A semaphore caps concurrent outgoing TMDB calls.
 import asyncio as _asyncio
 _tmdb_semaphore = _asyncio.Semaphore(10)  # max 10 concurrent TMDB calls
@@ -49,9 +47,7 @@ def _set_cache(key: str, data, ttl: int = SHORT_TTL):
     _short_cache[key] = {"data": data, "expires": time.time() + ttl}
 
 
-# ---------------------------------------------------
 # TMDB HELPER
-# ---------------------------------------------------
 async def fetch_tmdb(endpoint: str, params: Optional[dict] = None, client: Optional[httpx.AsyncClient] = None):
 
     params = params or {}
@@ -65,7 +61,7 @@ async def fetch_tmdb(endpoint: str, params: Optional[dict] = None, client: Optio
     try:
         # LAYER 2: semaphore limits concurrent TMDB calls to 10
         async with _tmdb_semaphore:
-            # LAYER 3: auto-retry on 429 Rate Limited — wait and retry once
+            # LAYER 3: auto-retry on 429 Rate Limited  wait and retry once
             for attempt in range(3):
                 try:
                     res = await client.get(endpoint, params=params)
@@ -98,9 +94,7 @@ async def fetch_tmdb(endpoint: str, params: Optional[dict] = None, client: Optio
             await client.aclose()
 
 
-# ---------------------------------------------------
 # TRENDING
-# ---------------------------------------------------
 @router.get("/trending")
 async def get_trending(media_type: str = "movie", time_window: str = "day"):
     key = f"trending:{media_type}:{time_window}"
@@ -125,9 +119,7 @@ async def get_trending(media_type: str = "movie", time_window: str = "day"):
         _in_flight.pop(key, None)
 
 
-# ---------------------------------------------------
 # SEARCH
-# ---------------------------------------------------
 @router.get("/search")
 async def search_movies(
     query: str = Query(..., min_length=1),
@@ -156,9 +148,7 @@ async def search_movies(
     return data
 
 
-# ---------------------------------------------------
 # MOVIE DETAILS
-# ---------------------------------------------------
 @router.get("/details/{movie_id}")
 async def get_movie_details(movie_id: int):
     cache_key = f"movie:details:{movie_id}"
@@ -174,9 +164,7 @@ async def get_movie_details(movie_id: int):
     return data
 
 
-# ---------------------------------------------------
 # GENRE MOVIES
-# ---------------------------------------------------
 @router.get("/genre/{genre_id}")
 async def get_movies_by_genre(
     genre_id: int,
@@ -197,9 +185,7 @@ async def get_movies_by_genre(
     return await fetch_tmdb("/discover/movie", params)
 
 
-# ---------------------------------------------------
 # NOW PLAYING
-# ---------------------------------------------------
 @router.get("/now-playing")
 async def now_playing(page: int = 1):
     key = f"now_playing:{page}"
@@ -224,9 +210,7 @@ async def now_playing(page: int = 1):
         _in_flight.pop(key, None)
 
 
-# ---------------------------------------------------
 # TOP RATED
-# ---------------------------------------------------
 @router.get("/top-rated-in")
 async def top_rated_movies(page: int = 1):
     key = f"top_rated:{page}"
@@ -251,9 +235,7 @@ async def top_rated_movies(page: int = 1):
         _in_flight.pop(key, None)
 
 
-# ---------------------------------------------------
 # MOVIE TRAILER  (language-aware with fallback chain)
-# ---------------------------------------------------
 @router.get("/{movie_id}/videos")
 async def get_movie_videos(
     movie_id: int,
@@ -274,14 +256,14 @@ async def get_movie_videos(
             None,
         )
 
-    # 1️⃣  Try user-requested language first
+    # 1  Try user-requested language first
     trailer = pick_trailer(language)
 
-    # 2️⃣  Fallback → English trailer
+    # 2  Fallback  English trailer
     if not trailer and language != "en":
         trailer = pick_trailer("en")
 
-    # 3️⃣  Last resort → any YouTube trailer regardless of language
+    # 3  Last resort  any YouTube trailer regardless of language
     if not trailer:
         trailer = next(
             (v for v in videos if v.get("site") == "YouTube"),
@@ -298,9 +280,7 @@ async def get_movie_videos(
     }
 
 
-# ---------------------------------------------------
 # USER ML RECOMMENDATIONS (Dashboard)
-# ---------------------------------------------------
 @router.get("/recommendations/user")
 async def get_user_recommendations(
     language: Optional[str] = None,
@@ -357,9 +337,7 @@ async def get_user_recommendations(
 
 
 
-# ---------------------------------------------------
 # RECOMMENDATIONS # movie page
-# ---------------------------------------------------
 @router.get("/recommendations/{movie_id}")
 async def get_movie_recommendations(movie_id: int):
     try:
@@ -390,9 +368,7 @@ async def get_movie_recommendations(movie_id: int):
 
 
 
-# ---------------------------------------------------
 # HOMEPAGE SECTIONS (CACHED + PARALLEL)
-# ---------------------------------------------------
 
 SECTIONS = {
     "Trending Now":    None,
@@ -452,9 +428,7 @@ async def get_homepage_sections():
     return results
 
 
-# ---------------------------------------------------
-# HOMEPAGE SECTIONS — STREAMING (first load fast)
-# ---------------------------------------------------
+# HOMEPAGE SECTIONS  STREAMING (first load fast)
 @router.get("/homepage-sections/stream")
 async def stream_homepage_sections():
     """

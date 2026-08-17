@@ -14,7 +14,7 @@ HINDI_KEYWORDS = ["hindi", "hin", "dual audio", "multi audio", "dubbed"]
 
 
 async def get_imdb_id(tmdb_id: str):
-    # IMDB IDs never change — cache for 7 days
+    # IMDB IDs never change  cache for 7 days
     cache_key = f"imdb_id:{tmdb_id}"
     cached = await get_cache(cache_key)
     if cached:
@@ -49,7 +49,7 @@ def is_hindi_stream(title: str) -> bool:
 
 
 def extract_seeds(title: str) -> int:
-    match = re.search(r"👤\s*(\d+)", title)
+    match = re.search(r"\s*(\d+)", title)
     return int(match.group(1)) if match else 0
 
 
@@ -118,7 +118,7 @@ async def get_torrentio_streams(imdb_id: str, language: str = "en") -> dict:
             if raw_url.startswith("https://") or "/playback/" in raw_url:
                 direct_streams.append({**stream_obj, "url": raw_url, "type": "direct"})
 
-            # Magnet — WebTorrent can stream these in browser
+            # Magnet  WebTorrent can stream these in browser
             if magnet_url:
                 magnet_streams.append({**stream_obj, "url": magnet_url, "type": "magnet"})
 
@@ -130,7 +130,7 @@ async def get_torrentio_streams(imdb_id: str, language: str = "en") -> dict:
         all_streams     = direct_streams + magnet_streams
         hindi_available = any(s["is_hindi"] for s in all_streams)
 
-        # Hindi filter — only return Hindi streams
+        # Hindi filter  only return Hindi streams
         if language == "hi":
             magnet_streams = [s for s in magnet_streams if s["is_hindi"]]
             direct_streams = [s for s in direct_streams if s["is_hindi"]]
@@ -150,9 +150,9 @@ def build_embed_sources(imdb_id: str, tmdb_id: str, language: str = "en") -> lis
     id_to_use = imdb_id or tmdb_id
     if language == "hi":
         return [
-            # autoembed.cc — dual audio, select Hindi track inside player
+            # autoembed.cc  dual audio, select Hindi track inside player
             {"name": "AutoEmbed",  "label": "Dual Audio", "type": "embed", "url": f"https://autoembed.cc/movie/tmdb/{tmdb_id}",       "verified": True},
-            # letsembed — claims dubbed audio
+            # letsembed  claims dubbed audio
             {"name": "LetsEmbed", "label": "Try Hindi",   "type": "embed", "url": f"https://letsembed.cc/embed/movie/?id={tmdb_id}", "verified": False},
         ]
     return [
@@ -183,7 +183,7 @@ async def get_movie_sources(
         if not TMDB_API_KEY:
             raise HTTPException(status_code=500, detail="TMDB_API_KEY not set")
 
-        # Check cache first — stream sources cached for 30 mins
+        # Check cache first  stream sources cached for 30 mins
         stream_cache_key = f"stream:sources:{tmdb_id}:{language}"
         cached_sources = await get_cache(stream_cache_key)
         if cached_sources:

@@ -1,4 +1,8 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+ENV_PATH = BASE_DIR / ".env"
 
 class Settings(BaseSettings):
     # App General Settings
@@ -13,6 +17,7 @@ class Settings(BaseSettings):
     JWT_SECRET: str
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 10080  # 7 days
+    ADMIN_SECRET_KEY: str
     
     # TMDB API
     TMDB_API_KEY: str
@@ -33,8 +38,7 @@ class Settings(BaseSettings):
 
     # Configuration to read the .env file
     model_config = SettingsConfigDict(
-        # We tell Pydantic to look specifically inside the 'app' directory
-        env_file="app/.env", 
+        env_file=ENV_PATH, 
         env_file_encoding="utf-8", 
         extra="ignore"
     )

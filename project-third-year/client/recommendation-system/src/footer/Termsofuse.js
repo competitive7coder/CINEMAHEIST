@@ -79,7 +79,7 @@ const TermsOfUse = () => (
     `}</style>
 
     <div className="legal-hero">
-      <div className="legal-badge">📄 Legal</div>
+      <div className="legal-badge"> Legal</div>
       <h1>Terms of <span>Use</span></h1>
       <p>Please read these terms carefully before using CinemaHeist. By using our service, you agree to these terms.</p>
       <div className="legal-updated">Last updated: March 2026</div>

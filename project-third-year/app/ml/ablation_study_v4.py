@@ -5,7 +5,7 @@ ablation_study_v4.py — Final Research Paper Evaluation Script
 What is REAL in this evaluation:
   - MovieLens 25M dataset (162,529 real users, real ratings)
   - Real Unix timestamps from MovieLens (when users rated movies)
-  - Real signal mapping: rating ≥ 4.0 → watchlist, 3-3.9 → trailer
+  - Real signal mapping: rating ≥ 4.0  watchlist, 3-3.9  trailer
 
 What is a PROXY (disclosed in paper):
   - trailer_watch derived from medium ratings (3.0-3.9)
@@ -42,7 +42,7 @@ MIN_ACTIONS       = 10
 TRAIN_RATIO       = 0.8
 RANDOM_SEED       = 42
 SVD_K             = 50
-RECENCY_HALFLIFE  = 30   # days — matches engine.py T_half
+RECENCY_HALFLIFE  = 30   # days  matches engine.py T_half
 
 IMPLICIT_WEIGHTS = {
     "added_to_watchlist":     1.0,
@@ -51,7 +51,7 @@ IMPLICIT_WEIGHTS = {
     "removed_from_watchlist": -0.5,
 }
 
-# Contribution 2 — per-signal alpha (YOUR novel contribution)
+# Contribution 2  per-signal alpha (YOUR novel contribution)
 SIGNAL_ALPHA_FULL = {
     "added_to_watchlist":     40,
     "trailer_watch":          20,
@@ -59,7 +59,7 @@ SIGNAL_ALPHA_FULL = {
     "removed_from_watchlist":  0,
 }
 
-# Baseline — uniform alpha (no signal distinction)
+# Baseline  uniform alpha (no signal distinction)
 SIGNAL_ALPHA_BASE = {
     "added_to_watchlist":     10,
     "trailer_watch":          10,
@@ -71,9 +71,7 @@ random.seed(RANDOM_SEED)
 np.random.seed(RANDOM_SEED)
 
 
-# =============================================================================
 # LOAD DATA
-# =============================================================================
 
 def load_data():
     print("=" * 64)
@@ -92,7 +90,7 @@ def load_data():
     print(f"  Activity logs          : {len(logs):,}")
     print(f"  Unique users           : {logs['user_id'].nunique():,}")
 
-    # ── Handle timestamps ─────────────────────────────────────────────────────
+    #  Handle timestamps 
     has_real_timestamps = "timestamp" in logs.columns and logs["timestamp"].notna().any()
 
     if has_real_timestamps:
@@ -102,7 +100,7 @@ def load_data():
         logs["datetime"] = logs["datetime"].dt.tz_localize(None)
 
         # TIMESTAMP NORMALIZATION
-        # MovieLens timestamps span 1995-2019 — direct temporal decay
+        # MovieLens timestamps span 1995-2019  direct temporal decay
         # produces near-zero weights for all interactions.
         # We normalize to 365-day window preserving relative ordering.
         # Paper: "timestamps normalized to simulate active OTT conditions"
@@ -133,9 +131,7 @@ def load_data():
     return df, logs
 
 
-# =============================================================================
 # TRAIN / TEST SPLIT
-# =============================================================================
 
 def build_train_test(logs):
     print("\n  Building train/test split...")
@@ -149,9 +145,9 @@ def build_train_test(logs):
         valid_users = random.sample(valid_users, N_EVAL_USERS)
     print(f"  Evaluating on          : {len(valid_users):,} users")
 
-    train_data = {}   # user → list of movie_ids
-    test_data  = {}   # user → set of movie_ids (ground truth)
-    ts_map     = {}   # (user, movie_id) → datetime
+    train_data = {}   # user  list of movie_ids
+    test_data  = {}   # user  set of movie_ids (ground truth)
+    ts_map     = {}   # (user, movie_id)  datetime
 
     # Build timestamp map for ALL watchlist interactions
     for _, row in logs[logs["action_type"]=="added_to_watchlist"].iterrows():
@@ -177,9 +173,7 @@ def build_train_test(logs):
     return train_data, test_data, all_train_logs, valid_users, ts_map
 
 
-# =============================================================================
 # CONTENT MODEL
-# =============================================================================
 
 def build_content_model(df):
     print("\n  Building TF-IDF content model...")
@@ -205,9 +199,7 @@ def build_content_model(df):
     return tfidf, i2idx, idx2i
 
 
-# =============================================================================
 # SVD MODEL
-# =============================================================================
 
 def build_svd(logs, signal_alpha):
     df_a = logs.copy()
@@ -246,9 +238,7 @@ def get_collab(uid, uf, mf, ui, mi):
     return {mid: float(s[i]) for mid,i in mi.items()}
 
 
-# =============================================================================
 # RECOMMENDATION FUNCTIONS
-# =============================================================================
 
 def temporal_weight(ts, now, halflife=RECENCY_HALFLIFE):
     """Contribution 1 formula: w = exp(-0.693 * days / T_half)"""
@@ -274,7 +264,7 @@ def rec_content(wl, tfidf, i2idx, idx2i, excl, n, uid=None, ts_map=None):
     idxs  = [idx for _,idx in known]
 
     if ts_map and uid:
-        # Contribution 1 — temporal decay using real timestamps
+        # Contribution 1  temporal decay using real timestamps
         now     = pd.Timestamp.now()
         weights = []
         for mid,_ in known:
@@ -339,9 +329,7 @@ def rec_hybrid(wl, uid, tfidf, i2idx, idx2i,
     return [m for m,_ in res[:n]]
 
 
-# =============================================================================
 # METRICS
-# =============================================================================
 
 def p_at_k(recs, rel, k):
     if not recs or not rel: return 0.0
@@ -372,9 +360,7 @@ def evaluate(fn, train_data, test_data, valid_users, k=10):
             "ndcg":np.mean(N),"n":len(P)}
 
 
-# =============================================================================
 # RUN ALL 8 VARIANTS
-# =============================================================================
 
 def run_ablation():
     df, logs                                   = load_data()
@@ -396,21 +382,21 @@ def run_ablation():
     print("="*64)
     R = {}
 
-    # V1 — Random
+    # V1  Random
     print("\n  [1/8] Random baseline...")
     R["V1"] = evaluate(
         lambda uid,wl: rec_random(all_ids, set(wl), N_RECOMMENDATIONS),
         train_data, test_data, valid_users)
     print(f"        P@10={R['V1']['precision']:.4f}")
 
-    # V2 — Popularity
+    # V2  Popularity
     print("\n  [2/8] Popularity-based...")
     R["V2"] = evaluate(
         lambda uid,wl: rec_popularity(df, set(wl), N_RECOMMENDATIONS),
         train_data, test_data, valid_users)
     print(f"        P@10={R['V2']['precision']:.4f}")
 
-    # V3 — TF-IDF only, no temporal decay
+    # V3  TF-IDF only, no temporal decay
     print("\n  [3/8] TF-IDF content only (no temporal decay)...")
     R["V3"] = evaluate(
         lambda uid,wl: rec_content(wl, tfidf, i2idx, idx2i,
@@ -418,7 +404,7 @@ def run_ablation():
         train_data, test_data, valid_users)
     print(f"        P@10={R['V3']['precision']:.4f}")
 
-    # V4 — SVD only, baseline signals
+    # V4  SVD only, baseline signals
     print("\n  [4/8] SVD collaborative only (baseline signals)...")
     R["V4"] = evaluate(
         lambda uid,wl: rec_collab(uid,
@@ -427,7 +413,7 @@ def run_ablation():
         train_data, test_data, valid_users)
     print(f"        P@10={R['V4']['precision']:.4f}")
 
-    # V5 — Base hybrid, no contributions
+    # V5  Base hybrid, no contributions
     print("\n  [5/8] Base hybrid (TF-IDF + SVD, no contributions)...")
     R["V5"] = evaluate(
         lambda uid,wl: rec_hybrid(wl, uid, tfidf, i2idx, idx2i,
@@ -436,7 +422,7 @@ def run_ablation():
         train_data, test_data, valid_users)
     print(f"        P@10={R['V5']['precision']:.4f}")
 
-    # V6 — + Contribution 2 (OTT signal weighting)
+    # V6  + Contribution 2 (OTT signal weighting)
     print("\n  [6/8] + Contribution 2: OTT signal weighting...")
     R["V6"] = evaluate(
         lambda uid,wl: rec_hybrid(wl, uid, tfidf, i2idx, idx2i,
@@ -445,7 +431,7 @@ def run_ablation():
         train_data, test_data, valid_users)
     print(f"        P@10={R['V6']['precision']:.4f}")
 
-    # V7 — + Contribution 1 (temporal decay, real timestamps)
+    # V7  + Contribution 1 (temporal decay, real timestamps)
     print("\n  [7/8] + Contribution 1: Temporal watchlist decay (real timestamps)...")
     R["V7"] = evaluate(
         lambda uid,wl: rec_hybrid(wl, uid, tfidf, i2idx, idx2i,
@@ -454,7 +440,7 @@ def run_ablation():
         train_data, test_data, valid_users)
     print(f"        P@10={R['V7']['precision']:.4f}")
 
-    # V8 — Full system (C1 + C2)
+    # V8  Full system (C1 + C2)
     print("\n  [8/8] Full system (Contribution 1 + Contribution 2)...")
     R["V8"] = evaluate(
         lambda uid,wl: rec_hybrid(wl, uid, tfidf, i2idx, idx2i,
@@ -466,9 +452,7 @@ def run_ablation():
     return R
 
 
-# =============================================================================
 # PRINT RESULTS
-# =============================================================================
 
 def print_results(R):
     labels = {
@@ -486,7 +470,7 @@ def print_results(R):
     lines.append("=" * 72)
     lines.append("  ABLATION STUDY RESULTS")
     lines.append("  Dataset : MovieLens 25M (Harper & Konstan, 2015)")
-    lines.append("  Signals : rating proxy mapping → OTT implicit signals")
+    lines.append("  Signals : rating proxy mapping  OTT implicit signals")
     lines.append("  Users   : 2,000 sampled | Split: 80% train / 20% test")
     lines.append("  Metrics : Precision@10, Recall@10, NDCG@10")
     lines.append("=" * 72)
@@ -502,7 +486,7 @@ def print_results(R):
         if k=="V5":   delta = "baseline"
         elif p>bp:    delta = f"+{(p-bp)*100:.2f}%"
         else:         delta = f"{(p-bp)*100:.2f}%"
-        mark = " ◄ OURS" if k=="V8" else ""
+        mark = "  OURS" if k=="V8" else ""
         lines.append(f"  {label:<38} {p:>8.4f} {rc:>8.4f} "
                      f"{nd:>9.4f} {delta:>8}{mark}")
 
@@ -535,12 +519,12 @@ def print_results(R):
     print("\n" + out)
     with open(OUTPUT_TXT, "w", encoding="utf-8") as f:
         f.write(out)
-    print(f"\n  ✅ Saved → {OUTPUT_TXT}")
+    print(f"\n   Saved  {OUTPUT_TXT}")
 
 
 if __name__ == "__main__":
     if not ENRICHED_CSV.exists():
-        print(f"❌ {ENRICHED_CSV} not found"); exit(1)
+        print(f" {ENRICHED_CSV} not found"); exit(1)
     if not LOGS_CSV.exists():
-        print(f"❌ {LOGS_CSV} not found"); exit(1)
+        print(f" {LOGS_CSV} not found"); exit(1)
     print_results(run_ablation())

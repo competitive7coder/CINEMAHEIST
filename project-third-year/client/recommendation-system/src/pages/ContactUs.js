@@ -49,7 +49,7 @@ const ContactUs = () => {
     });
     ro.observe(canvas);
 
-    // Safe defaults — ResizeObserver fires immediately and corrects these
+    // Safe defaults  ResizeObserver fires immediately and corrects these
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
@@ -95,12 +95,12 @@ const ContactUs = () => {
     setLoading(true);
     try {
       const response = await api.post("/feedback/send", formData);
-      toast.success(response.data.msg || "Message chala gya mere pas 😎");
+      toast.success(response.data.msg || "Message chala gya mere pas ");
       setSent(true);
       setFormData({ name: "", email: "", message: "" });
       setTimeout(() => setSent(false), 6000);
     } catch (error) {
-      toast.error("Kuch der bad try karo😒");
+      toast.error("Kuch der bad try karo");
     } finally {
       setLoading(false);
     }
@@ -351,7 +351,7 @@ const ContactUs = () => {
           <div className="cu-form-panel">
             {sent ? (
               <div className="cu-success">
-                <div className="cu-success-icon">✅</div>
+                <div className="cu-success-icon"></div>
                 <h3>Message Received!</h3>
                 <p>Thanks for reaching out. We'll reply within 24–48 hours.</p>
                 <button

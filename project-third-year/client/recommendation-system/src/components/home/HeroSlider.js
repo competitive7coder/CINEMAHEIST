@@ -167,8 +167,8 @@ const handleSwiper = useCallback((swiper) => {
                     className="hero-meta hero-anim-from-top"
                     style={{ "--delay": `${STAGGER[0]}ms` }}
                   >
-                    <span className="hero-badge hero-badge-new">✦ Trending</span>
-                    {rating && <span className="hero-badge hero-badge-rating">★ {rating}</span>}
+                    <span className="hero-badge hero-badge-new"> Trending</span>
+                    {rating && <span className="hero-badge hero-badge-rating"> {rating}</span>}
                     {year   && <span className="hero-badge hero-badge-year">{year}</span>}
                   </div>
 
@@ -210,13 +210,13 @@ const handleSwiper = useCallback((swiper) => {
                     style={{ "--delay": `${STAGGER[4]}ms` }}
                   >
                     <button className="hero-btn hero-btn-watchnow" onClick={handleWatchNowClick}>
-                      <span className="play-icon">▶</span>
+                      <span className="play-icon"></span>
                       Watch Now
                     </button>
 
                     <div className="hero-secondary-actions">
                       <button className="hero-action-btn" onClick={handleTrailerClick}>
-                        <span className="hero-action-icon">🎬</span>
+                        <span className="hero-action-icon"></span>
                         <span className="hero-action-label">Trailer</span>
                       </button>
 
@@ -226,14 +226,14 @@ const handleSwiper = useCallback((swiper) => {
                         className={`hero-action-btn ${isInWatchlist ? "hero-action-saved" : ""}`}
                         onClick={() => onAddToWatchlist(movie)}
                       >
-                        <span className="hero-action-icon">{isInWatchlist ? "✓" : "+"}</span>
+                        <span className="hero-action-icon">{isInWatchlist ? "" : "+"}</span>
                         <span className="hero-action-label">{isInWatchlist ? "Saved" : "My List"}</span>
                       </button>
 
                       <div className="hero-action-divider" />
 
                       <button className="hero-action-btn" onClick={handleInfoClick}>
-                        <span className="hero-action-icon">ℹ</span>
+                        <span className="hero-action-icon"></span>
                         <span className="hero-action-label">Info</span>
                       </button>
                     </div>

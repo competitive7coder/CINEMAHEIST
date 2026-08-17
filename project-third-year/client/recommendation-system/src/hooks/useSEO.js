@@ -139,7 +139,7 @@ const useSEO = ({
     setMeta('meta[name="twitter:image"]',       fullImage);
     setMeta('meta[name="twitter:card"]',        "summary_large_image");
 
-    // Structured data — Movie schema if on a movie page
+    // Structured data  Movie schema if on a movie page
     if (movie) {
       setStructuredData(buildMovieSchema(movie, fullUrl, fullImage));
     } else {

@@ -45,7 +45,7 @@ IMPLICIT_WEIGHTS = {
 random.seed(RANDOM_SEED)
 np.random.seed(RANDOM_SEED)
 
-# ── Sensitivity configurations ────────────────────────────────────────────────
+#  Sensitivity configurations 
 
 # T_half values to test (days)
 T_HALF_VALUES = [7, 14, 30, 60, 90]
@@ -60,9 +60,7 @@ ALPHA_CONFIGS = {
 }
 
 
-# =============================================================================
 # DATA LOADING
-# =============================================================================
 
 def load_data():
     print("Loading data...")
@@ -249,9 +247,7 @@ def evaluate(fn, train_data, test_data, valid_users, k=10):
     return {"precision": np.mean(P), "ndcg": np.mean(N)}
 
 
-# =============================================================================
 # RUN SENSITIVITY ANALYSIS
-# =============================================================================
 
 def run_sensitivity():
     df, logs = load_data()
@@ -260,7 +256,7 @@ def run_sensitivity():
 
     print(f"\nEvaluating on {len(valid_users):,} users...")
 
-    # ── EXPERIMENT 1: T_half sensitivity ─────────────────────────────────────
+    #  EXPERIMENT 1: T_half sensitivity 
     print("\n" + "="*60)
     print("  EXPERIMENT 1: T_half Sensitivity")
     print("  (Fixed alpha: High 40/20/10, varying half-life)")
@@ -288,7 +284,7 @@ def run_sensitivity():
         thalf_results[thalf] = result
         print(f"P@10={result['precision']:.4f}  NDCG@10={result['ndcg']:.4f}")
 
-    # ── EXPERIMENT 2: Alpha sensitivity ──────────────────────────────────────
+    #  EXPERIMENT 2: Alpha sensitivity 
     print("\n" + "="*60)
     print("  EXPERIMENT 2: Alpha Configuration Sensitivity")
     print("  (Fixed T_half=30 days, varying alpha values)")
@@ -316,9 +312,7 @@ def run_sensitivity():
     return thalf_results, alpha_results
 
 
-# =============================================================================
 # PRINT RESULTS
-# =============================================================================
 
 def print_results(thalf_results, alpha_results):
     lines = []
@@ -376,8 +370,8 @@ def print_results(thalf_results, alpha_results):
 
 if __name__ == "__main__":
     if not ENRICHED_CSV.exists():
-        print(f"❌ {ENRICHED_CSV} not found"); exit(1)
+        print(f" {ENRICHED_CSV} not found"); exit(1)
     if not LOGS_CSV.exists():
-        print(f"❌ {LOGS_CSV} not found"); exit(1)
+        print(f" {LOGS_CSV} not found"); exit(1)
     thalf_results, alpha_results = run_sensitivity()
     print_results(thalf_results, alpha_results)

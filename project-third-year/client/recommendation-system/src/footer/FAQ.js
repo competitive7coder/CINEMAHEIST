@@ -32,7 +32,7 @@ const faqs = [
       },
       {
         q: "How do I delete my account?",
-        a: "Go to Settings → Account → Delete Account. This permanently removes your profile, watchlist, and all associated data. This action cannot be undone.",
+        a: "Go to Settings  Account  Delete Account. This permanently removes your profile, watchlist, and all associated data. This action cannot be undone.",
       },
       {
         q: "Why isn't my watchlist syncing?",
@@ -241,7 +241,7 @@ const FAQ = () => {
 
       {/* Hero */}
       <div className="faq-hero">
-        <div className="faq-badge">❓ Help Center</div>
+        <div className="faq-badge"> Help Center</div>
         <h1>
           Frequently Asked <span>Questions</span>
         </h1>

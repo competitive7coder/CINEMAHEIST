@@ -98,13 +98,13 @@
             var m2 = data.results[1];
             if (!m1) return data;
             var d1 = "https://image.tmdb.org/t/p/w1280" + m1.backdrop_path;
-            var mo1 = "https://image.tmdb.org/t/p/w342" + m1.poster_path; // ← w780 to w342
+            var mo1 = "https://image.tmdb.org/t/p/w342" + m1.poster_path; //  w780 to w342
             var d2 = m2
               ? "https://image.tmdb.org/t/p/w1280" + m2.backdrop_path
               : "";
             var mo2 = m2
               ? "https://image.tmdb.org/t/p/w342" + m2.poster_path
-              : ""; // ← w780 to w342
+              : ""; //  w780 to w342
 
             try {
               localStorage.setItem(
@@ -288,7 +288,7 @@
       });
     </script>
 
-    <!-- Cloudflare Analytics — skip on localhost to avoid CORS noise -->
+    <!-- Cloudflare Analytics  skip on localhost to avoid CORS noise -->
     <script>
       if (
         location.hostname !== "localhost" &&

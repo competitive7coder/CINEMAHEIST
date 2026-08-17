@@ -37,18 +37,18 @@ from pathlib import Path
 from tqdm import tqdm
 from dotenv import load_dotenv
 
-# .env is in app/ — one level up from app/ml/
+# .env is in app/  one level up from app/ml/
 load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent / ".env")
 
-# ── Config ────────────────────────────────────────────────────────────────────
+#  Config 
 TMDB_API_KEY = os.getenv("TMDB_API_KEY", "")
 BASE_URL     = "https://api.themoviedb.org/3"
 OUTPUT_CSV   = Path(__file__).parent / "movies_enriched.csv"
 MAX_CAST     = 5
 MAX_KEYWORDS = 10
-SLEEP_S      = 0.04    # 25 req/s — safely under TMDB 40/s rate limit
+SLEEP_S      = 0.04    # 25 req/s  safely under TMDB 40/s rate limit
 
-# ── Discovery strategies ──────────────────────────────────────────────────────
+#  Discovery strategies 
 # Multiple strategies so results are diverse (not just popular blockbusters)
 DISCOVER_STRATEGIES = [
     # Sort-based
@@ -105,9 +105,7 @@ GENRE_NAMES = {
 }
 
 
-# =============================================================================
-# PHASE 1 — DISCOVER
-# =============================================================================
+# PHASE 1  DISCOVER
 
 def discover_ids(session: requests.Session, existing_ids: set, need: int) -> list:
     """
@@ -139,7 +137,7 @@ def discover_ids(session: requests.Session, existing_ids: set, need: int) -> lis
                     timeout=10,
                 )
                 if res.status_code == 429:
-                    print(f"\n  ⚠️  Rate limited — sleeping 12s...")
+                    print(f"\n  ️  Rate limited — sleeping 12s...")
                     time.sleep(12)
                     continue
                 if res.status_code != 200:
@@ -162,10 +160,10 @@ def discover_ids(session: requests.Session, existing_ids: set, need: int) -> lis
                 time.sleep(SLEEP_S)
 
             except Exception as e:
-                print(f"\n  ⚠️  {label} p{page}: {e}")
+                print(f"\n  ️  {label} p{page}: {e}")
                 break
 
-        print(f"  ✓ {label:<40} total new: {len(new_ids):,}")
+        print(f"   {label:<40} total new: {len(new_ids):,}")
 
     print(f"\n  Discovered {len(new_ids):,} new IDs")
     return new_ids[:need]
@@ -181,9 +179,7 @@ def _label(s: dict) -> str:
     return f"Sort={s.get('sort_by','?')}"
 
 
-# =============================================================================
-# PHASE 2 — ENRICH
-# =============================================================================
+# PHASE 2  ENRICH
 
 def fetch_movie(session: requests.Session, movie_id: int) -> dict | None:
     """Fetch movie details + credits + keywords in one TMDB API call."""
@@ -200,13 +196,13 @@ def fetch_movie(session: requests.Session, movie_id: int) -> dict | None:
         if res.status_code == 404:
             return None
         if res.status_code == 429:
-            print(f"\n  ⚠️  Rate limited — sleeping 12s...")
+            print(f"\n  ️  Rate limited — sleeping 12s...")
             time.sleep(12)
             return fetch_movie(session, movie_id)
         res.raise_for_status()
         return res.json()
     except requests.RequestException as e:
-        print(f"\n  ⚠️  Failed {movie_id}: {e}")
+        print(f"\n  ️  Failed {movie_id}: {e}")
         return None
 
 
@@ -220,7 +216,7 @@ def parse_movie(data: dict) -> dict | None:
     if not data.get("genres"):
         return None
     if (data.get("vote_count") or 0) < 10:
-        return None  # too few votes — unreliable for ML
+        return None  # too few votes  unreliable for ML
 
     genres   = ";".join(g["name"] for g in data.get("genres", []))
     cast     = data.get("credits", {}).get("cast", [])
@@ -275,13 +271,11 @@ def enrich_ids(session: requests.Session, new_ids: list) -> pd.DataFrame:
             skipped += 1
         time.sleep(SLEEP_S)
 
-    print(f"\n  ✓ Enriched: {len(results):,}  |  Skipped (no data): {skipped:,}")
+    print(f"\n   Enriched: {len(results):,}  |  Skipped (no data): {skipped:,}")
     return pd.DataFrame(results) if results else pd.DataFrame()
 
 
-# =============================================================================
-# PHASE 3 — MERGE + SAVE
-# =============================================================================
+# PHASE 3  MERGE + SAVE
 
 def merge_and_save(new_df: pd.DataFrame, existing_df: pd.DataFrame) -> pd.DataFrame:
     """Merge new movies into existing CSV, deduplicate, save."""
@@ -301,9 +295,7 @@ def merge_and_save(new_df: pd.DataFrame, existing_df: pd.DataFrame) -> pd.DataFr
     return final
 
 
-# =============================================================================
 # MAIN
-# =============================================================================
 
 def main():
     parser = argparse.ArgumentParser(
@@ -317,7 +309,7 @@ def main():
 
     # Validate API key
     if not TMDB_API_KEY or TMDB_API_KEY == "YOUR_KEY_HERE":
-        print("\n❌ TMDB_API_KEY not found in your .env file")
+        print("\n TMDB_API_KEY not found in your .env file")
         print("   Add this line to app/.env:")
         print("   TMDB_API_KEY=your_actual_key_here")
         print("   Get a free key at: https://www.themoviedb.org/settings/api")
@@ -343,25 +335,25 @@ def main():
     print(f"{'=' * 55}")
 
     if need <= 0:
-        print(f"\n✅ Already at target ({current:,} movies).")
+        print(f"\n Already at target ({current:,} movies).")
         print(f"   To expand more: python expand_dataset.py --target {args.target + 5000}")
         return
 
     session = requests.Session()
 
-    # Phase 1 — Discover new IDs
+    # Phase 1  Discover new IDs
     new_ids = discover_ids(session, existing_ids, need)
     if not new_ids:
-        print("\n⚠️  No new movie IDs found. Check TMDB_API_KEY.")
+        print("\n️  No new movie IDs found. Check TMDB_API_KEY.")
         return
 
-    # Phase 2 — Enrich
+    # Phase 2  Enrich
     new_df = enrich_ids(session, new_ids)
     if new_df.empty:
-        print("\n⚠️  Enrichment returned no results.")
+        print("\n️  Enrichment returned no results.")
         return
 
-    # Phase 3 — Merge + Save
+    # Phase 3  Merge + Save
     print(f"\n{'─' * 55}")
     print(f"  Phase 3 — Merging and saving...")
     print(f"{'─' * 55}")
@@ -369,7 +361,7 @@ def main():
 
     print(f"""
 {'=' * 55}
-  ✅  COMPLETE
+    COMPLETE
 {'=' * 55}
   Before  : {current:,} movies
   Added   : {len(new_df):,} new movies

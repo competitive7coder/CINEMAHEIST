@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import api from "../../services/api";
 import styled, { keyframes } from "styled-components";
 
-// --- ANIMATIONS ---
+//  ANIMATIONS 
 const bgZoom = keyframes`
   0% { transform: scale(1); }
   50% { transform: scale(1.08); }
@@ -25,7 +25,7 @@ const cardGlow = keyframes`
   50% { box-shadow: 0 40px 100px rgba(255,0,0,0.05); border-color: rgba(255,0,0,0.15); }
 `;
 
-// --- STYLED COMPONENTS ---
+//  STYLED COMPONENTS 
 const PageContainer = styled.div`
   height: 100vh;
   width: 100vw;
@@ -186,7 +186,7 @@ const LinkArea = styled.div`
   }
 `;
 
-// --- SENT STATE ---
+//  SENT STATE 
 const SuccessBox = styled.div`
   text-align: center;
   padding: 20px 0;
@@ -215,7 +215,7 @@ const ForgotPassword = () => {
       await api.post("/auth/forgot-password", { email });
       setSent(true);
     } catch (err) {
-      // Always show success — don't reveal if email exists (security)
+      // Always show success  don't reveal if email exists (security)
       setSent(true);
     } finally {
       setLoading(false);
@@ -265,7 +265,7 @@ const ForgotPassword = () => {
               <h2>Check Inbox</h2>
               <p className="subtitle">Link Dispatched</p>
               <SuccessBox>
-                <div className="icon">📬</div>
+                <div className="icon"></div>
                 <p>
                   If <strong style={{ color: "#fff" }}>{email}</strong> is registered,
                   a reset link has been sent. Check your inbox and spam folder.

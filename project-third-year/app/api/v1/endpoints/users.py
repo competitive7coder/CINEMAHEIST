@@ -7,14 +7,12 @@ from app.models.user import User
 from app.security import get_current_user
 from app.schemas.user import UserOut
 from app.config import settings
-# Redis not used in users.py — watchlist/full always fetches fresh
+# Redis not used in users.py  watchlist/full always fetches fresh
 
 router = APIRouter()
 
 
-# ---------------------------------------------------
 # GET WATCHLIST
-# ---------------------------------------------------
 @router.get("/watchlist", response_model=List[int])
 async def get_watchlist(current_user: User = Depends(get_current_user)):
     """
@@ -23,9 +21,7 @@ async def get_watchlist(current_user: User = Depends(get_current_user)):
     return current_user.watchlist
 
 
-# ---------------------------------------------------
 # ADD TO WATCHLIST
-# ---------------------------------------------------
 @router.post("/watchlist/{movie_id}")
 async def add_to_watchlist(
     movie_id: int,
@@ -43,14 +39,14 @@ async def add_to_watchlist(
 
     current_user.watchlist.append(movie_id)
 
-    # Store timestamp for Contribution 1 — Temporal Watchlist Decay
+    # Store timestamp for Contribution 1  Temporal Watchlist Decay
     if current_user.watchlist_timestamps is None:
         current_user.watchlist_timestamps = {}
     current_user.watchlist_timestamps[str(movie_id)] = datetime.utcnow()
 
     await current_user.save()
 
-    # No recommendation cache to invalidate — recs are never cached
+    # No recommendation cache to invalidate  recs are never cached
 
     return {
         "msg": "Movie added to watchlist",
@@ -58,9 +54,7 @@ async def add_to_watchlist(
     }
 
 
-# ---------------------------------------------------
 # REMOVE FROM WATCHLIST
-# ---------------------------------------------------
 @router.delete("/watchlist/{movie_id}")
 async def remove_from_watchlist(
     movie_id: int,
@@ -81,7 +75,7 @@ async def remove_from_watchlist(
 
     await current_user.save()
 
-    # No recommendation cache to invalidate — recs are never cached
+    # No recommendation cache to invalidate  recs are never cached
 
     return {
         "msg": "Movie removed from watchlist",
@@ -89,22 +83,20 @@ async def remove_from_watchlist(
     }
 
 
-# ---------------------------------------------------
 # GET WATCHLIST WITH FULL MOVIE DATA (Dashboard optimized)
-# ---------------------------------------------------
 @router.get("/watchlist/full")
 async def get_watchlist_full(current_user: User = Depends(get_current_user)):
     ids = current_user.watchlist or []
     if not ids:
         return []
 
-    # Cap at 50 — prevents runaway parallel TMDB calls
+    # Cap at 50  prevents runaway parallel TMDB calls
     ids = ids[:50]
 
     TMDB_BASE = "https://api.themoviedb.org/3"
 
     async def fetch_one(movie_id: int, client: httpx.AsyncClient):
-        # Always fetch fresh — no Redis cache to avoid stale data
+        # Always fetch fresh  no Redis cache to avoid stale data
         try:
             res = await client.get(
                 f"{TMDB_BASE}/movie/{movie_id}",
@@ -130,9 +122,7 @@ async def get_watchlist_full(current_user: User = Depends(get_current_user)):
     return [r for r in results if isinstance(r, dict) and r]
 
 
-# ---------------------------------------------------
 # CHECK WATCHLIST
-# ---------------------------------------------------
 @router.get("/watchlist/check/{movie_id}")
 async def check_watchlist(
     movie_id: int,

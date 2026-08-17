@@ -8,9 +8,9 @@ Combines two models exactly like real OTT platforms:
 
   Layer 2 — Collaborative Filtering (SVD / Matrix Factorization)
     Implicit feedback from Activity collection:
-      added_to_watchlist     → weight 1.0
-      trailer_watch          → weight 0.5
-      removed_from_watchlist → weight -0.5
+      added_to_watchlist      weight 1.0
+      trailer_watch           weight 0.5
+      removed_from_watchlist  weight -0.5
 
   Layer 3 — Hybrid Scoring
     final = (0.4 × content) + (0.6 × collaborative)
@@ -33,10 +33,10 @@ Research Paper Contributions:
 
   Contribution 2 — OTT-Specific Multi-Signal Implicit Feedback (Primary)
     Four OTT-specific implicit signals with confidence weighting:
-      added_to_watchlist → C_ui = 1 + 40 * r_ui  (high confidence)
-      trailer_watch      → C_ui = 1 + 20 * r_ui  (medium confidence)
-      search_click       → C_ui = 1 + 10 * r_ui  (low confidence)
-      removed            → negative signal        (explicit rejection)
+      added_to_watchlist  C_ui = 1 + 40 * r_ui  (high confidence)
+      trailer_watch       C_ui = 1 + 20 * r_ui  (medium confidence)
+      search_click        C_ui = 1 + 10 * r_ui  (low confidence)
+      removed             negative signal        (explicit rejection)
     Trailer watching as implicit signal is novel in OTT literature.
 
   Supporting Components (adopted from literature):
@@ -62,7 +62,7 @@ BASE_DIR      = Path(__file__).resolve().parent
 ENRICHED_CSV  = BASE_DIR / "movies_enriched.csv"
 FALLBACK_CSV  = BASE_DIR / "movies.csv"
 
-# ── Model cache ───────────────────────────────────────────────────────────────
+#  Model cache 
 _df           = None
 _tfidf_matrix = None
 _vectorizer   = None   # CHANGE 5: stored globally for mood TF-IDF reuse
@@ -78,27 +78,27 @@ _collab_movie_index   = None
 CONTENT_WEIGHT   = 0.4
 COLLAB_WEIGHT    = 0.6
 
-# ── CHANGE 4: OTT-specific implicit signals (Contribution 2) ─────────────────
+#  CHANGE 4: OTT-specific implicit signals (Contribution 2) 
 # Base weights for hybrid scoring matrix
 IMPLICIT_WEIGHTS = {
     "added_to_watchlist":     1.0,
-    "trailer_watch":          0.5,   # trailer engagement — novel OTT signal
-    "search_click":           0.3,   # search intent signal — novel OTT signal
+    "trailer_watch":          0.5,   # trailer engagement  novel OTT signal
+    "search_click":           0.3,   # search intent signal  novel OTT signal
     "removed_from_watchlist": -0.5,
 }
 
 # Confidence multipliers for SVD matrix (C_ui = 1 + alpha_k * r_ui)
 # Different alpha per signal type reflects different confidence levels
 SIGNAL_ALPHA = {
-    "added_to_watchlist":     40,   # strongest — explicit save intent
-    "trailer_watch":          20,   # medium — engagement without commitment
-    "search_click":           10,   # weakest — passive interest signal
+    "added_to_watchlist":     40,   # strongest  explicit save intent
+    "trailer_watch":          20,   # medium  engagement without commitment
+    "search_click":           10,   # weakest  passive interest signal
     "removed_from_watchlist":  0,   # handled as negative weight
 }
 
-# ── CHANGE 1: Temporal decay constants (Contribution 1) ──────────────────────
-WATCHLIST_HALF_LIFE = 30     # days — recency half-life for watchlist weighting
-LAMBDA_DECAY        = 0.693  # ln(2) — ensures w=0.5 at exactly T_half days
+#  CHANGE 1: Temporal decay constants (Contribution 1) 
+WATCHLIST_HALF_LIFE = 30     # days  recency half-life for watchlist weighting
+LAMBDA_DECAY        = 0.693  # ln(2)  ensures w=0.5 at exactly T_half days
 
 MOOD_MAP = {
     "intense":     "action thriller war crime suspense",
@@ -109,7 +109,7 @@ MOOD_MAP = {
     "mindblowing": "science fiction mystery mind-bending twist psychological",
 }
 
-# ── Improvement constants ─────────────────────────────────────────────────────
+#  Improvement constants 
 CURRENT_YEAR        = datetime.datetime.now().year
 RECENCY_WINDOW      = 30      # years over which recency fades to 0
 RECENCY_BOOST       = 0.10    # max 10% boost for brand-new movies
@@ -119,9 +119,7 @@ VOTE_WEIGHT         = 0.10    # cold-start: vote_average contribution
 CONTENT_COLD_WEIGHT = 0.70    # cold-start: content similarity contribution
 
 
-# ═════════════════════════════════════════════════════════════════════════════
 # CONTENT MODEL
-# ═════════════════════════════════════════════════════════════════════════════
 
 def _build_feature_string(row: pd.Series) -> str:
     """
@@ -205,10 +203,10 @@ def _temporal_decay_weight(days_ago: float) -> float:
       T_half  = 30 days (half-life — tunable hyperparameter)
 
     Intuition:
-      Added today    → w = 1.00 (full weight)
-      Added 30d ago  → w = 0.50 (half weight)
-      Added 90d ago  → w = 0.13 (minimal weight)
-      Added 180d ago → w = 0.02 (near zero)
+      Added today     w = 1.00 (full weight)
+      Added 30d ago   w = 0.50 (half weight)
+      Added 90d ago   w = 0.13 (minimal weight)
+      Added 180d ago  w = 0.02 (near zero)
 
     This models the recency of user taste — movies added recently
     better reflect current preferences than old watchlist entries.
@@ -224,8 +222,8 @@ def _content_scores(
     Compute content similarity scores against user watchlist.
 
     CONTRIBUTION 1 applied here:
-    If timestamps provided → weighted mean using temporal decay.
-    If timestamps absent   → equal mean (standard baseline).
+    If timestamps provided  weighted mean using temporal decay.
+    If timestamps absent    equal mean (standard baseline).
 
     timestamps: {movie_id (int): datetime} when each movie was added.
     """
@@ -243,7 +241,7 @@ def _content_scores(
             if ts and isinstance(ts, datetime.datetime):
                 days_ago = max(0.0, (now - ts).total_seconds() / 86400)
             else:
-                days_ago = WATCHLIST_HALF_LIFE   # unknown → assume half-life age
+                days_ago = WATCHLIST_HALF_LIFE   # unknown  assume half-life age
             weights.append(_temporal_decay_weight(days_ago))
 
         w = np.array(weights, dtype=float)
@@ -254,7 +252,7 @@ def _content_scores(
             w = np.ones(len(w)) / len(w)
 
         vecs = _tfidf_matrix[indices]
-        # Weighted mean: Σ w_i * v_i
+        # Weighted mean:  w_i * v_i
         avg  = np.asarray(vecs.multiply(w[:, np.newaxis]).sum(axis=0))
     else:
         # Baseline: equal weighting (standard approach)
@@ -262,9 +260,7 @@ def _content_scores(
 
     return cosine_similarity(avg, _tfidf_matrix)[0]
 
-# ═════════════════════════════════════════════════════════════════════════════
-# COLLABORATIVE MODEL — SVD Matrix Factorization
-# ═════════════════════════════════════════════════════════════════════════════
+# COLLABORATIVE MODEL  SVD Matrix Factorization
 
 def build_collaborative_model(activity_logs: list):
     """
@@ -277,9 +273,9 @@ def build_collaborative_model(activity_logs: list):
 
     We extend this with signal-specific alpha values reflecting
     different confidence levels of each OTT implicit signal:
-      added_to_watchlist → alpha=40  (explicit save = high confidence)
-      trailer_watch      → alpha=20  (engagement = medium confidence)
-      search_click       → alpha=10  (interest = low confidence)
+      added_to_watchlist  alpha=40  (explicit save = high confidence)
+      trailer_watch       alpha=20  (engagement = medium confidence)
+      search_click        alpha=10  (interest = low confidence)
 
     This is novel: prior work uses a single alpha for all signals.
     We use per-signal alpha to differentiate OTT interaction types.
@@ -300,7 +296,7 @@ def build_collaborative_model(activity_logs: list):
         if df_a.empty:
             return
 
-        # CONTRIBUTION 2 — per-signal confidence weighting
+        # CONTRIBUTION 2  per-signal confidence weighting
         # C_ui = 1 + alpha_k * r_ui  where alpha_k is signal-specific
         def confidence_weight(row):
             alpha = SIGNAL_ALPHA.get(row["action_type"], 1)
@@ -359,9 +355,7 @@ def _collab_scores(user_id: str) -> "dict | None":
         return None
 
 
-# ═════════════════════════════════════════════════════════════════════════════
 # PUBLIC API
-# ═════════════════════════════════════════════════════════════════════════════
 
 def _recency_boost(release_year: int) -> float:
     """
@@ -439,7 +433,7 @@ def get_recommendations(
     interacted_set  = set(int(m) for m in interacted_ids) if interacted_ids else set()
     excluded        = watchlist_set | interacted_set
 
-    # CONTRIBUTION 1 — temporal decay weighting applied here
+    # CONTRIBUTION 1  temporal decay weighting applied here
     c_scores        = _content_scores(list(watchlist_set), timestamps=watchlist_timestamps)
     col_score_map   = _collab_scores(user_id) if user_id else None
     has_collab      = bool(col_score_map)
@@ -455,23 +449,23 @@ def get_recommendations(
             elif language == "en" and m_lang != "en":
                 continue
 
-        # Improvement 4 — skip already interacted movies
+        # Improvement 4  skip already interacted movies
         if movie_id in excluded:
             continue
 
         c = float(c_scores[idx]) if c_scores is not None else 0.0
 
-        # Improvement 3 — recency boost
+        # Improvement 3  recency boost
         release_year = int(_df.at[idx, "release_year"]) if "release_year" in _df.columns else 0
         r_boost = _recency_boost(release_year)
 
         if has_collab and movie_id in col_score_map:
-            # Full hybrid mode — user has activity history
+            # Full hybrid mode  user has activity history
             col   = max(0.0, min(1.0, (col_score_map[movie_id] + 1) / 2))
             score = (CONTENT_WEIGHT * c + COLLAB_WEIGHT * col) * r_boost
 
         else:
-            # Improvement 1 — cold-start popularity boost
+            # Improvement 1  cold-start popularity boost
             # Blend content similarity + popularity + vote_average
             popularity = float(_df.at[idx, "popularity"])   if "popularity"   in _df.columns else 0.0
             vote       = float(_df.at[idx, "vote_average"]) if "vote_average" in _df.columns else 0.0
@@ -489,7 +483,7 @@ def get_recommendations(
     # Sort before diversity pass so penalty applies to highest scorers first
     results.sort(key=lambda x: x[2], reverse=True)
 
-    # Improvement 2 — genre diversity (operate on top 60 to keep it fast)
+    # Improvement 2  genre diversity (operate on top 60 to keep it fast)
     diverse = _apply_genre_diversity(results[:60], n)
 
     return [
@@ -553,7 +547,7 @@ def get_mood_recommendations(mood: str, n: int = 20) -> list:
     try:
         if _vectorizer is not None:
             # UNIFIED approach: transform mood query through same TF-IDF
-            # vectorizer used for all movies — same vector space
+            # vectorizer used for all movies  same vector space
             mood_vec    = _vectorizer.transform([query])
             raw_scores  = cosine_similarity(mood_vec, _tfidf_matrix)[0]
 
@@ -596,9 +590,7 @@ def get_mood_recommendations(mood: str, n: int = 20) -> list:
         return []
 
 
-# ═════════════════════════════════════════════════════════════════════════════
 # RETRAINING CONTROLS & MONITORING
-# ═════════════════════════════════════════════════════════════════════════════
 import asyncio
 import pickle
 
@@ -684,7 +676,7 @@ async def retrain_recommendation_model():
                     "user_index":  engine_module._collab_user_index,
                     "movie_index": engine_module._collab_movie_index,
                 }, f)
-            log_training_event(f"SVD model successfully cached → {CACHE_FILE.name}")
+            log_training_event(f"SVD model successfully cached  {CACHE_FILE.name}")
         
         log_training_event("Success: Collaborative recommendation SVD model retraining completed!")
         _is_training = False

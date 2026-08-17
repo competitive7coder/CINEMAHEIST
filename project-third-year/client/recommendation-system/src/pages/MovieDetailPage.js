@@ -122,7 +122,7 @@ useEffect(() => {
           ),
         );
       } catch (err) {
-        toast.error("Movie details load nhi ho rha😑");
+        toast.error("Movie details load nhi ho rha");
         setMovie(null);
       } finally {
         setLoading(false);
@@ -146,9 +146,9 @@ useEffect(() => {
       if (res.data?.key) {
         setVideoKey(res.data.key);
         setShowVideoModal(true);
-      } else toast.info("Trailer available nhi ha😒");
+      } else toast.info("Trailer available nhi ha");
     } catch {
-      toast.error("Trailer load nhi ho rha😑");
+      toast.error("Trailer load nhi ho rha");
     }
   };
 
@@ -160,15 +160,15 @@ useEffect(() => {
       if (res.data?.key) {
         setVideoKey(res.data.key);
         setShowVideoModal(true);
-      } else toast.info("Trailer available nhi ha😒");
+      } else toast.info("Trailer available nhi ha");
     } catch {
-      toast.error("Trailer load nhi ho rha😑");
+      toast.error("Trailer load nhi ho rha");
     }
   };
 
   const handleWatchlistToggle = async (movieToToggle) => {
     if (!localStorage.getItem("token")) {
-      toast.warning("Nhi hoga pehele login karo😅", {
+      toast.warning("Nhi hoga pehele login karo", {
         toastId: "watchlist-auth",
       });
       return;
@@ -178,18 +178,18 @@ useEffect(() => {
       if (check.data.isInWatchlist) {
         await api.delete(`/users/watchlist/${movieToToggle.id}`);
         logActivity(movieToToggle, "removed_from_watchlist");
-        toast.success("Remove kardiya😤");
+        toast.success("Remove kardiya");
         setIsInWatchlist(false);
         setWatchlistIds((prev) => prev.filter((id) => id !== movieToToggle.id));
       } else {
         await api.post(`/users/watchlist/${movieToToggle.id}`);
         logActivity(movieToToggle, "added_to_watchlist");
-        toast.success("Add kardiya😎");
+        toast.success("Add kardiya");
         setIsInWatchlist(true);
         setWatchlistIds((prev) => [...prev, movieToToggle.id]);
       }
     } catch {
-      toast.error("Watchlist update nhi ho rha😑");
+      toast.error("Watchlist update nhi ho rha");
     }
   };
 
@@ -516,7 +516,7 @@ useEffect(() => {
             <div className="mdp-poster-wrap">
               <img src={posterUrl} alt={movie.title} className="mdp-poster" />
               {rating && (
-                <div className="mdp-poster-rating">★ {rating} / 10</div>
+                <div className="mdp-poster-rating"> {rating} / 10</div>
               )}
             </div>
 
@@ -524,7 +524,7 @@ useEffect(() => {
             <div>
               {/* Badge row */}
               <div className="mdp-badge-row">
-                <span className="mdp-badge mdp-badge-brand">✦ CinemaHeist</span>
+                <span className="mdp-badge mdp-badge-brand"> CinemaHeist</span>
                 {year && (
                   <span className="mdp-badge mdp-badge-meta">{year}</span>
                 )}
@@ -534,7 +534,7 @@ useEffect(() => {
                   </span>
                 )}
                 {rating && (
-                  <span className="mdp-badge mdp-badge-meta">★ {rating}</span>
+                  <span className="mdp-badge mdp-badge-meta"> {rating}</span>
                 )}
               </div>
 

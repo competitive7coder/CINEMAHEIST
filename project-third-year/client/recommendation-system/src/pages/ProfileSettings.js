@@ -58,12 +58,12 @@ const ProfileSettings = ({
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      toast.error("Phele image select karo😒");
+      toast.error("Phele image select karo");
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("5MB se bada image nhi hoga😒");
+      toast.error("5MB se bada image nhi hoga");
       return;
     }
 
@@ -79,7 +79,7 @@ const ProfileSettings = ({
 
       const res = await api.put("/profile/update-avatar", formData);
 
-      toast.success("Profile picture update kar diya😎");
+      toast.success("Profile picture update kar diya");
       setLocalAvatar(null);
 
       if (onPictureUpdate) {
@@ -110,7 +110,7 @@ const ProfileSettings = ({
     e.preventDefault();
 
     if (!nameData.name.trim()) {
-      toast.error("Name kaise empty hoga🤣");
+      toast.error("Name kaise empty hoga");
       return;
     }
 
@@ -121,7 +121,7 @@ const ProfileSettings = ({
 
       const res = await api.put("/profile/update-name", formData);
 
-      toast.success("Name update kar diya😎");
+      toast.success("Name update kar diya");
 
       if (onNameUpdate) {
         onNameUpdate(res.data.username);
@@ -151,7 +151,7 @@ const ProfileSettings = ({
 
       const res = await api.put("/profile/bio", formData);
 
-      toast.success("Bio update kar diya😎");
+      toast.success("Bio update kar diya");
 
       if (onBioUpdate) {
         onBioUpdate(res.data.bio);
@@ -205,7 +205,7 @@ const ProfileSettings = ({
   const deleteAccount = async () => {
 
     if (!deletePassword) {
-      toast.error("Password enter karo😒");
+      toast.error("Password enter karo");
       return;
     }
 
@@ -213,36 +213,31 @@ const ProfileSettings = ({
 
       setIsDeleting(true);
 
-      // 1️⃣ Verify password FIRST — before meme plays
       await api.post(
         "/profile/verify-password",
         new URLSearchParams({ password: deletePassword }),
         { headers: { "Content-Type": "application/x-www-form-urlencoded" } }
       );
 
-      // 2️⃣ Password correct — close modal, show meme animation
       setDeleteStep(0);
       setShowMeme(true);
 
-      // 3️⃣ Wait 5s while meme plays
       await new Promise((resolve) => setTimeout(resolve, 5000));
 
-      // 4️⃣ Actually delete
       await api.delete("/profile/delete-account", {
         data: new URLSearchParams({ password: deletePassword }),
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       });
 
-      toast.success("Account deleted. Goodbye forever 💀");
+      toast.success("Account deleted. Goodbye forever ");
       localStorage.removeItem("token");
       window.location.href = "/";
 
     } catch (err) {
 
-      // Wrong password or delete failed — hide meme, back to password step
       setShowMeme(false);
       setDeleteStep(2);
-      toast.error(err.response?.data?.detail || "Wrong password. Nice try 😏");
+      toast.error(err.response?.data?.detail || "Wrong password. Nice try ");
 
     } finally {
 
@@ -468,7 +463,7 @@ const ProfileSettings = ({
             </p>
 
             <p style={{ color: "#ef4444", fontWeight: 600, marginBottom: "1rem", fontSize: "0.9rem" }}>
-              Bro really thought we'd miss him 💀
+              Bro really thought we'd miss him 
             </p>
 
             <Form.Control
@@ -509,11 +504,11 @@ const ProfileSettings = ({
       {showMeme && (
         <div style={memeOverlay}>
           <div style={memeBox}>
-            <div style={{ fontSize: "4rem", marginBottom: "0.5rem" }}>💀</div>
+            <div style={{ fontSize: "4rem", marginBottom: "0.5rem" }}></div>
             <p style={{ fontSize: "1.4rem", fontWeight: 800, color: "#fff", margin: 0 }}>
               Bro really thought we'd miss him
             </p>
-            <p style={{ fontSize: "2.5rem", margin: "0.5rem 0 0" }}>💀</p>
+            <p style={{ fontSize: "2.5rem", margin: "0.5rem 0 0" }}></p>
             <div style={memeBar}>
               <div style={memeBarFill} />
             </div>

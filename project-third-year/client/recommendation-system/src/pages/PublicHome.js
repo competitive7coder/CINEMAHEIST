@@ -434,7 +434,7 @@ const PublicHome = ({ setIsLoggedIn }) => {
       {/* Ticker */}
       <div className="ph-ticker-container">
         <div className="ph-ticker-bar">
-          <span className="ph-ticker-label">⚡ Trending</span>
+          <span className="ph-ticker-label"> Trending</span>
           <div className="ph-ticker-track">
             <div className="ph-ticker-inner">
               {TICKER_TITLES.map((title, i) => (
@@ -474,7 +474,7 @@ const PublicHome = ({ setIsLoggedIn }) => {
             <div className="inner-content">
               <div className="ui-label">NETWORK_STATUS: <span>ENCRYPTED</span> ID: 8829-X</div>
               <div className="ph-trailer-card">
-                <div className="play-icon" aria-hidden="true">▶</div>
+                <div className="play-icon" aria-hidden="true"></div>
               </div>
               <div style={{ marginTop: 20, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div>

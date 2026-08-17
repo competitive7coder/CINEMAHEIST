@@ -51,7 +51,7 @@ const sections = [
     title: "Your Rights",
     content: [
       { heading: "Access", text: "You can view all data we hold about you by visiting your profile page." },
-      { heading: "Deletion", text: "You can delete your account and all associated data at any time from Settings → Delete Account." },
+      { heading: "Deletion", text: "You can delete your account and all associated data at any time from Settings  Delete Account." },
       { heading: "Correction", text: "You can update your profile information at any time from your profile settings." },
     ]
   },
@@ -109,7 +109,7 @@ const PrivacyPolicy = () => (
     `}</style>
 
     <div className="legal-hero">
-      <div className="legal-badge">🔒 Privacy</div>
+      <div className="legal-badge"> Privacy</div>
       <h1>Privacy <span>Policy</span></h1>
       <p>We believe in transparency. Here's exactly what data we collect, why we collect it, and how it's used.</p>
       <div className="legal-updated">Last updated: March 2026</div>

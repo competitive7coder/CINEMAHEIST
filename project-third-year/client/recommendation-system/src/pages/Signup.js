@@ -4,7 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify'; 
 import styled, { keyframes } from "styled-components";
 
-// --- ANIMATIONS ---
+//  ANIMATIONS 
 const bgZoom = keyframes`
   0% { transform: scale(1); }
   50% { transform: scale(1.08); }
@@ -21,7 +21,7 @@ const slideUp = keyframes`
   to { opacity: 1; transform: translateY(0); filter: blur(0); }
 `;
 
-// --- STYLED COMPONENTS ---
+//  STYLED COMPONENTS 
 const PageContainer = styled.div`
   height: 100vh;
   width: 100vw;
@@ -240,7 +240,7 @@ const Signup = () => {
     const onSubmit = async e => {
         e.preventDefault();
         if (password !== retypePassword) {
-            toast.error('Password different ho gya🤣');
+            toast.error('Password different ho gya');
             return;
         }
 
@@ -250,7 +250,7 @@ const Signup = () => {
             toast.success(res.data.msg || "Identity Created!");
             setTimeout(() => navigate('/login'), 2000);
         } catch (err) {
-            toast.error(err.response?.data?.detail || err.response?.data?.msg || 'Registration nhi ho rha🫠');
+            toast.error(err.response?.data?.detail || err.response?.data?.msg || 'Registration nhi ho rha');
         } finally {
             setLoading(false);
         }

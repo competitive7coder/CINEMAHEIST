@@ -5,7 +5,6 @@ import App from './App';
 // Critical CSS only (no JS bloat)
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-// 
 // Root initialization
 const container = document.getElementById('root');
 const root = ReactDOM.createRoot(container);

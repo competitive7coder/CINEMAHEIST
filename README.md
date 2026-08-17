@@ -1,8 +1,8 @@
-# 🎬 StreamHub — OTT Movie Recommendation Platform
+# 🎬 CinemaHeist — OTT Movie Recommendation Platform
 
 <div align="center">
 
-![StreamHub](https://img.shields.io/badge/StreamHub-OTT%20Platform-blue?style=for-the-badge&logo=netflix&logoColor=white)
+![CinemaHeist](https://img.shields.io/badge/CinemaHeist-OTT%20Platform-blue?style=for-the-badge&logo=netflix&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.13-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.104-009688?style=for-the-badge&logo=fastapi&logoColor=white)
@@ -21,7 +21,7 @@
 
 ## 🌟 Overview
 
-StreamHub is a full-stack OTT recommendation system built from scratch with a novel machine learning engine that goes beyond conventional approaches:
+CinemaHeist is a full-stack OTT recommendation system built from scratch with a novel machine learning engine that goes beyond conventional approaches:
 
 - **Remembers recency** — movies added to your watchlist recently matter more than old ones
 - **Understands behavior** — watching a trailer signals different intent than just searching
@@ -44,11 +44,12 @@ StreamHub is a full-stack OTT recommendation system built from scratch with a no
 | 👑 Admin Panel | Command center for user directory administration and global real-time event monitoring |
 | 📊 Activity Feed | Real-time activity updates via Socket.IO |
 | 🌙 Mood Filter | Recommendations by mood (intense, happy, romantic, scary) |
-| 🏆 Genre Pages | Browse movies by genre with infinite scroll |
-| 🔔 Notifications | Toast notifications for all user actions |
+| 🏆 Genre Pages | Browse movies by genre using clean URL slugs (e.g., `/genre/comedy` instead of numeric IDs) with infinite scroll |
+| 📊 Advanced Analytics | Personal dashboard with custom responsive SVG donut and trend line charts representing watchlist category distributions and weekly timelines |
+| 🔔 Notification Center | Global header notification bell with unread badge count, live WebSockets-backed alerts, dynamic seeder, and administrative delete pathways |
 | 📱 Responsive | Works on desktop, tablet, and mobile |
 | 🔑 Password Reset | Forgot password with email OTP flow via Brevo |
-| 📈 Dashboard | Personal dashboard with recommendations and activity |
+| 📈 Dashboard | Personal dashboard with recommendations, activity feeds, and analytics modules |
 | 🎥 Watch Modal | Watch movies with WatchMovieModal component |
 | 📱 PWA Support | Installable mobile/desktop app wrapper with custom logos and offline caching |
 
@@ -58,7 +59,7 @@ StreamHub is a full-stack OTT recommendation system built from scratch with a no
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
-│                         StreamHub                                │
+│                        CinemaHeist                               │
 │                                                                  │
 │  ┌─────────────────┐    ┌─────────────────┐    ┌─────────────┐  │
 │  │   Frontend      │    │    Backend      │    │  ML Engine  │  │
@@ -321,7 +322,7 @@ npm start
 
 ### 📱 Progressive Web App (PWA)
 
-StreamHub is configured as a fully installable mobile and desktop application featuring:
+CinemaHeist is configured as a fully installable mobile and desktop application featuring:
 
 *   **🖥️ Standalone Interface**: Opens in its own dedicated window without browser toolbars, navigation buttons, or URL bars, functioning exactly like a native app.
 *   **⚡ Instant Loading (App Shell)**: Caches static code locally (HTML, CSS, JS) so the application loads instantly, even on slow connections.
@@ -340,7 +341,7 @@ python expand_dataset.py --target 10000
 # 2. Download MovieLens 25M → https://grouplens.org/datasets/movielens/25m/
 #    Place ratings.csv + links.csv in app/ml/movielens/
 
-# 3. Convert to StreamHub format
+# 3. Convert to CinemaHeist format
 python movielens_to_streamhub.py
 ```
 

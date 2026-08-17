@@ -33,6 +33,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
   const [userName, setUserName] = useState("");
   const [userProfilePicture, setUserProfilePicture] = useState("");
   const [userBio, setUserBio] = useState("");
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const [watchlistMovies, setWatchlistMovies] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
@@ -204,6 +205,7 @@ const Dashboard = ({ setIsLoggedIn }) => {
           userRes.data.profilePicture || userRes.data.profile_picture || "",
         );
         setUserBio(userRes.data.bio || "");
+        setIsAdmin(!!userRes.data.is_admin);
 
         //  Full movie objects returned directly  no N individual calls
         setWatchlistMovies(watchlistRes.data || []);
@@ -375,12 +377,17 @@ const Dashboard = ({ setIsLoggedIn }) => {
               { id: "history", label: "Activity", icon: "bi-clock-history" },
               { id: "analytics", label: "Analytics", icon: "bi-graph-up-arrow" },
               { id: "settings", label: "Settings", icon: "bi-sliders" },
+              ...(isAdmin ? [{ id: "admin", label: "Admin Panel", icon: "bi-shield-lock", isRoute: true }] : [])
             ].map((item) => (
               <button
                 key={item.id}
                 onClick={() => {
                   if (item.isRoute) {
-                    navigate("/");
+                    if (item.id === "admin") {
+                      navigate("/admin");
+                    } else {
+                      navigate("/");
+                    }
                   } else {
                     setActiveTab(item.id);
                     setSidebarOpen(false);
@@ -824,12 +831,17 @@ const Dashboard = ({ setIsLoggedIn }) => {
             { id: "history", label: "Activity", icon: "bi-clock-history" },
             { id: "analytics", label: "Stats", icon: "bi-graph-up-arrow" },
             { id: "settings", label: "Settings", icon: "bi-sliders" },
+            ...(isAdmin ? [{ id: "admin", label: "Admin", icon: "bi-shield-lock", isRoute: true }] : [])
           ].map((item) => (
             <button
               key={item.id}
               onClick={() => {
                 if (item.isRoute) {
-                  navigate("/");
+                  if (item.id === "admin") {
+                    navigate("/admin");
+                  } else {
+                    navigate("/");
+                  }
                 } else {
                   setActiveTab(item.id);
                   if (item.id === "recommendations") fetchRecommendations();

@@ -26,6 +26,22 @@ const AdminDashboard = () => {
   const [broadcastMsg, setBroadcastMsg] = useState("");
   const [broadcastLink, setBroadcastLink] = useState("");
   const [sendingBroadcast, setSendingBroadcast] = useState(false);
+  const [broadcastedNotifications, setBroadcastedNotifications] = useState([]);
+
+  const fetchBroadcastedNotifications = async () => {
+    try {
+      const res = await api.get("/notifications");
+      setBroadcastedNotifications(res.data || []);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab === "broadcast" && currentUser) {
+      fetchBroadcastedNotifications();
+    }
+  }, [activeTab, currentUser]);
 
   const handleBroadcastSubmit = async (e) => {
     e.preventDefault();
@@ -41,11 +57,23 @@ const AdminDashboard = () => {
       toast.success("Broadcast message sent successfully!");
       setBroadcastMsg("");
       setBroadcastLink("");
+      await fetchBroadcastedNotifications();
     } catch (err) {
       console.error(err);
       toast.error("Failed to send broadcast");
     } finally {
       setSendingBroadcast(false);
+    }
+  };
+
+  const handleDeleteNotification = async (id) => {
+    try {
+      await api.delete(`/notifications/${id}`);
+      toast.success("Notification deleted successfully!");
+      setBroadcastedNotifications(prev => prev.filter(n => n.id !== id));
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete notification");
     }
   };
 
@@ -914,6 +942,201 @@ const AdminDashboard = () => {
                     </div>
                   )}
                   <div ref={consoleBottomRef} />
+                  </div>
+                ) : (
+                  <div className="table-responsive">
+                    <Table className="custom-table" variant="dark">
+                      <thead>
+                        <tr>
+                          <th>Profile</th>
+                          <th>Username</th>
+                          <th>Email Address</th>
+                          <th>Role</th>
+                          <th className="text-center">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredUsers.map((u) => (
+                          <tr key={u.id}>
+                            <td>
+                              <img
+                                src={u.profile_picture || "https://placehold.co/40"}
+                                alt={u.username}
+                                className="user-avatar"
+                              />
+                            </td>
+                            <td className="fw-semibold text-white">{u.username}</td>
+                            <td>{u.email}</td>
+                            <td>
+                              {u.is_admin ? (
+                                <Badge bg="danger" className="text-uppercase" style={{ fontSize: "0.65rem", padding: "5px 8px" }}>Admin</Badge>
+                              ) : (
+                                <Badge bg="secondary" className="text-uppercase" style={{ fontSize: "0.65rem", padding: "5px 8px" }}>User</Badge>
+                              )}
+                            </td>
+                            <td>
+                              <div className="d-flex gap-2 justify-content-center">
+                                <Button
+                                  size="sm"
+                                  variant={u.is_admin ? "outline-warning" : "outline-success"}
+                                  onClick={() => handleToggleAdmin(u)}
+                                  disabled={u.id === currentUser?.id}
+                                  title={u.is_admin ? "Demote to User" : "Promote to Admin"}
+                                  style={{ borderRadius: "8px", display: "flex", alignItems: "center", gap: 5 }}
+                                >
+                                  {u.is_admin ? <BsShieldSlash /> : <BsShieldCheck />}
+                                  <span>{u.is_admin ? "Demote" : "Promote"}</span>
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="outline-danger"
+                                  onClick={() => handleDeleteUser(u)}
+                                  disabled={u.id === currentUser?.id}
+                                  title="Delete Account"
+                                  style={{ borderRadius: "8px", display: "flex", alignItems: "center", gap: 5 }}
+                                >
+                                  <BsTrash />
+                                  <span>Delete</span>
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </Table>
+                  </div>
+                )}
+              </div>
+            </Col>
+
+            {/* Real-time Activity feed */}
+            <Col lg={4}>
+              <div className="glass-card">
+                <h4 className="fw-bold mb-4 text-white d-flex align-items-center gap-2" style={{ position: "relative" }}>
+                  <BsCpu className="text-primary" />
+                  <span>Live Event Stream</span>
+                  <span className="live-pulse" style={{
+                    width: "8px",
+                    height: "8px",
+                    borderRadius: "50%",
+                    background: "#10b981",
+                    display: "inline-block",
+                    boxShadow: "0 0 10px #10b981",
+                    marginLeft: "8px",
+                    animation: "pulse-green 2s infinite"
+                  }} />
+                </h4>
+                {loadingActivity ? (
+                  <div className="text-center py-5">
+                    <Spinner animation="border" variant="primary" />
+                  </div>
+                ) : (
+                  <div className="activity-feed-scroll">
+                    {activities.length > 0 ? (
+                      activities.map((act) => {
+                        let typeClass = "act-watch";
+                        let actionDesc = "viewed movie";
+                        
+                        if (act.action_type === "added_to_watchlist") {
+                          typeClass = "act-add";
+                          actionDesc = "added to watchlist";
+                        } else if (act.action_type === "removed_from_watchlist") {
+                          typeClass = "act-rem";
+                          actionDesc = "removed from watchlist";
+                        } else if (act.action_type === "trailer_watch") {
+                          typeClass = "act-watch";
+                          actionDesc = "watched trailer of";
+                        }
+
+                        return (
+                          <div key={act.id} className="activity-item">
+                            <div className={`act-icon ${typeClass}`} />
+                            <div className="flex-grow-1">
+                              <span className="fw-bold text-white d-block" style={{ fontSize: "0.8rem" }}>
+                                {act.username}
+                              </span>
+                              <span className="text-muted" style={{ fontSize: "0.75rem" }}>
+                                {actionDesc} <span className="text-light fw-medium">"{act.movie_title}"</span>
+                              </span>
+                            </div>
+                            <span className="text-muted" style={{ fontSize: "0.65rem", flexShrink: 0 }}>
+                              {new Date(act.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                            </span>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div className="text-center py-5 text-muted">No recent activities logged in system.</div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </Col>
+          </Row>
+        )}
+
+        {activeTab === "ml" && (
+          <Row className="g-4">
+            {/* ML Engine controls */}
+            <Col lg={12}>
+              <div className="glass-card">
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                  <div>
+                    <h4 className="fw-bold m-0 text-white"> SVD Collaborative Training</h4>
+                    <span className="text-muted" style={{ fontSize: "0.8rem" }}>Configure and execute recommender matrix retrains</span>
+                  </div>
+                  <Button
+                    variant="danger"
+                    disabled={mlStatus.is_training}
+                    onClick={handleRetrainSvd}
+                    style={{ borderRadius: "30px", fontWeight: "700" }}
+                  >
+                    {mlStatus.is_training ? (
+                      <>
+                        <Spinner size="sm" animation="border" className="me-2" />
+                        <span>Training in progress...</span>
+                      </>
+                    ) : (
+                      <span>Retrain SVD Model</span>
+                    )}
+                  </Button>
+                </div>
+
+                <div className="mb-4 d-flex align-items-center gap-3">
+                  <span className="fw-semibold text-muted text-uppercase" style={{ fontSize: "0.7rem", letterSpacing: "1px" }}>Engine Status:</span>
+                  {mlStatus.is_training ? (
+                    <Badge bg="warning" className="text-dark py-2 px-3 fw-bold" style={{ borderRadius: "6px" }}>
+                      ACTIVE TRAINING
+                    </Badge>
+                  ) : (
+                    <Badge bg="success" className="py-2 px-3 fw-bold" style={{ borderRadius: "6px" }}>
+                      IDLE (READY)
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Console Terminal */}
+                <div className="terminal-box">
+                  {mlStatus.logs && mlStatus.logs.length > 0 ? (
+                    mlStatus.logs.map((log, idx) => (
+                      <div key={idx} className="terminal-line">
+                        <span className="terminal-prompt">$</span>
+                        <span>{log}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="terminal-line text-muted">
+                      <span className="terminal-prompt">$</span>
+                      <span>Ready to trigger training. SVD matrix parameters will compile here...</span>
+                    </div>
+                  )}
+                  {mlStatus.is_training && (
+                    <div className="terminal-line">
+                      <span className="terminal-prompt">$</span>
+                      <span className="text-warning">Waiting for next step compiling... █</span>
+                    </div>
+                  )}
+                  <div ref={consoleBottomRef} />
                 </div>
               </div>
             </Col>
@@ -922,7 +1145,7 @@ const AdminDashboard = () => {
 
         {activeTab === "broadcast" && (
           <Row className="g-4">
-            <Col lg={12}>
+            <Col lg={6}>
               <div className="glass-card">
                 <h4 className="fw-bold text-white mb-2">Send Broadcast Message</h4>
                 <p className="text-muted mb-4" style={{ fontSize: "0.85rem" }}>
@@ -967,6 +1190,40 @@ const AdminDashboard = () => {
                     {sendingBroadcast ? "Sending Broadcast..." : "Send Live Broadcast"}
                   </Button>
                 </Form>
+              </div>
+            </Col>
+
+            <Col lg={6}>
+              <div className="glass-card" style={{ maxHeight: "430px", overflowY: "auto" }}>
+                <h4 className="fw-bold text-white mb-2">Active Notifications</h4>
+                <p className="text-muted mb-4" style={{ fontSize: "0.85rem" }}>
+                  Currently active system alerts visible to users. Click the trash icon to delete them.
+                </p>
+
+                <div className="d-flex flex-column gap-3">
+                  {broadcastedNotifications.length > 0 ? (
+                    broadcastedNotifications.map((n) => (
+                      <div key={n.id} className="d-flex align-items-center justify-content-between p-3" style={{ background: "rgba(255, 255, 255, 0.03)", border: "1px solid rgba(255,255,255,0.05)", borderRadius: "8px" }}>
+                        <div style={{ flex: 1, marginRight: "10px" }}>
+                          <span className="text-white d-block" style={{ fontSize: "0.85rem", fontWeight: "500" }}>{n.message}</span>
+                          {n.link && <span className="text-muted d-block" style={{ fontSize: "0.75rem" }}>Link: {n.link}</span>}
+                          <span className="text-muted" style={{ fontSize: "0.65rem" }}>
+                            {new Date(n.timestamp).toLocaleDateString()} {new Date(n.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                        <Button
+                          variant="link"
+                          onClick={() => handleDeleteNotification(n.id)}
+                          style={{ color: "#ef4444", padding: "0" }}
+                        >
+                          <BsTrash size={16} />
+                        </Button>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-5 text-muted">No active notifications found.</div>
+                  )}
+                </div>
               </div>
             </Col>
           </Row>

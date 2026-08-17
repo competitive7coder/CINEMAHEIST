@@ -91,3 +91,25 @@ async def broadcast_notification(
     await sio.emit("new_notification", payload)
     
     return {"msg": "Notification broadcasted successfully", "notification": payload}
+
+
+@router.delete("/{notification_id}")
+async def delete_notification(
+    notification_id: str,
+    current_user: User = Depends(get_current_user)
+):
+    if not current_user.is_admin:
+        raise HTTPException(status_code=403, detail="Admin privileges required")
+        
+    from bson import ObjectId
+    try:
+        n = await Notification.get(ObjectId(notification_id))
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid notification ID")
+        
+    if not n:
+        raise HTTPException(status_code=404, detail="Notification not found")
+        
+    await n.delete()
+    await sio.emit("delete_notification", {"id": notification_id})
+    return {"msg": "Notification deleted successfully"}

@@ -740,6 +740,10 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
       setNotifications(prev => [payload, ...prev]);
     });
 
+    socket.on("delete_notification", (payload) => {
+      setNotifications(prev => prev.filter(n => n.id !== payload.id));
+    });
+
     return () => {
       socket.disconnect();
     };

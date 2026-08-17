@@ -3,6 +3,7 @@ from beanie import init_beanie
 from app.models.user import User
 from app.models.activity import Activity
 from app.models.feedback import Feedback
+from app.models.notification import Notification
 from app.config import settings
 
 async def init_db():
@@ -30,7 +31,8 @@ async def init_db():
         document_models=[
             User,
             Activity,
-            Feedback
+            Feedback,
+            Notification
         ]
     )
     

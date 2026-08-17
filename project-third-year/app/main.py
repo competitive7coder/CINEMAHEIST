@@ -41,6 +41,33 @@ async def lifespan(app: FastAPI):
     # Pre-warm homepage cache + train ML model in background
     from app.api.v1.endpoints.movies import get_homepage_sections
     from app.ml.engine import build_collaborative_model
+    from app.models.notification import Notification
+
+    async def seed_trending_notification():
+        await asyncio.sleep(5)
+        try:
+            res = await app.state.http_client.get(
+                "/trending/movie/day",
+                params={"api_key": settings.TMDB_API_KEY}
+            )
+            if res.status_code == 200:
+                data = res.json()
+                results = data.get("results", [])
+                if results:
+                    top_movie = results[0]
+                    title = top_movie.get("title") or top_movie.get("original_title")
+                    if title:
+                        default_msg = f"{title} is now playing in theaters! watch it now"
+                        exists = await Notification.find_one(Notification.message == default_msg)
+                        if not exists:
+                            n = Notification(
+                                message=default_msg,
+                                link=f"/movie/{top_movie.get('id')}"
+                            )
+                            await n.insert()
+                            print(f"Seeded dynamic trending notification: {title}")
+        except Exception as e:
+            print(f"Failed to seed trending notification: {e}")
 
     async def warm_cache():
         await asyncio.sleep(2)  # wait for app.state.http_client to be ready
@@ -108,6 +135,7 @@ async def lifespan(app: FastAPI):
 
     asyncio.create_task(warm_cache())
     asyncio.create_task(train_ml())
+    asyncio.create_task(seed_trending_notification())
 
     async def keep_db_warm():
         # Ping MongoDB every 4 minutes  prevents Atlas free tier idle timeout

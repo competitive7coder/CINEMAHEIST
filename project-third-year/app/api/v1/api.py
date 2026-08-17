@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import auth, movies, users, profile, activity, feedback, stream, admin
+from app.api.v1.endpoints import auth, movies, users, profile, activity, feedback, stream, admin, notifications
 
 api_router = APIRouter()
 
@@ -12,4 +12,5 @@ api_router.include_router(activity.router, prefix="/activity", tags=["Activity"]
 api_router.include_router(feedback.router, prefix="/feedback", tags=["Feedback"])
 api_router.include_router(stream.router,  tags=["Stream"])
 api_router.include_router(admin.router, prefix="/admin", tags=["Admin"])
+api_router.include_router(notifications.router, prefix="/notifications", tags=["Notifications"])
     

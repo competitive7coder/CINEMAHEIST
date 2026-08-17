@@ -1,6 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import styled, { keyframes, css } from 'styled-components';
+import { io } from 'socket.io-client';
+import { toast } from 'react-toastify';
+import api from '../../services/api';
+
+const FaBell = ({ size = 14 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+  </svg>
+);
 
 const FaSearch       = () => <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round"/></svg>
 const FaUser         = ({ size = 14 }) => <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
@@ -677,6 +686,84 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
   const userRef     = useRef(null);
   const megaRef     = useRef(null);
 
+  const [notifications, setNotifications] = useState([]);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const notifRef = useRef(null);
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (notifRef.current && !notifRef.current.contains(e.target)) {
+        setNotifOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    const fetchNotifications = async () => {
+      try {
+        const res = await api.get("/notifications");
+        setNotifications(res.data || []);
+      } catch (err) {
+        console.error("Failed to fetch notifications:", err);
+      }
+    };
+    fetchNotifications();
+  }, [isLoggedIn]);
+
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    const socketUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
+    const socket = io(socketUrl, {
+      transports: ["websocket"],
+      reconnectionAttempts: 5,
+    });
+
+    socket.on("connect", () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        try {
+          const userId = JSON.parse(atob(token.split(".")[1])).sub;
+          socket.emit("join_room", { userId });
+        } catch {}
+      }
+    });
+
+    socket.on("new_notification", (payload) => {
+      toast.info(payload.message, {
+        position: "top-right",
+        theme: "dark",
+        autoClose: 5000,
+      });
+      setNotifications(prev => [payload, ...prev]);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [isLoggedIn]);
+
+  const handleNotifClick = async (notif) => {
+    if (!notif.is_read) {
+      try {
+        await api.put(`/notifications/read/${notif.id}`);
+        setNotifications(prev =>
+          prev.map(n => n.id === notif.id ? { ...n, is_read: true } : n)
+        );
+      } catch (err) {
+        console.error("Failed to mark notification as read:", err);
+      }
+    }
+    setNotifOpen(false);
+    if (notif.link) {
+      navigate(notif.link);
+    }
+  };
+
+  const unreadCount = notifications.filter(n => !n.is_read).length;
+
   useEffect(() => {
     const onScroll = () => {
       const currentY = window.scrollY;
@@ -782,7 +869,42 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
           </SearchWrapper>
 
           {isLoggedIn ? (
-            <UserMenuWrapper ref={userRef}>
+            <>
+              <NotifMenuWrapper ref={notifRef}>
+                <NotifBtn onClick={() => setNotifOpen(v => !v)} aria-label="Notifications">
+                  <FaBell size={15} />
+                  {unreadCount > 0 && <NotifBadge>{unreadCount}</NotifBadge>}
+                </NotifBtn>
+                {notifOpen && (
+                  <NotifDropdown>
+                    <NotifHeader>
+                      <span>Notifications</span>
+                      {unreadCount > 0 && (
+                        <span style={{ fontSize: '0.75rem', color: '#3a7bd5', cursor: 'pointer' }} onClick={async () => {
+                          try {
+                            await Promise.all(notifications.filter(n => !n.is_read).map(n => api.put(`/notifications/read/${n.id}`)));
+                            setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+                          } catch (err) {
+                            console.error(err);
+                          }
+                        }}>Mark all as read</span>
+                      )}
+                    </NotifHeader>
+                    {notifications.length === 0 ? (
+                      <EmptyNotif>No notifications yet</EmptyNotif>
+                    ) : (
+                      notifications.map(n => (
+                        <NotifItem key={n.id} isRead={n.is_read} onClick={() => handleNotifClick(n)}>
+                          <NotifText isRead={n.is_read}>{n.message}</NotifText>
+                          <NotifTime>{new Date(n.timestamp).toLocaleDateString()} {new Date(n.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</NotifTime>
+                        </NotifItem>
+                      ))
+                    )}
+                  </NotifDropdown>
+                )}
+              </NotifMenuWrapper>
+
+              <UserMenuWrapper ref={userRef}>
               <UserBtn onClick={() => setUserOpen(v => !v)}>
                 <div className="avatar"><FaUser size={11} /></div>
                 My Account
@@ -803,6 +925,7 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
                 </UserDropdown>
               )}
             </UserMenuWrapper>
+          </>
           ) : (
             <>
               <LoginBtn to="/login">Login</LoginBtn>
@@ -899,5 +1022,107 @@ const Navbar = ({ isLoggedIn, setIsLoggedIn }) => {
     </>
   );
 };
+
+const NotifMenuWrapper = styled.div`
+  position: relative;
+  margin-right: 15px;
+`;
+
+const NotifBtn = styled.button`
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 6px;
+  position: relative;
+  transition: all 0.2s;
+
+  &:hover {
+    color: #fff;
+    transform: scale(1.05);
+  }
+`;
+
+const NotifBadge = styled.span`
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #ef4444;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const NotifDropdown = styled.div`
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 320px;
+  max-height: 400px;
+  overflow-y: auto;
+  background: rgba(15, 17, 26, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  padding: 10px 0;
+  z-index: 1000;
+  animation: ${fadeSlideDown} 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+`;
+
+const NotifHeader = styled.div`
+  padding: 8px 16px 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fff;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const NotifItem = styled.div`
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  cursor: pointer;
+  transition: all 0.2s;
+  background: ${props => props.isRead ? 'transparent' : 'rgba(58, 123, 213, 0.05)'};
+
+  &:hover {
+    background: rgba(255,255,255,0.03);
+  }
+`;
+
+const NotifText = styled.span`
+  font-size: 0.85rem;
+  color: ${props => props.isRead ? '#999' : '#fff'};
+  line-height: 1.4;
+`;
+
+const NotifTime = styled.span`
+  font-size: 0.7rem;
+  color: #555;
+`;
+
+const EmptyNotif = styled.div`
+  padding: 30px 16px;
+  text-align: center;
+  color: #555;
+  font-size: 0.85rem;
+`;
 
 export default Navbar;

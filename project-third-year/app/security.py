@@ -1,3 +1,4 @@
+import asyncio
 from datetime import datetime, timedelta
 from typing import Any, Union
 from jose import jwt, JWTError
@@ -34,9 +35,28 @@ def create_refresh_token(subject: Union[str, Any]) -> str:
     return jwt.encode(to_encode, settings.JWT_SECRET, algorithm=settings.ALGORITHM)
 
 def get_password_hash(password: str) -> str:
+    # Synchronous version — used only where async is not possible
     return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt(rounds=10)).decode("utf-8")
 
+async def get_password_hash_async(password: str) -> str:
+    # Runs bcrypt in a thread pool so the event loop stays free
+    loop = asyncio.get_running_loop()  # For Python 3.10+
+    hashed = await loop.run_in_executor(
+        None,
+        lambda: bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt(rounds=10)).decode("utf-8")
+    )
+    return hashed
+
+async def verify_password_async(plain_password: str, hashed_password: str) -> bool:
+    # Same for login verification
+    loop = asyncio.get_running_loop()
+    return await loop.run_in_executor(
+        None,
+        lambda: bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
+    )
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
+    # Synchronous version kept for backward compatibility
     return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
 
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> User:

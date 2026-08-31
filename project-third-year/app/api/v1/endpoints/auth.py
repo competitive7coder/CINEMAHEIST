@@ -7,7 +7,7 @@ from slowapi.util import get_remote_address
 from app.models.user import User
 from app.schemas.user import UserCreate, UserOut
 from app.schemas.token import Token
-from app.security import get_password_hash, verify_password, create_access_token, create_refresh_token
+from app.security import get_password_hash, get_password_hash_async, verify_password, verify_password_async, create_access_token, create_refresh_token
 from app.config import settings
 from jose import jwt, JWTError
 from app.utils.email import send_reset_email
@@ -46,7 +46,7 @@ async def register(request_data: dict = Body(...)):
     new_user = User(
         username=username,
         email=email,
-        password=get_password_hash(password)
+        password=await get_password_hash_async(password)  # async — doesn't block event loop
     )
     await new_user.insert()
     return {"msg": "User registered successfully"}
@@ -63,7 +63,7 @@ async def login(request: Request, credentials: dict = Body(...)):
         raise HTTPException(status_code=422, detail="Email and password are required")
 
     user = await User.find_one(User.email == email)
-    if not user or not verify_password(password, user.password):
+    if not user or not await verify_password_async(password, user.password):  # async verify
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     access_token = create_access_token(subject=user.id)

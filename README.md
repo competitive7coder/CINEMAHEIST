@@ -1,15 +1,17 @@
-# 🎬 CinemaHeist — OTT Movie Recommendation Platform
+# 🎬 CinemaHeist — Free OTT Movie Streaming Platform
 
 <div align="center">
 
 ![CinemaHeist](https://img.shields.io/badge/CinemaHeist-OTT%20Platform-blue?style=for-the-badge&logo=netflix&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3.13-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.104-009688?style=for-the-badge&logo=fastapi&logoColor=white)
 ![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
 ![IEEE](https://img.shields.io/badge/IEEE%20Access-Submitted-FF6B00?style=for-the-badge)
 
-**A complete Netflix-style OTT movie recommendation platform with novel temporal decay and multi-signal implicit feedback algorithms.**
+**A complete Netflix-style free OTT movie streaming platform with personalized AI recommendations, novel temporal decay, and multi-signal implicit feedback algorithms.**
+
+🌐 **Live Website**: [https://www.cinemaheist.online](https://www.cinemaheist.online)
 
 *Research paper submitted to IEEE Access*
 
@@ -21,7 +23,7 @@
 
 ## 🌟 Overview
 
-CinemaHeist is a full-stack OTT recommendation system built from scratch with a novel machine learning engine that goes beyond conventional approaches:
+CinemaHeist is a full-stack free OTT movie streaming platform built from scratch with a novel machine learning recommendation engine that goes beyond conventional approaches:
 
 - **Remembers recency** — movies added to your watchlist recently matter more than old ones
 - **Understands behavior** — watching a trailer signals different intent than just searching
@@ -268,63 +270,85 @@ C_ui = 1 + α_k × r_ui
 ### Prerequisites
 
 ```
-Python 3.13+        Node.js 18+
+Python 3.10+        Node.js 18+
 MongoDB Atlas       TMDB API key (free)
 Cloudinary account  Brevo account (free)
 ```
 
-### Backend
+### Backend Setup
 
-```bash
-git clone https://github.com/competitive7coder/streamhub_research.git
-cd streamhub_research/project-third-year
-pip install -r requirements.txt
-```
+1. **Clone the repository and enter the project folder**:
+   ```bash
+   git clone https://github.com/competitive7coder/CINEMAHEIST.git
+   cd CINEMAHEIST/project-third-year
+   ```
 
-Create `app/.env`:
+2. **Create and activate a Python virtual environment** *(Recommended)*:
+   ```bash
+   python -m venv .venv
+   # Windows:
+   .venv\Scripts\activate
+   # Linux/macOS:
+   source .venv/bin/activate
+   ```
 
-```env
-ALGORITHM=HS256
-JWT_SECRET=your_secret_here
-MONGO_URI=mongodb+srv://user:pass@cluster.mongodb.net/streamhub
-TMDB_API_KEY=your_tmdb_key
-FRONTEND_URL=http://localhost:3000
-CLIENT_URL=http://localhost:3000
-BACKEND_URL=http://localhost:8000
-CLOUDINARY_API_KEY=your_key
-CLOUDINARY_API_SECRET=your_secret
-CLOUDINARY_CLOUD_NAME=your_name
-BREVO_API_KEY=your_brevo_key
-SEND_FROM_EMAIL=your@email.com
-PORT=8000
-NODE_ENV=development
-DOCS_ENABLED=true
-SOCKET_DEBUG=false
-ML_SERVICE_URL=http://localhost:8000
-```
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-```bash
-cd project-third-year
-# Development mode:
-uvicorn app.main:app --reload --port 8000
-# Production mode (4 workers):
-# uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
+4. **Configure Environment Variables**:
+   Create a file named `app/.env` with the following variables:
+   ```env
+   ALGORITHM=HS256
+   JWT_SECRET=your_secret_here
+   MONGO_URI=mongodb+srv://user:pass@cluster.mongodb.net/cinemaheist
+   TMDB_API_KEY=your_tmdb_key
+   FRONTEND_URL=http://localhost:5173
+   CLIENT_URL=http://localhost:5173
+   BACKEND_URL=http://localhost:8000
+   CLOUDINARY_API_KEY=your_key
+   CLOUDINARY_API_SECRET=your_secret
+   CLOUDINARY_CLOUD_NAME=your_name
+   BREVO_API_KEY=your_brevo_key
+   SEND_FROM_EMAIL=your@email.com
+   PORT=8000
+   NODE_ENV=development
+   DOCS_ENABLED=true
+   SOCKET_DEBUG=false
+   ML_SERVICE_URL=http://localhost:8000
+   ```
 
-# Developer URLs:
-# Backend API: http://localhost:8000
-# API Docs: http://localhost:8000/docs
-```
+5. **Start the FastAPI Server**:
+   ```bash
+   # Development mode (auto-reload):
+   uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 
-### Frontend
+   # Production mode (high performance, 4 workers):
+   uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
+   ```
 
-```bash
-cd client/recommendation-system
-npm install
-npm start
+   - **Backend API**: `http://localhost:8000`
+   - **Interactive API Docs (Swagger)**: `http://localhost:8000/docs`
 
-# Developer URLs:
-# Frontend App: http://localhost:5173 (Default Vite port)
-```
+### Frontend Setup
+
+1. **Navigate to the frontend directory**:
+   ```bash
+   cd client/recommendation-system
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Start the Development Server**:
+   ```bash
+   npm start
+   ```
+
+   - **Frontend App**: `http://localhost:5173` (Default Vite port)
 
 ### 📱 Progressive Web App (PWA)
 

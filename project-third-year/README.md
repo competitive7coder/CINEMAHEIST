@@ -1,6 +1,8 @@
-# CinemaHeist 🎬
+# 🎬 CinemaHeist — Free OTT Movie Streaming Platform
 
-CinemaHeist is a high-tech, responsive Movie Streaming & Personalized Recommendation Platform built with a modern ASGI asynchronous backend and a clean, responsive React frontend client.
+CinemaHeist is a high-tech, responsive **Free OTT Movie Streaming & Personalized Recommendation Platform** built with a modern ASGI asynchronous backend and a clean, responsive React frontend client.
+
+🌐 **Production Website**: [https://www.cinemaheist.online](https://www.cinemaheist.online)
 
 ---
 
@@ -49,20 +51,25 @@ CinemaHeist is a high-tech, responsive Movie Streaming & Personalized Recommenda
 ## 📦 Getting Started
 
 ### 1. Backend Setup
-1. Navigate to the backend directory:
+1. Stay in (or navigate to) the project root directory (`project-third-year`).
+2. Create and activate a Python virtual environment *(Recommended)*:
    ```bash
-   cd app
+   python -m venv .venv
+   # Windows:
+   .venv\Scripts\activate
+   # Linux/macOS:
+   source .venv/bin/activate
    ```
-2. Install Python dependencies:
+3. Install Python dependencies:
    ```bash
-   pip install -r ../requirements.txt
+   pip install -r requirements.txt
    ```
-3. Set up your `.env` file (Database URI, TMDB API Key, etc.).
-4. Start the FastAPI server (Development):
+4. Set up your environment file at `app/.env` (Database URI, TMDB API Key, etc.).
+5. Start the FastAPI server (Development mode):
    ```bash
    uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
    ```
-   *To run in production with optimized concurrency (4 workers):*
+   *To run in production mode with optimized concurrency (4 workers):*
    ```bash
    uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
    ```

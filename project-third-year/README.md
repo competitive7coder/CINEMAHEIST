@@ -58,9 +58,13 @@ CinemaHeist is a high-tech, responsive Movie Streaming & Personalized Recommenda
    pip install -r ../requirements.txt
    ```
 3. Set up your `.env` file (Database URI, TMDB API Key, etc.).
-4. Start the FastAPI server:
+4. Start the FastAPI server (Development):
    ```bash
-   uvicorn app.main:app --reload
+   uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
+   ```
+   *To run in production with optimized concurrency (4 workers):*
+   ```bash
+   uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
    ```
 
 ### 2. Frontend Setup
@@ -74,5 +78,16 @@ CinemaHeist is a high-tech, responsive Movie Streaming & Personalized Recommenda
    ```
 3. Start the Vite development server:
    ```bash
-   npm run dev
+   npm start
    ```
+
+---
+
+## 🔗 Developer URLs (Local Environment)
+
+Once both servers are running, you can access the application here:
+
+- **Frontend App**: [http://localhost:5173](http://localhost:5173) (Default Vite port)
+- **Backend API**: [http://localhost:8000](http://localhost:8000)
+- **Interactive API Docs (Swagger UI)**: [http://localhost:8000/docs](http://localhost:8000/docs)
+- **Alternative API Docs (ReDoc)**: [http://localhost:8000/redoc](http://localhost:8000/redoc)

@@ -305,9 +305,14 @@ ML_SERVICE_URL=http://localhost:8000
 
 ```bash
 cd project-third-year
+# Development mode:
 uvicorn app.main:app --reload --port 8000
-# API: http://localhost:8000
-# Docs: http://localhost:8000/docs
+# Production mode (4 workers):
+# uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
+
+# Developer URLs:
+# Backend API: http://localhost:8000
+# API Docs: http://localhost:8000/docs
 ```
 
 ### Frontend
@@ -315,9 +320,10 @@ uvicorn app.main:app --reload --port 8000
 ```bash
 cd client/recommendation-system
 npm install
-echo "REACT_APP_API_URL=http://localhost:8000" > .env.development
 npm start
-# App: http://localhost:3000
+
+# Developer URLs:
+# Frontend App: http://localhost:5173 (Default Vite port)
 ```
 
 ### 📱 Progressive Web App (PWA)

@@ -31,6 +31,122 @@ CinemaHeist is a high-tech, responsive **Free OTT Movie Streaming & Personalized
 
 ---
 
+## 📁 Project Structure
+
+```
+CINEMAHEIST/
+└── project-third-year/
+    ├── README.md                         ← Project documentation
+    ├── load_test_signup.py               ← Locust signup endpoint load test script
+    ├── requirements.txt                  ← Python dependencies
+    ├── runtime.txt                       ← Python runtime version
+    ├── .gitignore
+    ├── LICENSE
+    │
+    ├── app/                              ← FastAPI Backend Application
+    │   ├── main.py                       ← FastAPI entry point & CORS configuration
+    │   ├── config.py                     ← Application settings & environment variables
+    │   ├── security.py                   ← Password hashing (async bcrypt) & JWT auth
+    │   ├── socket_manager.py             ← Socket.IO real-time event manager
+    │   │
+    │   ├── api/
+    │   │   ├── deps.py                   ← Shared API dependencies & auth guards
+    │   │   └── v1/
+    │   │       ├── api.py                ← V1 API router aggregation
+    │   │       └── endpoints/
+    │   │           ├── auth.py           ← Login, signup, token refresh & password reset
+    │   │           ├── movies.py         ← Search, movie details & AI recommendations
+    │   │           ├── users.py          ← User watchlist & profile settings
+    │   │           ├── activity.py       ← Log user interactions (4 signal types)
+    │   │           ├── profile.py        ← Avatar upload (Cloudinary) & settings
+    │   │           ├── feedback.py       ← User feedback submissions
+    │   │           ├── admin.py          ← User administration & ML model retraining triggers
+    │   │           ├── notifications.py  ← Real-time broadcasts & notification deletion
+    │   │           └── stream.py         ← Video streaming / watch modal backend
+    │   │
+    │   ├── cache/
+    │   │   └── redis.py                  ← Upstash Redis client & caching helper
+    │   │
+    │   ├── db/
+    │   │   ├── base.py                   ← Beanie ODM document model registry
+    │   │   └── session.py                ← MongoDB Atlas Motor async connection setup
+    │   │
+    │   ├── models/
+    │   │   ├── user.py                   ← User Beanie model & watchlist timestamps
+    │   │   ├── activity.py               ← Interaction log Beanie model (4 signals)
+    │   │   ├── feedback.py               ← Feedback Beanie model
+    │   │   └── notification.py           ← Notification Beanie model
+    │   │
+    │   ├── schemas/
+    │   │   ├── user.py                   ← Pydantic user request/response schemas
+    │   │   ├── token.py                  ← JWT Token response schemas
+    │   │   └── movie.py                  ← Movie payload schemas
+    │   │
+    │   ├── utils/
+    │   │   ├── email.py                  ← Brevo OTP email sender helper
+    │   │   └── cloudinary.py             ← Cloudinary image upload helper
+    │   │
+    │   └── ml/                           ← Machine Learning Engine
+    │       ├── engine.py                 ← Core hybrid recommendation engine (C1 + C2)
+    │       ├── ablation_study_v4.py      ← Reproduces Table IV ablation study
+    │       ├── sensitivity_analysis.py   ← Reproduces Table V parameter sensitivity
+    │       ├── movielens_to_streamhub.py ← MovieLens 25M dataset converter
+    │       ├── expand_dataset.py         ← TMDB 10,000 movie dataset builder
+    │       ├── enrich_movies.py          ← Movie metadata enrichment script
+    │       ├── add_language_column.py    ← Language attribute processor
+    │       ├── movies.csv                ← Fallback movie dataset
+    │       ├── movies_enriched.csv       ← Enriched 10,000 movie dataset (generated)
+    │       └── movielens/
+    │           ├── ratings.csv           ← Downloaded MovieLens ratings (623MB)
+    │           └── links.csv             ← MovieLens to TMDB mapping
+    │
+    └── client/recommendation-system/    ← React Frontend Application (Vite 5)
+        ├── src/
+        │   ├── App.js                    ← React routes & app entry layout
+        │   ├── index.js                  ← App DOM mount point
+        │   ├── services/api.js           ← Axios instance with JWT refresh interceptors
+        │   │
+        │   ├── components/
+        │   │   ├── auth/                 ← ForgotPassword, ResetPassword
+        │   │   ├── common/               ← LoadingSpinner, VideoModal
+        │   │   ├── dashboard/            ← ActivityFeed
+        │   │   ├── home/                 ← HeroSection, HeroSlider
+        │   │   ├── layout/               ← Navbar (bell dropdown), Footer, MainLayout
+        │   │   └── movie/                ← MovieCard, MovieRow, MovieDetailModal,
+        │   │                               Top10MovieCard, Top10Section, WatchMovieModal
+        │   │
+        │   ├── pages/
+        │   │   ├── HomePage.js           ← Authenticated home view
+        │   │   ├── PublicHome.js         ← Guest landing page
+        │   │   ├── Dashboard.js          ← User dashboard with SVG analytics
+        │   │   ├── SearchPage.js         ← Multi-filter movie search
+        │   │   ├── MovieDetailPage.js    ← Movie details & trailer view
+        │   │   ├── GenrePage.js          ← Genre browsing (slug URLs)
+        │   │   ├── AdminDashboard.js     ← User administration & broadcast alerts
+        │   │   ├── Login.js / Signup.js  ← Auth screens
+        │   │   ├── ProfileSettings.js    ← User profile & avatar settings
+        │   │   ├── AboutUs.js            ← About platform details
+        │   │   └── ContactUs.js          ← Contact page
+        │   │
+        │   ├── hooks/
+        │   │   └── useSEO.js             ← Custom dynamic SEO hook
+        │   │
+        │   ├── utils/
+        │   │   ├── genres.js             ← Genre ID mapping utilities
+        │   │   └── movieSlug.js          ← URL slug generator for movies
+        │   │
+        │   └── footer/
+        │       ├── Footer.js             ← Global footer layout
+        │       ├── Disclaimer.js         ← Disclaimer notice
+        │       ├── Dmca.js               ← DMCA policy
+        │       ├── FAQ.js                ← Frequently asked questions
+        │       ├── PrivacyPolicy.js      ← Privacy policy statement
+        │       ├── Termsofuse.js         ← Terms of use statement
+        │       └── CareersPage.js        ← Careers page
+```
+
+---
+
 ## 🛠️ Technology Stack
 
 ### Backend
